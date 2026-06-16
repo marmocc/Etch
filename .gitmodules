@@ -1,0 +1,3 @@
+[submodule "Clar"]
+	path = Clar
+	url = https://github.com/marmocc/Clar
