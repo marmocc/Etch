@@ -1,53 +1,86 @@
 ﻿namespace Etch;
 
-public interface IReadOnlyProperty<T> : ICoordinatable
+public interface IReadOnlyProperty<T> : IDeferrable
 {
-    event Action<T, T>? Changed;
-    T Value { get; }
+    event Action? Changed;
+    T Current { get; }
+    T Previous { get; }
+    T Deferred { get; }
 }
 
 public sealed class Property<T> : IReadOnlyProperty<T>
 {
-    private T _value;
-    private T _pending;
+    private bool _bound;
+    
+    private T _deferred;
     private bool _dirty;
 
-    public event Action<T, T>? Changed;
+    private T _current;
+    private T _previous;
 
-    public Coordinator Coordinator { get; }
-    public T Value
+    public event Action? Changed;
+    public Deferrer Deferrer { get; }
+
+    public bool IsBound => _bound;
+
+    public T Current => _current;
+    public T Previous => _previous;
+    public T Deferred
     {
-        get { return _value; }
-        set { Set(value); }
+        get => _deferred;
+        set => DeferredSet(value);
     }
 
-    internal Property(Coordinator coordinator, T value)
+    internal Property(Deferrer deferrer, T value)
     {
-        Coordinator = coordinator;
-
-        _pending = default!;
-        _value = value;
+        Deferrer = deferrer;
+        _deferred = value;
+        _current = value;
+        _previous = value;
     }
 
-    private void Set(T value)
+    private void DeferredSet(T value)
     {
-        if (EqualityComparer<T>.Default.Equals(_value, value)) return;
+        if (_bound) throw new InvalidOperationException("Cannot deferredly set a bound Property.");
 
-        if (!_dirty)
-        {
-            _pending = _value;
-            _dirty = true;
-            Coordinator.Invalidate(this);
-        }
+        if (EqualityComparer<T>.Default.Equals(_deferred, value)) return;
+        _deferred = value;
 
-        _value = value;
+        if (_dirty) return;
+        _dirty = true;
+        Deferrer.Invalidate(this);
     }
 
-    public void Deliver()
+    private void CurrentSet(T value)
+    {
+        if (EqualityComparer<T>.Default.Equals(_current, value)) return;
+        _previous = _current;
+        _current = value;
+        Changed?.Invoke();
+    }
+
+    public Cleanup Bind(IReadOnlyProperty<T> source)
+    {
+        if (_bound) throw new InvalidOperationException("Cannot bind a bound Property.");
+
+        _bound = true;
+        _dirty = false;
+        void OnSourceChanged() => CurrentSet(source.Current);
+        source.Changed += OnSourceChanged;
+        _current = source.Current;
+
+        return new Cleanup(() => {
+            source.Changed -= OnSourceChanged;
+            _bound = false;
+        });
+    }
+
+    public void Commit()
     {
         if(!_dirty) return;
         _dirty = false;
-        if(!EqualityComparer<T>.Default.Equals(_pending, _value))
-            Changed?.Invoke(_pending, _value);
+        if (EqualityComparer<T>.Default.Equals(_current, _deferred)) return;
+        CurrentSet(_deferred);
+        Changed?.Invoke();
     }
 }
