@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="Etch.csproj" />
+  <Project Path="Etch.Platform/Etch.Platform.csproj" />
+  <Project Path="Etch.Testing/Etch.Testing.csproj" />
+  <Project Path="Etch.Signals/Etch.Signals.csproj" />
 </Solution>
