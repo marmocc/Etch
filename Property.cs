@@ -59,15 +59,21 @@ public sealed class Property<T> : IReadOnlyProperty<T>
         Changed?.Invoke();
     }
 
+    private void BoundSet(T value)
+    {
+        CurrentSet(value);
+        _deferred = _current;
+    }
+
     public Cleanup Bind(IReadOnlyProperty<T> source)
     {
         if (_bound) throw new InvalidOperationException("Cannot bind a bound Property.");
 
         _bound = true;
         _dirty = false;
-        void OnSourceChanged() => CurrentSet(source.Current);
+        void OnSourceChanged() => BoundSet(source.Current);
         source.Changed += OnSourceChanged;
-        _current = source.Current;
+        BoundSet(source.Current);
 
         return new Cleanup(() => {
             source.Changed -= OnSourceChanged;
@@ -81,6 +87,5 @@ public sealed class Property<T> : IReadOnlyProperty<T>
         _dirty = false;
         if (EqualityComparer<T>.Default.Equals(_current, _deferred)) return;
         CurrentSet(_deferred);
-        Changed?.Invoke();
     }
 }
