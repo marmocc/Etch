@@ -1,7 +1,7 @@
 ﻿using Etch.Platform.SkiaOnSilk;
 using Etch.Platform;
 
-var window = new SilkWindow("Test Window", 800, 600);
+var window = new SilkWindow("Etch Demo", 800, 600);
 window.Rendering += context =>
 {
     context.Clear(new Color(255, 255, 255, 255));
