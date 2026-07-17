@@ -1,4 +1,4 @@
-﻿using Etch;
+﻿namespace Etch;
 
 public sealed class Combiner<T, A, B> : IReadOnlyProperty<T>, IDisposable
 {
