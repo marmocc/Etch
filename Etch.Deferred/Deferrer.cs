@@ -1,4 +1,4 @@
-﻿namespace Etch;
+﻿namespace Etch.Deferred;
 
 public interface IDeferrable
 {
@@ -11,7 +11,6 @@ public sealed class Deferrer
     private readonly Queue<IDeferrable> _pendingQueue = new();
     private readonly HashSet<IDeferrable> _pendingSet = new();
 
-    public static Deferrer Default { get; } = new();
     public Property<T> Property<T>(T value)
     {
         var property = new Property<T>(this, value);

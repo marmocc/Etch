@@ -12,6 +12,7 @@ public sealed class SilkWindow : IWindow<SkiaContext>
     private GRContext? _grContext;
     private SKSurface? _surface;
     private bool _needsRender = true;
+    private bool _disposed = false;
 
     public Float2 Size => new(_window.Size.X, _window.Size.Y);
 
@@ -80,6 +81,9 @@ public sealed class SilkWindow : IWindow<SkiaContext>
 
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+
         _surface?.Dispose();
         _grContext?.Dispose();
         _window.Dispose();

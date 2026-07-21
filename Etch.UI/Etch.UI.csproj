@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Etch.Platform\Etch.Platform.csproj" />
+	<ProjectReference Include="..\Etch.Platform\Etch.Platform.csproj" />
+    <ProjectReference Include="..\Etch.Deferred\Etch.Deferred.csproj" />
   </ItemGroup>
 
 </Project>

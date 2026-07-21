@@ -1,4 +1,4 @@
-﻿namespace Etch;
+﻿namespace Etch.Deferred;
 
 public sealed class Combiner<T, A, B> : IReadOnlyProperty<T>, IDisposable
 {

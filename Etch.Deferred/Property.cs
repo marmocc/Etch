@@ -1,4 +1,4 @@
-﻿namespace Etch;
+﻿namespace Etch.Deferred;
 
 public interface IReadOnlyProperty<T> : IDeferrable
 {
