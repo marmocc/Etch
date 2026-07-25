@@ -9,3 +9,5 @@ It is also **reactive** and **event-driven**, meaning dirty tracking doesn't hap
 - [ ] Combiner (or any other system to bind to multiple source Property)
 - [X] Skia on Silk.NET platform (cross-platform backend)
 - [ ] Widgets (that are actually useful, rather than a red box)
+- [ ] Layouts (expressed with Property relationships through binding)
+- [ ] Input handling
