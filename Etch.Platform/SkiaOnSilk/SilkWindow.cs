@@ -1,4 +1,5 @@
-﻿using Silk.NET.Windowing;
+﻿using Etch.Primitives;
+using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
 using Silk.NET.Maths;
 using SkiaSharp;

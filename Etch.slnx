@@ -2,5 +2,6 @@
   <Project Path="Etch.Demo/Etch.Demo.csproj" />
   <Project Path="Etch.Platform/Etch.Platform.csproj" />
   <Project Path="Etch.Deferred/Etch.Deferred.csproj" />
+  <Project Path="Etch.Primitives/Etch.Primitives.csproj" Id="27a150af-425f-48a2-afe7-718b8c5ea6dc" />
   <Project Path="Etch.UI/Etch.UI.csproj" />
 </Solution>

@@ -1,4 +1,4 @@
-﻿namespace Etch.Platform;
+﻿namespace Etch.Primitives;
 
 public readonly record struct Rect(Float2 Position, Float2 Size)
 {

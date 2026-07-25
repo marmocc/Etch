@@ -1,16 +1,8 @@
 ﻿namespace Etch.Deferred;
 
-public interface IReadOnlyProperty<T> : IDeferrable
+public sealed class Property<T> : IReadOnlyProperty<T>, IDisposable
 {
-    event Action? Changed;
-    T Current { get; }
-    T Previous { get; }
-    T Deferred { get; }
-}
-
-public sealed class Property<T> : IReadOnlyProperty<T>
-{
-    private bool _bound;
+    private Action? _unbind;
     
     private T _deferred;
     private bool _dirty;
@@ -21,7 +13,7 @@ public sealed class Property<T> : IReadOnlyProperty<T>
     public event Action? Changed;
     public Deferrer Deferrer { get; }
 
-    public bool IsBound => _bound;
+    public bool IsBound => _unbind != null;
 
     public T Current => _current;
     public T Previous => _previous;
@@ -41,7 +33,7 @@ public sealed class Property<T> : IReadOnlyProperty<T>
 
     private void DeferredSet(T value)
     {
-        if (_bound) throw new InvalidOperationException("Cannot deferredly set a bound Property.");
+        if (IsBound) throw new InvalidOperationException("Cannot deferredly set a bound Property.");
 
         if (EqualityComparer<T>.Default.Equals(_deferred, value)) return;
         _deferred = value;
@@ -65,20 +57,24 @@ public sealed class Property<T> : IReadOnlyProperty<T>
         _deferred = _current;
     }
 
-    public Cleanup Bind(IReadOnlyProperty<T> source)
+    public void Bind(IReadOnlyProperty<T> source)
     {
-        if (_bound) throw new InvalidOperationException("Cannot bind a bound Property.");
+        if (IsBound) throw new InvalidOperationException("Cannot bind a bound Property.");
 
-        _bound = true;
         _dirty = false;
         void OnSourceChanged() => BoundSet(source.Current);
         source.Changed += OnSourceChanged;
         BoundSet(source.Current);
-
-        return new Cleanup(() => {
+        _unbind = () => {
             source.Changed -= OnSourceChanged;
-            _bound = false;
-        });
+            _unbind = null;
+        };
+    }
+
+    public void Unbind()
+    {
+        if (!IsBound) throw new InvalidOperationException("Cannot unbind an unbound Property.");
+        _unbind?.Invoke();
     }
 
     public void Commit()
@@ -88,4 +84,6 @@ public sealed class Property<T> : IReadOnlyProperty<T>
         if (EqualityComparer<T>.Default.Equals(_current, _deferred)) return;
         CurrentSet(_deferred);
     }
+
+    public void Dispose() => Unbind();
 }

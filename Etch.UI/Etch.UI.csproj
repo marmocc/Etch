@@ -9,6 +9,7 @@
   <ItemGroup>
 	<ProjectReference Include="..\Etch.Platform\Etch.Platform.csproj" />
     <ProjectReference Include="..\Etch.Deferred\Etch.Deferred.csproj" />
+    <ProjectReference Include="..\Etch.Primitives\Etch.Primitives.csproj" />
   </ItemGroup>
 
 </Project>

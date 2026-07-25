@@ -12,14 +12,12 @@ public sealed class Etcher<TContext, TWindow> : IDisposable
     private readonly List<IWidget> _widgets = new();
     private readonly ConcurrentQueue<Action> _posted = new();
     private readonly TWindow _window;
-    private readonly Thread _thread;
     private bool _disposed;
 
     internal Etcher(TWindow window)
     {
         _window = window;
         _window.Rendering += OnRendering;
-        _thread = new(_window.Run) { IsBackground = false, Name = "Etch UI Thread" };
     }
 
     public List<IWidget> Widgets => _widgets;
@@ -38,7 +36,7 @@ public sealed class Etcher<TContext, TWindow> : IDisposable
         _window.Invalidate();
     }
 
-    public void Run() => _thread?.Start();
+    public void Run() => _window?.Run();
 
     private void OnRendering(TContext context)
     {
@@ -59,7 +57,6 @@ public sealed class Etcher<TContext, TWindow> : IDisposable
         _disposed = true;
 
         _window.Close();
-        _thread?.Join();
         _window.Dispose();
     }
 }

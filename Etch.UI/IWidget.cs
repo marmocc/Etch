@@ -2,6 +2,7 @@
 
 using Etch.Platform;
 using Etch.Deferred;
+using Etch.Primitives;
 
 public interface IWidget
 {

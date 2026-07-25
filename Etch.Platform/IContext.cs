@@ -1,4 +1,6 @@
-﻿namespace Etch.Platform;
+﻿using Etch.Primitives;
+
+namespace Etch.Platform;
 
 public interface IContext
 {

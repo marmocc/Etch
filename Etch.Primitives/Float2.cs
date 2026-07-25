@@ -1,4 +1,4 @@
-﻿namespace Etch.Platform;
+﻿namespace Etch.Primitives;
 
 public readonly record struct Float2(float X, float Y)
 {

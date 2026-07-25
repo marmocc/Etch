@@ -11,4 +11,8 @@
     <PackageReference Include="SkiaSharp" Version="4.150.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Etch.Primitives\Etch.Primitives.csproj" />
+  </ItemGroup>
+
 </Project>

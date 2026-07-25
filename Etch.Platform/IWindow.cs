@@ -1,4 +1,6 @@
-﻿namespace Etch.Platform;
+﻿using Etch.Primitives;
+
+namespace Etch.Platform;
 
 public delegate void Renderer<TContext>(TContext context) where TContext : IContext, allows ref struct;
 public interface IWindow<TContext> : IDisposable where TContext : IContext, allows ref struct
