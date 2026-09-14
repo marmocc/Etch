@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Etch.Common/Etch.Common.csproj" />
+  <Project Path="Etch.Terminal/Etch.Terminal.csproj" />
   <Project Path="Etch.Demo/Etch.Demo.csproj" />
-  <Project Path="Etch.GL/Etch.GL.csproj" />
 </Solution>

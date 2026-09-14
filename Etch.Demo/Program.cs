@@ -1,1 +1,4 @@
-﻿Console.WriteLine("Hello, World!");
+﻿using Etch.Terminal;
+using Etch.Common;
+
+Console.GetContext().Clear(Color.Black);
