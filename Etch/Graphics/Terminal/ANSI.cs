@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Text;
+using System.Text;
 
 namespace Etch.Graphics.Terminal;
 
@@ -70,5 +71,19 @@ public static class ANSI
         buffer[written++] = (byte)'2';
         buffer[written++] = (byte)'J';
         writer.Advance(written);
+    }
+
+    public static void Write(ArrayBufferWriter<byte> writer, char character)
+    {
+        Span<byte> buffer = writer.GetSpan(1);
+        buffer[0] = (byte)character;
+        writer.Advance(1);
+    }
+
+    public static void NewLine(ArrayBufferWriter<byte> writer)
+    {
+        Span<byte> buffer = writer.GetSpan(1);
+        buffer[0] = (byte)'\n';
+        writer.Advance(1);
     }
 }

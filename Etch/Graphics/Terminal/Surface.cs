@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using Etch.Geometry;
+using System.Buffers;
 namespace Etch.Graphics.Terminal;
 
 public sealed class Surface : ISurface<Context>
@@ -17,7 +18,7 @@ public sealed class Surface : ISurface<Context>
 
     }
 
-    public void Flush()
+    public void Present()
     {
         Stream.Write(_writer.WrittenSpan);
         _writer.Clear();
