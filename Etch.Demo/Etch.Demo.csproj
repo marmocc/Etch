@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Etch.Common\Etch.Common.csproj" />
-    <ProjectReference Include="..\Etch.Terminal\Etch.Terminal.csproj" />
+    <ProjectReference Include="..\Etch\Etch.csproj" />
   </ItemGroup>
 
 </Project>
