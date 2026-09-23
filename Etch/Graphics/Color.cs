@@ -1,8 +1,12 @@
-﻿namespace Etch.Graphics;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
+namespace Etch.Graphics;
+
+[StructLayout(LayoutKind.Sequential)]
 public readonly struct Color : IEquatable<Color>
 {
-    public readonly byte R, G, B, A;
+    public readonly byte R, G, B, A; // Amounts to uint
     public readonly byte Density;
     public static readonly byte[] Ramp = [32, 46, 58, 45, 61, 43, 42, 35, 37, 64]; // " .:-=+*#%@"
 
@@ -26,7 +30,8 @@ public readonly struct Color : IEquatable<Color>
     public Color WithAlpha(byte alpha) => new(R, G, B, alpha);
 
     public bool Equals(Color other) =>
-        R == other.R && G == other.G && B == other.B && A == other.A;
+        Unsafe.As<Color, uint>(ref Unsafe.AsRef(in this)) ==
+        Unsafe.As<Color, uint>(ref Unsafe.AsRef(in other));
     public override bool Equals(object? obj) =>
         obj is Color color && Equals(color);
     public static bool operator ==(Color left, Color right) => left.Equals(right);
