@@ -4,18 +4,13 @@ using System.Runtime.InteropServices;
 namespace Etch.Graphics;
 
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Color : IEquatable<Color>
+public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<Color>
 {
-    public readonly byte R, G, B, A; // Amounts to uint
-    public readonly byte Density;
-    public static readonly byte[] Ramp = [32, 46, 58, 45, 61, 43, 42, 35, 37, 64]; // " .:-=+*#%@"
+    public readonly byte R = r, G = g, B = b, A = a; // Fits into a uint
 
-    public Color(byte r, byte g, byte b, byte a = 255)
-    {
-        R = r; G = g; B = b; A = a;
-        float luminance = (0.2126f * R + 0.7152f * G + 0.0722f * B) / 255f;
-        Density = Ramp[Math.Clamp((int)(luminance * Ramp.Length), 0, Ramp.Length - 1)];
-    }
+    public float Luminance => (0.2126f * R + 0.7152f * G + 0.0722f * B) / 255f;
+    public static readonly byte[] Ramp = [32, 46, 58, 45, 61, 43, 42, 35, 37, 64]; // " .:-=+*#%@"
+    public byte Density => Ramp[Math.Clamp((int)(Luminance * Ramp.Length), 0, Ramp.Length - 1)];
 
     public static Color Transparent => new(0, 0, 0, 0);
     public static Color White => new(255, 255, 255, 255);
