@@ -13,12 +13,9 @@ public class Matrix<T>(int width, int height) : IEquatable<Matrix<T>> where T : 
     public bool Equals(Matrix<T>? other)
     {
         if (other is null) return false;
-
-        int count = 0;
         for (int i = 0; i < Length; i++)
-            if (!this[i].Equals(other[i])) count++;
-
-        return count == 0;
+            if (!this[i].Equals(other[i])) return false;
+        return true;
     }
 
     public int To1D(int x, int y) => y * Width + x;
