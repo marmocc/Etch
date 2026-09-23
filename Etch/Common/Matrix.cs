@@ -1,6 +1,6 @@
-﻿namespace Etch.Buffers;
+﻿namespace Etch.Common;
 
-public readonly struct Matrix<T>(int width, int height)
+public class Matrix<T>(int width, int height)
 {
     private readonly T[] _data = new T[width * height];
 
@@ -8,8 +8,8 @@ public readonly struct Matrix<T>(int width, int height)
     public int Height { get; } = height;
     public int Length => _data.Length;
 
-    public Matrix(int width, int height, T defaultValue) : 
-        this(width, height) => Array.Fill(_data, defaultValue);
+    public Matrix(int width, int height, T fill) : 
+        this(width, height) => _data.AsSpan().Fill(fill);
 
     public int To1D(int x, int y) => y * Width + x;
     public int To1D((int, int) position) => position switch { var (x, y) => To1D(x, y) };

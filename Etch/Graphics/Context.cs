@@ -1,38 +1,33 @@
-﻿using Etch.Buffers;
+﻿using Etch.Common;
 using Etch.Geometry;
 
-namespace Etch.Graphics.Grid;
+namespace Etch.Graphics;
 
-public readonly ref struct Context(Matrix<Cell> cells) : IContext
+public readonly ref struct Context(Matrix<Color> frame) : IContext
 {
-    private readonly Matrix<Cell> _cells = cells;
-
-    public void Clear(Color fill) => _cells[..].Fill(new Cell(fill, ' '));
     public void Plot(Vector2<int> position, Color color)
     {
-        bool isInBoundsX = position.X >= 0 && position.X < _cells.Width;
-        bool isInBoundsY = position.Y >= 0 && position.Y < _cells.Height;
+        bool isInBoundsX = position.X >= 0 && position.X < frame.Width;
+        bool isInBoundsY = position.Y >= 0 && position.Y < frame.Height;
+        if (!(isInBoundsX && isInBoundsY)) return;
 
-        if (isInBoundsX && isInBoundsY)
-            _cells[position] = Cell.Blend(_cells[position], new Cell(color));
+        frame[position] = Color.Blend(frame[position], color);
     }
 
     public void Rectangle(Rectangle2D<int> rectangle, Color color)
     {
         int xStart = Math.Max(0, rectangle.Position.X);
         int yStart = Math.Max(0, rectangle.Position.Y);
-        int xEnd = Math.Min(_cells.Width, rectangle.Position.X + rectangle.Size.X);
-        int yEnd = Math.Min(_cells.Height, rectangle.Position.Y + rectangle.Size.Y);
-
+        int xEnd = Math.Min(frame.Width, rectangle.Position.X + rectangle.Size.X);
+        int yEnd = Math.Min(frame.Height, rectangle.Position.Y + rectangle.Size.Y);
         if (xStart >= xEnd || yStart >= yEnd) return;
 
         int width = xEnd - xStart;
-        Cell fillCell = new(color);
 
         for (int y = yStart; y < yEnd; y++)
         {
-            int start1D = _cells.To1D(xStart, y);
-            _cells[start1D..(start1D + width)].Fill(fillCell);
+            int start1D = frame.To1D(xStart, y);
+            frame[start1D..(start1D + width)].Fill(color);
         }
     }
 
@@ -65,11 +60,10 @@ public readonly ref struct Context(Matrix<Cell> cells) : IContext
     {
         var bounds = triangle.Bounds;
         int minX = Math.Max(0, bounds.Position.X);
-        int maxX = Math.Min(_cells.Width - 1, bounds.Position.X + bounds.Size.X);
+        int maxX = Math.Min(frame.Width - 1, bounds.Position.X + bounds.Size.X);
         int minY = Math.Max(0, bounds.Position.Y);
-        int maxY = Math.Min(_cells.Height - 1, bounds.Position.Y + bounds.Size.Y);
+        int maxY = Math.Min(frame.Height - 1, bounds.Position.Y + bounds.Size.Y);
 
-        Cell fillCell = new(color);
         for(int y = minY; y <= maxY; y++)
         {
             int scanlineStart = -1;
@@ -87,27 +81,10 @@ public readonly ref struct Context(Matrix<Cell> cells) : IContext
 
             if (scanlineStart != -1)
             {
-                int start1D = _cells.To1D(scanlineStart, y);
+                int start1D = frame.To1D(scanlineStart, y);
                 int length = (scanlineEnd - scanlineStart) + 1;
-                _cells[start1D..(start1D + length)].Fill(fillCell);
+                frame[start1D..(start1D + length)].Fill(color);
             }
         }
-    }
-
-    public void Write(Vector2<int> position, ReadOnlySpan<char> text, Color color)
-    {
-        if (position.Y < 0 || position.Y >= _cells.Height || position.X >= _cells.Width) return;
-
-        int xStart = Math.Max(0, position.X);
-        int textOffset = xStart - position.X;
-        int printLength = Math.Min(text.Length - textOffset, _cells.Width - xStart);
-
-        if (printLength <= 0) return;
-
-        int start1D = _cells.To1D(xStart, position.Y);
-        Span<Cell> targetRowSlice = _cells[start1D..(start1D + printLength)];
-
-        for (int i = 0; i < printLength; i++)
-            targetRowSlice[i] = new Cell(color, text[textOffset + i]);
     }
 }

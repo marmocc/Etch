@@ -2,7 +2,7 @@
 using System.Buffers.Text;
 using System.Text;
 
-namespace Etch.Graphics.Terminal;
+namespace Etch.Graphics;
 
 public static class ANSI
 {
@@ -73,11 +73,19 @@ public static class ANSI
         writer.Advance(written);
     }
 
-    public static void Write(ArrayBufferWriter<byte> writer, char character)
+    public static void Write(ArrayBufferWriter<byte> writer, byte value)
     {
         Span<byte> buffer = writer.GetSpan(1);
-        buffer[0] = (byte)character;
+        buffer[0] = value;
         writer.Advance(1);
+    }
+
+    public static void Write(ArrayBufferWriter<byte> writer, ReadOnlySpan<char> text)
+    {
+        int maxByteCount = Encoding.UTF8.GetMaxByteCount(text.Length);
+        Span<byte> buffer = writer.GetSpan(maxByteCount);
+        int bytesWritten = Encoding.UTF8.GetBytes(text, buffer);
+        writer.Advance(bytesWritten);
     }
 
     public static void NewLine(ArrayBufferWriter<byte> writer)

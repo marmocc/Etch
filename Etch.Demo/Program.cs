@@ -1,13 +1,11 @@
-﻿using System.Diagnostics;
-using Etch.Geometry;
+﻿using Etch.Geometry;
 using Etch.Graphics;
-using Etch.Graphics.Grid;
+using System.Diagnostics;
 
 const int width = 80;
 const int height = 40;
 
 var surface = new Surface(new Vector2<int>(width, height));
-var context = surface.Context;
 
 var stopwatch = Stopwatch.StartNew();
 double time = 0;
@@ -16,7 +14,7 @@ double fpsTimer = 0;
 double fps = 0;
 
 Vector2<int> center = new(width / 2, height / 2);
-const int orbiterCount = 100;
+const int orbiterCount = 6;
 
 var rng = new Random(1);
 var starPositions = new (int x, int y, byte brightness)[150];
@@ -25,6 +23,8 @@ for (int i = 0; i < starPositions.Length; i++)
 
 while (true)
 {
+    var context = surface.Context;
+
     double deltaTime = stopwatch.Elapsed.TotalSeconds;
     stopwatch.Restart();
     time += deltaTime;
@@ -32,8 +32,6 @@ while (true)
     fpsTimer += deltaTime;
     frameCount++;
     if (fpsTimer >= 0.5) { fps = frameCount / fpsTimer; frameCount = 0; fpsTimer = 0; }
-
-    context.Clear(new Color(8, 8, 16));
 
     // Static starfield background
     foreach (var (x, y, b) in starPositions)
@@ -55,7 +53,8 @@ while (true)
         context.Plot(pos, new Color(255, (byte)(255 - i * 30), 0));
     }
 
-    context.Write(new Vector2<int>(1, 1), $"FPS: {fps:F1}  t={time:F1}s", Color.White);
-
     surface.Present();
+
+    Console.SetCursorPosition(0, height);
+    Console.Write($"FPS: {fps:F1}");
 }
