@@ -1,4 +1,6 @@
-﻿namespace Etch.Graphics;
+﻿using System.Runtime.InteropServices;
+
+namespace Etch.Graphics;
 
 public class Frame(int width, int height) : IEquatable<Frame>
 {
@@ -13,9 +15,8 @@ public class Frame(int width, int height) : IEquatable<Frame>
     public bool Equals(Frame? other)
     {
         if (other is null) return false;
-        for (int i = 0; i < Length; i++)
-            if (!this[i].Equals(other[i])) return false;
-        return true;
+        return MemoryMarshal.Cast<Color, uint>(this._data)
+            .SequenceEqual(MemoryMarshal.Cast<Color, uint>(other._data));
     }
 
     public int To1D(int x, int y) => y * Width + x;
@@ -37,9 +38,22 @@ public class Frame(int width, int height) : IEquatable<Frame>
     public int Diff(Frame other, Span<Delta> deltas)
     {
         int count = 0;
-        for (int i = 0; i < Length; i++)
-            if (!this[i].Equals(other[i]))
-                deltas[count++] = new Delta(i, this[i]);
+        for (int y = 0; y < Height; y++)
+        {
+            Span<Color> currentRow = this[(0, y), Width];
+            Span<Color> previousRow = other[(0, y), Width];
+            Span<uint> currentRowAsUint = MemoryMarshal.Cast<Color, uint>(currentRow);
+            Span<uint> previousRowAsUint = MemoryMarshal.Cast<Color, uint>(previousRow);
+            if (currentRowAsUint.SequenceEqual(previousRowAsUint)) continue;
+
+            int rowStart = To1D(0, y);
+            for (int x = 0; x < Width; x++)
+            {
+                int i = rowStart + x;
+                if (!this[i].Equals(other[i]))
+                    deltas[count++] = new Delta(i, this[i]);
+            }
+        }
         return count;
     }
 
