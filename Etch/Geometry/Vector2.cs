@@ -8,8 +8,7 @@ public readonly struct Vector2<T>(T x, T y) :
     IMultiplyOperators<Vector2<T>, T, Vector2<T>>,
     IEquatable<Vector2<T>> where T : INumber<T>
 {
-    public readonly T X = x;
-    public readonly T Y = y;
+    public readonly T X = x, Y = y;
 
     // Equality and comparison
     public bool Equals(Vector2<T> other) => X.Equals(other.X) && Y.Equals(other.Y);

@@ -8,9 +8,7 @@ public readonly struct Vector3<T>(T x, T y, T z) :
     IMultiplyOperators<Vector3<T>, T, Vector3<T>>,
     IEquatable<Vector3<T>> where T : INumber<T>
 {
-    public readonly T X = x;
-    public readonly T Y = y;
-    public readonly T Z = z;
+    public readonly T X = x, Y = y, Z = z;
 
     // Equality and comparison
     public bool Equals(Vector3<T> other) => X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
