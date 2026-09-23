@@ -73,6 +73,18 @@ public static class ANSI
         writer.Advance(written);
     }
 
+    public static void Reset(ArrayBufferWriter<byte> writer)
+    {
+        Span<byte> buffer = writer.GetSpan(8);
+        int written = 0;
+
+        buffer[written++] = 0x1B; // ESC
+        buffer[written++] = (byte)'[';
+        buffer[written++] = (byte)'0';
+        buffer[written++] = (byte)'m';
+        writer.Advance(written);
+    }
+
     public static void Write(ArrayBufferWriter<byte> writer, byte value)
     {
         Span<byte> buffer = writer.GetSpan(1);
