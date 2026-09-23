@@ -1,9 +1,8 @@
-﻿using Etch.Common;
-using Etch.Geometry;
+﻿using Etch.Geometry;
 
 namespace Etch.Graphics;
 
-public readonly ref struct Context(Matrix<Color> frame) : IContext
+public readonly ref struct Context(Frame frame) : IContext
 {
     public void Plot(Vector2<int> position, Color color)
     {
