@@ -21,7 +21,4 @@ public class ColorBenchmarks
 
     [Benchmark]
     public Color Blend() => Color.Blend(_color1, _color2);
-    
-    [Benchmark]
-    public byte Density() => _color1.Density;
 }

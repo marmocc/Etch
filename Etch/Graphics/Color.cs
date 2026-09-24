@@ -3,22 +3,15 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Graphics;
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
+[StructLayout(LayoutKind.Explicit, Size = 4)]
 public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<Color>
 {
-    public readonly byte R = r, G = g, B = b, A = a; // Fits into a uint
+    [FieldOffset(0)] public readonly byte R = r;
+    [FieldOffset(1)] public readonly byte G = g;
+    [FieldOffset(2)] public readonly byte B = b;
+    [FieldOffset(3)] public readonly byte A = a;
 
-    public readonly byte Density
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get
-        {
-            ReadOnlySpan<byte> ramp = " .:-=+*#%@"u8;
-            int index = (8 * R + 26 * G + 3 * B) >> 10;
-            if ((uint)index >= 10) index = 9;
-            return ramp[index];
-        }
-    }
+    [FieldOffset(0)] public readonly uint RGBA;
 
     public static Color Transparent => new(0, 0, 0, 0);
     public static Color White => new(255, 255, 255, 255);
@@ -33,14 +26,11 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     public Color WithAlpha(byte alpha) => new(R, G, B, alpha);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(Color other) =>
-        Unsafe.As<Color, uint>(ref Unsafe.AsRef(in this)) ==
-        Unsafe.As<Color, uint>(ref Unsafe.AsRef(in other));
-    public override bool Equals(object? obj) =>
-        obj is Color color && Equals(color);
+    public bool Equals(Color other) => this.RGBA == other.RGBA;
+    public override bool Equals(object? obj) => obj is Color color && Equals(color);
     public static bool operator ==(Color left, Color right) => left.Equals(right);
     public static bool operator !=(Color left, Color right) => !(left == right);
-    public override int GetHashCode() => (int)Unsafe.As<Color, uint>(ref Unsafe.AsRef(in this));
+    public override int GetHashCode() => (int)this.RGBA;
     public override string ToString() => $"({R},{G},{B},{A})";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
