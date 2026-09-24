@@ -16,7 +16,7 @@ using System.Diagnostics;
 //   dotnet run -- shapes 120 50 1000
 //   dotnet run -- sparse 200 60
 
-string mode = args.Length > 0 ? args[0] : "orbiters";
+string mode = args.Length > 0 ? args[0] : "chaos";
 int width = args.Length > 1 ? int.Parse(args[1]) : 80;
 int height = args.Length > 2 ? int.Parse(args[2]) : 40;
 int param = args.Length > 3 ? int.Parse(args[3]) : -1;
