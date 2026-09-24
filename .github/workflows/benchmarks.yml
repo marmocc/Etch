@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "Other Ref/SHA to benchmark against master"
+        description: "Other ref/SHA to benchmark against master"
         required: true
         type: string
 
@@ -32,7 +32,7 @@ jobs:
         run: |
           dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
-            --exporters csv \
+            --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/master
 
       - name: Checkout other
@@ -43,7 +43,7 @@ jobs:
         run: |
           dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
-            --exporters csv \
+            --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/other
 
       - name: Write results to job summary
@@ -51,29 +51,17 @@ jobs:
         run: |
           {
             echo "## master results"
-            if compgen -G "BenchmarkDotNet.Artifacts/master/results/*.csv" > /dev/null; then
-              echo '```csv'
-              cat BenchmarkDotNet.Artifacts/master/results/*.csv
-              echo '```'
+            if compgen -G "BenchmarkDotNet.Artifacts/master/results/*.md" > /dev/null; then
+              cat BenchmarkDotNet.Artifacts/master/results/*.md
             else
-              echo "_No results (benchmark run did not produce CSV output)._"
+              echo "_No results._"
             fi
+
             echo ""
             echo "## other results"
-            if compgen -G "BenchmarkDotNet.Artifacts/other/results/*.csv" > /dev/null; then
-              echo '```csv'
-              cat BenchmarkDotNet.Artifacts/other/results/*.csv
-              echo '```'
+            if compgen -G "BenchmarkDotNet.Artifacts/other/results/*.md" > /dev/null; then
+              cat BenchmarkDotNet.Artifacts/other/results/*.md
             else
-              echo "_No results (Etch.Benchmarks project not present on this ref, or run failed)._"
+              echo "_No results._"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results
-          path: |
-            BenchmarkDotNet.Artifacts/master/results/*.csv
-            BenchmarkDotNet.Artifacts/other/results/*.csv
-          retention-days: 30
