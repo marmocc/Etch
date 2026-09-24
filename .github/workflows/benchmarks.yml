@@ -1,0 +1,67 @@
+name: Benchmarks
+
+on:
+  pull_request:
+    paths:
+      - "Etch/**"
+      - "Etch.Benchmarks/**"
+      - ".github/workflows/benchmarks.yml"
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Checkout master
+        run: |
+          git fetch origin master
+          git checkout origin/master
+
+      - name: Run benchmarks on master
+        run: |
+          dotnet run --project Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters csv \
+            --artifacts ./BenchmarkDotNet.Artifacts/main
+          
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run benchmarks on pull request
+        run: |
+          dotnet run --project Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters csv \
+            --artifacts ./BenchmarkDotNet.Artifacts/pr-head
+
+      - name: Write results to job summary
+        if: always()
+        run: |
+          {
+            echo "## PR head results"
+            echo '```csv'
+            cat BenchmarkDotNet.Artifacts/pr-head/results/*.csv
+            echo '```'
+            echo ""
+            echo "## main results"
+            echo '```csv'
+            cat BenchmarkDotNet.Artifacts/main/results/*.csv
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            BenchmarkDotNet.Artifacts/pr-head/results/*.csv
+            BenchmarkDotNet.Artifacts/main/results/*.csv
+          retention-days: 30
