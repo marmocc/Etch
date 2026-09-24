@@ -4,7 +4,7 @@ using System.Diagnostics;
 int width = args.Length > 0 ? int.Parse(args[0]) : 80;
 int height = args.Length > 1 ? int.Parse(args[1]) : 40;
 
-var surface = new Surface(width, height);
+var surface = new Surface(width, height, Console.OpenStandardOutput());
 
 var drawStopwatch = new Stopwatch();
 var presentStopwatch = new Stopwatch();

@@ -1,19 +1,20 @@
 ﻿using System.Buffers;
-using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace Etch.Graphics;
 
-public sealed class Surface(int width, int height)
+public sealed class Surface(int width, int height, Stream stream)
 {
+    private readonly Stream _stream = stream;
+    private readonly ArrayBufferWriter<byte> _output = new(8192);
     private readonly Frame _current = new(width, height, Color.Transparent);
     private readonly Frame _previous = new(width, height, Color.Transparent);
     private readonly Frame.Delta[] _deltas = new Frame.Delta[width * height];
-    private readonly Stream _stream = Console.OpenStandardOutput();
-    private readonly ArrayBufferWriter<byte> _output = new(8192);
 
     public int Width { get; } = width;
     public int Height { get; } = height;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Plot(int x, int y, Color color)
     {
         if ((uint)x >= (uint)Width ||
