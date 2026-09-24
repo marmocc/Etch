@@ -7,6 +7,11 @@ on:
       - "Etch.Benchmarks/**"
       - ".github/workflows/benchmarks.yml"
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Other Ref/SHA to benchmark against master"
+        required: true
+        type: string
 
 jobs:
   benchmark:
@@ -18,42 +23,41 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Checkout master
-        run: |
-          git fetch origin master
-          git checkout origin/master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
 
       - name: Run benchmarks on master
         run: |
           dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters csv \
-            --artifacts ./BenchmarkDotNet.Artifacts/main
-          
-      - name: Checkout pull request
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
+            --artifacts ./BenchmarkDotNet.Artifacts/master
 
-      - name: Run benchmarks on pull request
+      - name: Checkout other
+        run: |
+          git checkout ${{ github.event.pull_request.head.sha || inputs.ref }}
+
+      - name: Run benchmarks on other
         run: |
           dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters csv \
-            --artifacts ./BenchmarkDotNet.Artifacts/pr-head
+            --artifacts ./BenchmarkDotNet.Artifacts/other
 
       - name: Write results to job summary
         if: always()
         run: |
           {
-            echo "## PR head results"
+            echo "## master results"
             echo '```csv'
-            cat BenchmarkDotNet.Artifacts/pr-head/results/*.csv
+            cat BenchmarkDotNet.Artifacts/master/results/*.csv
             echo '```'
             echo ""
-            echo "## main results"
+            echo "## other results"
             echo '```csv'
-            cat BenchmarkDotNet.Artifacts/main/results/*.csv
+            cat BenchmarkDotNet.Artifacts/other/results/*.csv
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -62,6 +66,6 @@ jobs:
         with:
           name: benchmark-results
           path: |
-            BenchmarkDotNet.Artifacts/pr-head/results/*.csv
-            BenchmarkDotNet.Artifacts/main/results/*.csv
+            BenchmarkDotNet.Artifacts/master/results/*.csv
+            BenchmarkDotNet.Artifacts/other/results/*.csv
           retention-days: 30
