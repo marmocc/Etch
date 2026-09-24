@@ -45,22 +45,28 @@ jobs:
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/other
-
+      
       - name: Write results to job summary
         if: always()
         run: |
           {
             echo "## master results"
-            if compgen -G "BenchmarkDotNet.Artifacts/master/results/*.md" > /dev/null; then
-              cat BenchmarkDotNet.Artifacts/master/results/*.md
+            report=$(find BenchmarkDotNet.Artifacts/master/results \
+              -name '*-report-github.md' -print -quit)
+      
+            if [[ -n "$report" ]]; then
+              cat "$report"
             else
               echo "_No results._"
             fi
-
+      
             echo ""
             echo "## other results"
-            if compgen -G "BenchmarkDotNet.Artifacts/other/results/*.md" > /dev/null; then
-              cat BenchmarkDotNet.Artifacts/other/results/*.md
+            report=$(find BenchmarkDotNet.Artifacts/other/results \
+              -name '*-report-github.md' -print -quit)
+      
+            if [[ -n "$report" ]]; then
+              cat "$report"
             else
               echo "_No results._"
             fi
