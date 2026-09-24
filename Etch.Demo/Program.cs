@@ -1,24 +1,8 @@
 ﻿using Etch.Graphics;
 using System.Diagnostics;
 
-// Usage:
-//   dotnet run -- <mode> <width> <height> [param]
-//
-// modes:
-//   orbiters   [count]      - original demo scene (default param: 6)
-//   chaos                   - every pixel changes every frame (worst case for diffing)
-//   shapes     [count]      - N bouncing triangles + N bouncing segments (default param: 200)
-//   sparse                  - static starfield + one moving pixel (best case for diffing)
-//
-// Examples:
-//   dotnet run -- chaos 80 40
-//   dotnet run -- shapes 120 50 1000
-//   dotnet run -- sparse 200 60
-
-string mode = args.Length > 0 ? args[0] : "chaos";
-int width = args.Length > 1 ? int.Parse(args[1]) : 80;
-int height = args.Length > 2 ? int.Parse(args[2]) : 40;
-int param = args.Length > 3 ? int.Parse(args[3]) : -1;
+int width = args.Length > 0 ? int.Parse(args[0]) : 80;
+int height = args.Length > 1 ? int.Parse(args[1]) : 40;
 
 var surface = new Surface(width, height);
 
@@ -73,6 +57,6 @@ while (true)
 
         Console.ResetColor();
         Console.SetCursorPosition(0, height);
-        Console.Write($"mode={mode} size={width}x{height} param={param}  FPS: {fps:F1}  draw: {avgDrawMs:F3}ms  present: {avgPresentMs:F3}ms   ");
+        Console.Write($"[{width}x{height}] FPS: {fps:F1} - draw: {avgDrawMs:F3}ms - present: {avgPresentMs:F3}ms");
     }
 }
