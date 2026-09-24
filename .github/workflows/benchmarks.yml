@@ -1,0 +1,79 @@
+name: Benchmarks
+
+on:
+  pull_request:
+    paths:
+      - "Etch/**"
+      - "Etch.Benchmarks/**"
+      - ".github/workflows/benchmarks.yml"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Other Ref/SHA to benchmark against master"
+        required: true
+        type: string
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Run benchmarks on master
+        run: |
+          dotnet run --project Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters csv \
+            --artifacts ./BenchmarkDotNet.Artifacts/master
+
+      - name: Checkout other
+        run: |
+          git checkout ${{ github.event.pull_request.head.sha || inputs.ref }}
+
+      - name: Run benchmarks on other
+        run: |
+          dotnet run --project Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters csv \
+            --artifacts ./BenchmarkDotNet.Artifacts/other
+
+      - name: Write results to job summary
+        if: always()
+        run: |
+          {
+            echo "## master results"
+            if compgen -G "BenchmarkDotNet.Artifacts/master/results/*.csv" > /dev/null; then
+              echo '```csv'
+              cat BenchmarkDotNet.Artifacts/master/results/*.csv
+              echo '```'
+            else
+              echo "_No results (benchmark run did not produce CSV output)._"
+            fi
+            echo ""
+            echo "## other results"
+            if compgen -G "BenchmarkDotNet.Artifacts/other/results/*.csv" > /dev/null; then
+              echo '```csv'
+              cat BenchmarkDotNet.Artifacts/other/results/*.csv
+              echo '```'
+            else
+              echo "_No results (Etch.Benchmarks project not present on this ref, or run failed)._"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            BenchmarkDotNet.Artifacts/master/results/*.csv
+            BenchmarkDotNet.Artifacts/other/results/*.csv
+          retention-days: 30
