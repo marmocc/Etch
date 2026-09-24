@@ -14,7 +14,7 @@ on:
         type: string
 
 jobs:
-  benchmark:
+  benchmarks:
     runs-on: ubuntu-latest
     steps:
       - name: Setup .NET
@@ -51,14 +51,22 @@ jobs:
         run: |
           {
             echo "## master results"
-            echo '```csv'
-            cat BenchmarkDotNet.Artifacts/master/results/*.csv
-            echo '```'
+            if compgen -G "BenchmarkDotNet.Artifacts/master/results/*.csv" > /dev/null; then
+              echo '```csv'
+              cat BenchmarkDotNet.Artifacts/master/results/*.csv
+              echo '```'
+            else
+              echo "_No results (benchmark run did not produce CSV output)._"
+            fi
             echo ""
             echo "## other results"
-            echo '```csv'
-            cat BenchmarkDotNet.Artifacts/other/results/*.csv
-            echo '```'
+            if compgen -G "BenchmarkDotNet.Artifacts/other/results/*.csv" > /dev/null; then
+              echo '```csv'
+              cat BenchmarkDotNet.Artifacts/other/results/*.csv
+              echo '```'
+            else
+              echo "_No results (Etch.Benchmarks project not present on this ref, or run failed)._"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload benchmark results
