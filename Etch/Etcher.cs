@@ -17,7 +17,7 @@ public class Etcher(int width, int height)
         int count = Frame.Diff(_front, _back, _diff);
         foreach (var delta in _diff[..count])
         {
-            _writer.Move(delta.Y, delta.X);
+            _writer.Move(delta.X, delta.Y);
             _writer.Color(delta.Color);
             _writer.Write(delta.Color.Density);
         }

@@ -7,13 +7,13 @@ public class Writer(int initialCapacity)
 {
     private Color _color = new();
     private bool _colorSet = false;
-    private (int row, int col) _cursor = new();
+    private (int X, int Y) _cursor = new();
     private bool _cursorSet = false;
     private readonly ArrayBufferWriter<byte> _writer = new(initialCapacity);
 
-    public void Move(int row, int col)
+    public void Move(int x, int y)
     {
-        if (_cursorSet && _cursor == (row, col)) return;
+        if (_cursorSet && _cursor == (x, y)) return;
 
         Span<byte> buffer = _writer.GetSpan(16);
         int written = 0;
@@ -21,13 +21,13 @@ public class Writer(int initialCapacity)
         buffer[written++] = 0x1B; // ESC
         buffer[written++] = (byte)'[';
 
-        bool rowSuccess = Utf8Formatter.TryFormat(row, buffer[written..], out int rowWritten);
+        bool rowSuccess = Utf8Formatter.TryFormat(y + 1, buffer[written..], out int rowWritten);
         if (!rowSuccess) throw new InvalidOperationException("Failed to format row value.");
         written += rowWritten;
 
         buffer[written++] = (byte)';';
 
-        bool colSuccess = Utf8Formatter.TryFormat(col, buffer[written..], out int colWritten);
+        bool colSuccess = Utf8Formatter.TryFormat(x + 1, buffer[written..], out int colWritten);
         if (!colSuccess) throw new InvalidOperationException("Failed to format column value.");
         written += colWritten;
 
@@ -35,7 +35,7 @@ public class Writer(int initialCapacity)
         _writer.Advance(written);
 
         _cursorSet = true;
-        _cursor = (row, col);
+        _cursor = (x, y);
     }
 
     public void Color(Color color)
@@ -85,7 +85,7 @@ public class Writer(int initialCapacity)
         buffer[0] = value;
         _writer.Advance(1);
 
-        _cursor = (_cursor.row, _cursor.col + 1);
+        _cursor = (_cursor.X + 1, _cursor.Y);
     }
 
     public void Write(ReadOnlySpan<byte> text)
@@ -95,7 +95,7 @@ public class Writer(int initialCapacity)
 
         _writer.Write(text);
 
-        _cursor = (_cursor.row, _cursor.col + text.Length);
+        _cursor = (_cursor.X + text.Length, _cursor.Y);
     }
 
     public void Flush(Stream output)
