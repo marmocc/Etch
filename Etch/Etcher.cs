@@ -18,7 +18,7 @@ public class Etcher(int width, int height)
         {
             _writer.Move(delta.X, delta.Y);
             _writer.Color(delta.Color);
-            _writer.Write(delta.Color.Density);
+            _writer.Write(delta.Color.Glyph);
         }
 
         _writer.Flush(stream);

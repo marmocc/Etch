@@ -55,9 +55,9 @@ while (true)
             float intensity = (n + 3.0f) / 6.0f;
             intensity = Math.Clamp(intensity, 0.0f, 1.0f);
 
-            byte r = (byte)(Math.Sin(intensity * Math.PI + time) * 127 + 128);
+            byte r = (byte)(MathF.Sin(intensity * MathF.PI + time) * 127 + 128);
             byte g = (byte)(intensity * 255);
-            byte b = (byte)(Math.Cos(intensity * Math.PI * 0.5) * 200 + 55);
+            byte b = (byte)(MathF.Cos(intensity * MathF.PI * 0.5f) * 200 + 55);
 
             Color color = new(r, g, b, 255);
             etcher.Frame.Draw(x, y, color);

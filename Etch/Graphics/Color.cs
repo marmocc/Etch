@@ -13,13 +13,14 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     // uint representation of the whole Color struct.
     [FieldOffset(0)] public readonly uint RGBA;
 
-    public readonly byte Density
+    // Glyph representation of the Color's Luminance
+    public readonly byte Glyph
     {
         get
         {
             int luminance = (306 * R + 601 * G + 117 * B) >> 10;
             int index = (luminance * 32) >> 8;
-            ReadOnlySpan<byte> ramp = " .'-+=*!|rJvY1X7UCLO0QZwm#W8%B@$&"u8;
+            ReadOnlySpan<byte> ramp = " .'-!*+|r=vL7%1JCwX$Zm#U8&0OWQ@B"u8;
             return ramp[index];
         }
     }
