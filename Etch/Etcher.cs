@@ -10,24 +10,10 @@ public class Etcher(int width, int height)
     private Frame _back = new(width, height);
     private readonly Frame.Delta[] _diff = new Frame.Delta[width * height];
 
-    public readonly Plane Plane = new();
-
-    public void Draw(int x, int y, Color color)
-    {
-        int index = y * _front.Width + x;
-        Color.Blend(ref _front.Data[index], color);
-    }
-
-    public void Draw(int x, int y, int width, Color color)
-    {
-        int index = y * _front.Width + x;
-        Color.Blend(_front.Data.AsSpan(index, width), color);
-    }
+    public Frame Frame => _front;
 
     public void Render(Stream stream)
     {
-        //Plane.RasterizeInto(_front);
-
         _writer.Move(0, 0);
         int count = Frame.Diff(_front, _back, _diff);
         foreach (var delta in _diff[..count])

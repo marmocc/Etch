@@ -37,7 +37,7 @@ while (true)
             double n = Math.Sin(x * 0.3 + time * 3) + Math.Cos(y * 0.3 - time * 2);
             byte v = (byte)((n + 2) / 4 * 255);
             Color color = new(v, (byte)(255 - v), (byte)(v / 2), 255);
-            etcher.Draw(x, y, color);
+            etcher.Frame.Draw(x, y, color);
         }
     }
 
