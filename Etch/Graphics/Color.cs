@@ -51,10 +51,14 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         int sA = source.A;
         int dA = 255 - sA;
 
-        // High-speed integer approximation of standard alpha blending
-        byte r = (byte)((source.R * sA + destination.R * dA) / 255);
-        byte g = (byte)((source.G * sA + destination.G * dA) / 255);
-        byte b = (byte)((source.B * sA + destination.B * dA) / 255);
+        int rSum = source.R * sA + destination.R * dA;
+        int gSum = source.G * sA + destination.G * dA;
+        int bSum = source.B * sA + destination.B * dA;
+
+        byte r = Utilities.Div255(rSum);
+        byte g = Utilities.Div255(gSum);
+        byte b = Utilities.Div255(bSum);
+
         destination = new Color(r, g, b, 255);
     }
 
