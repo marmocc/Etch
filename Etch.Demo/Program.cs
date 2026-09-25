@@ -1,10 +1,12 @@
-﻿using Etch.Graphics;
+﻿using Etch;
+using Etch.Graphics;
 using System.Diagnostics;
 
 int width = args.Length > 0 ? int.Parse(args[0]) : 80;
 int height = args.Length > 1 ? int.Parse(args[1]) : 40;
 
-var surface = new Surface(width, height, Console.OpenStandardOutput());
+var etcher = new Etcher(width, height);
+var stream = Console.OpenStandardOutput();
 
 var drawStopwatch = new Stopwatch();
 var presentStopwatch = new Stopwatch();
@@ -35,14 +37,14 @@ while (true)
             double n = Math.Sin(x * 0.3 + time * 3) + Math.Cos(y * 0.3 - time * 2);
             byte v = (byte)((n + 2) / 4 * 255);
             Color color = new(v, (byte)(255 - v), (byte)(v / 2), 255);
-            surface.Plot(x, y, color);
+            etcher.Draw(x, y, color);
         }
     }
 
     drawStopwatch.Stop();
 
     presentStopwatch.Restart();
-    surface.Present();
+    etcher.Render(stream);
     presentStopwatch.Stop();
 
     fpsTimer += deltaTime;

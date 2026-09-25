@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Etch.Graphics;
@@ -12,7 +11,19 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     [FieldOffset(2)] public readonly byte B = b;
     [FieldOffset(3)] public readonly byte A = a;
 
+    // uint representation of the whole Color struct.
     [FieldOffset(0)] public readonly uint RGBA;
+
+    public readonly byte Density
+    {
+        get
+        {
+            ReadOnlySpan<byte> ramp = " .:-=+*#%@"u8;
+            int density = (8 * R + 26 * G + 3 * B) >> 10;
+            if ((uint)density >= 10) density = 9;
+            return ramp[density];
+        }
+    }
 
     public static Color Transparent => new(0, 0, 0, 0);
     public static Color White => new(255, 255, 255, 255);
@@ -26,7 +37,6 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     public Color WithBlue(byte blue) => new(R, G, blue, A);
     public Color WithAlpha(byte alpha) => new(R, G, B, alpha);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Color other) => this.RGBA == other.RGBA;
     public override bool Equals(object? obj) => obj is Color color && Equals(color);
     public static bool operator ==(Color left, Color right) => left.Equals(right);
@@ -34,11 +44,10 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     public override int GetHashCode() => (int)this.RGBA;
     public override string ToString() => $"({R},{G},{B},{A})";
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Color Blend(Color destination, Color source)
+    public static void Blend(ref Color destination, Color source)
     {
-        if (source.A == 255) return source;
-        if (source.A == 0) return destination;
+        if (source.A == 0) return;
+        if (source.A == 255) { destination = source; return; }
 
         int sA = source.A;
         int dA = 255 - sA;
@@ -47,7 +56,15 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         byte r = (byte)((source.R * sA + destination.R * dA) / 255);
         byte g = (byte)((source.G * sA + destination.G * dA) / 255);
         byte b = (byte)((source.B * sA + destination.B * dA) / 255);
+        destination = new Color(r, g, b, 255);
+    }
 
-        return new Color(r, g, b, 255);
+    public static void Blend(Span<Color> destination, Color source)
+    {
+        if (source.A == 0) return;
+        if (source.A == 255) { destination.Fill(source); return; }
+
+        for (int i = 0; i < destination.Length; i++)
+            Color.Blend(ref destination[i], source);
     }
 }

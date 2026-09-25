@@ -4,11 +4,13 @@ using System.Text;
 
 namespace Etch.Graphics;
 
-public static class ANSI
+public class Writer(int initialCapacity)
 {
-    public static void Move(ArrayBufferWriter<byte> writer, int row, int col)
+    private readonly ArrayBufferWriter<byte> _writer = new(initialCapacity);
+
+    public void Move(int row, int col)
     {
-        Span<byte> buffer = writer.GetSpan(16);
+        Span<byte> buffer = _writer.GetSpan(16);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
@@ -25,12 +27,12 @@ public static class ANSI
         written += colWritten;
 
         buffer[written++] = (byte)'H';
-        writer.Advance(written);
+        _writer.Advance(written);
     }
 
-    public static void Color(ArrayBufferWriter<byte> writer, Color color, bool isForeground)
+    public void Color(Color color, bool isForeground)
     {
-        Span<byte> buffer = writer.GetSpan(24);
+        Span<byte> buffer = _writer.GetSpan(24);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
@@ -58,52 +60,58 @@ public static class ANSI
         written += bWritten;
 
         buffer[written++] = (byte)'m';
-        writer.Advance(written);        
+        _writer.Advance(written);        
     }
 
-    public static void Clear(ArrayBufferWriter<byte> writer)
+    public void Clear()
     {
-        Span<byte> buffer = writer.GetSpan(8);
+        Span<byte> buffer = _writer.GetSpan(8);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
         buffer[written++] = (byte)'[';
         buffer[written++] = (byte)'2';
         buffer[written++] = (byte)'J';
-        writer.Advance(written);
+        _writer.Advance(written);
     }
 
-    public static void Reset(ArrayBufferWriter<byte> writer)
+    public void Reset()
     {
-        Span<byte> buffer = writer.GetSpan(8);
+        Span<byte> buffer = _writer.GetSpan(8);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
         buffer[written++] = (byte)'[';
         buffer[written++] = (byte)'0';
         buffer[written++] = (byte)'m';
-        writer.Advance(written);
+        _writer.Advance(written);
     }
 
-    public static void Write(ArrayBufferWriter<byte> writer, byte value)
+    public void Write(byte value)
     {
-        Span<byte> buffer = writer.GetSpan(1);
+        Span<byte> buffer = _writer.GetSpan(1);
         buffer[0] = value;
-        writer.Advance(1);
+        _writer.Advance(1);
     }
 
-    public static void Write(ArrayBufferWriter<byte> writer, ReadOnlySpan<char> text)
+    public void Write(ReadOnlySpan<char> text)
     {
         int maxByteCount = Encoding.UTF8.GetMaxByteCount(text.Length);
-        Span<byte> buffer = writer.GetSpan(maxByteCount);
+        Span<byte> buffer = _writer.GetSpan(maxByteCount);
         int bytesWritten = Encoding.UTF8.GetBytes(text, buffer);
-        writer.Advance(bytesWritten);
+        _writer.Advance(bytesWritten);
     }
 
-    public static void NewLine(ArrayBufferWriter<byte> writer)
+    public void NewLine()
     {
-        Span<byte> buffer = writer.GetSpan(1);
+        Span<byte> buffer = _writer.GetSpan(1);
         buffer[0] = (byte)'\n';
-        writer.Advance(1);
+        _writer.Advance(1);
+    }
+
+    public void Flush(Stream output)
+    {
+        output.Write(_writer.WrittenSpan);
+        _writer.Clear();
     }
 }
