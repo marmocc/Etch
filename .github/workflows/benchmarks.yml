@@ -22,16 +22,16 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Checkout repo
+      - name: Checkout master
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          path: repo
+          path: master
+          ref: master
 
-      - name: Add worktrees for master and other
-        working-directory: repo
+      - name: Add worktree for other
+        working-directory: master
         run: |
-          git worktree add ../master master
           git worktree add ../other ${{ github.event.pull_request.head.sha || inputs.ref }}
 
       - name: Run first benchmark on master
