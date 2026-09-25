@@ -28,23 +28,37 @@ jobs:
           fetch-depth: 0
           ref: master
 
-      - name: Run benchmarks on master
+      - name: Run first benchmark on master
         run: |
           dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
-            --artifacts ./BenchmarkDotNet.Artifacts/master
+            --artifacts ./BenchmarkDotNet.Artifacts/first-master
+
+      - name: Run second benchmark on master
+        run: |
+          dotnet run --project Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters markdown \
+            --artifacts ./BenchmarkDotNet.Artifacts/second-master
 
       - name: Checkout other
         run: |
           git checkout ${{ github.event.pull_request.head.sha || inputs.ref }}
 
-      - name: Run benchmarks on other
+      - name: Run first benchmark on other
         run: |
           dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
-            --artifacts ./BenchmarkDotNet.Artifacts/other
+            --artifacts ./BenchmarkDotNet.Artifacts/first-other
+
+      - name: Run second benchmark on other
+        run: |
+          dotnet run --project Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters markdown \
+            --artifacts ./BenchmarkDotNet.Artifacts/second-other
       
       - name: Write results to job summary
         if: always()
