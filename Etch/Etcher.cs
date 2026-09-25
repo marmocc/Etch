@@ -1,5 +1,4 @@
-﻿using Etch.Geometry;
-using Etch.Graphics;
+﻿using Etch.Graphics;
 
 namespace Etch;
 
@@ -19,7 +18,7 @@ public class Etcher(int width, int height)
         foreach (var delta in _diff[..count])
         {
             _writer.Move(delta.Y, delta.X);
-            _writer.Color(delta.Color, true);
+            _writer.Color(delta.Color);
             _writer.Write(delta.Color.Density);
         }
 

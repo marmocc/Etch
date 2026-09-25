@@ -37,8 +37,9 @@ public sealed class Frame(int width, int height)
             for (int x = 0; x < a.Width; x++)
             {
                 int i = rowStartIndex + x;
-                if (a._data[i].RGBA != b._data[i].RGBA)
-                    deltas[count++] = new(x, y, a._data[i]);
+                Color current = a._data[i];
+                if (current.RGBA != b._data[i].RGBA)
+                    deltas[count++] = new(x, y, current);
             }
         }
         return count;
