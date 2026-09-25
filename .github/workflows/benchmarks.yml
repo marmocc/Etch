@@ -44,19 +44,15 @@ jobs:
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/second
-
+            
       - name: Write results to job summary
-        if: always()
         run: |
           {
-            for dir in first second; do
-              echo "## $dir"
-              report=$(find "BenchmarkDotNet.Artifacts/$dir/results" -name '*-report-github.md' -print -quit 2>/dev/null)
-              if [[ -n "$report" ]]; then
-                cat "$report"
-              else
-                echo "_No results._"
-              fi
-              echo ""
-            done
+            echo "## First"
+            echo "### ${{ inputs.first_ref }}"
+            cat BenchmarkDotNet.Artifacts/first/results/*-report-github.md
+            echo ""
+            echo "## Second"
+            echo "### ${{ inputs.second_ref }}"
+            cat BenchmarkDotNet.Artifacts/second/results/*-report-github.md
           } >> "$GITHUB_STEP_SUMMARY"
