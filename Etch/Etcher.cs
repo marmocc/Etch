@@ -13,7 +13,6 @@ public class Etcher(int width, int height)
 
     public void Render(Stream stream)
     {
-        _writer.Move(0, 0);
         int count = Frame.Diff(_front, _back, _diff);
         foreach (var delta in _diff[..count])
         {

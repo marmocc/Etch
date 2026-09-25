@@ -17,10 +17,10 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     {
         get
         {
-            ReadOnlySpan<byte> ramp = " .:-=+*#%@"u8;
-            int density = (8 * R + 26 * G + 3 * B) >> 10;
-            if ((uint)density >= 10) density = 9;
-            return ramp[density];
+            int luminance = (306 * R + 601 * G + 117 * B) >> 10;
+            int index = (luminance * 32) >> 8;
+            ReadOnlySpan<byte> ramp = " .'-+=*!|rJvY1X7UCLO0QZwm#W8%B@$&"u8;
+            return ramp[index];
         }
     }
 
@@ -40,7 +40,7 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     public override bool Equals(object? obj) => obj is Color color && Equals(color);
     public static bool operator ==(Color left, Color right) => left.Equals(right);
     public static bool operator !=(Color left, Color right) => !(left == right);
-    public override int GetHashCode() => (int)this.RGBA;
+    public override int GetHashCode() => this.RGBA.GetHashCode();
     public override string ToString() => $"({R},{G},{B},{A})";
 
     public static Color Blend(Color destination, Color source)
