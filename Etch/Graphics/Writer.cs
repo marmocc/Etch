@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Text;
+using System.Text;
 
 namespace Etch.Graphics;
 
@@ -79,7 +80,7 @@ public class Writer(int initialCapacity)
     public void Write(byte value)
     {
         if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
-        if (!_colorSet) throw new InvalidOperationException("Color is uknown. Unable to Write.");
+        if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
 
         Span<byte> buffer = _writer.GetSpan(1);
         buffer[0] = value;
@@ -91,11 +92,63 @@ public class Writer(int initialCapacity)
     public void Write(ReadOnlySpan<byte> text)
     {
         if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
-        if (!_colorSet) throw new InvalidOperationException("Color is uknown. Unable to Write.");
+        if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
 
         _writer.Write(text);
 
         _cursor = (_cursor.X + text.Length, _cursor.Y);
+    }
+
+    public void Write(int value)
+    {
+        if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
+        if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
+
+        Span<byte> buffer = _writer.GetSpan(16);
+        bool intSuccess = Utf8Formatter.TryFormat(value, buffer, out int written);
+        if(!intSuccess) throw new InvalidOperationException("Failed to format int value.");
+        _writer.Advance(written);
+
+        _cursor = (_cursor.X + written, _cursor.Y);
+    }
+
+    public void Write(long value)
+    {
+        if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
+        if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
+
+        Span<byte> buffer = _writer.GetSpan(16);
+        bool intSuccess = Utf8Formatter.TryFormat(value, buffer, out int written);
+        if (!intSuccess) throw new InvalidOperationException("Failed to format int value.");
+        _writer.Advance(written);
+
+        _cursor = (_cursor.X + written, _cursor.Y);
+    }
+
+    public void Write(float value, StandardFormat format = default)
+    {
+        if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
+        if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
+
+        Span<byte> buffer = _writer.GetSpan(32);
+        bool floatSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
+        if(floatSuccess) throw new InvalidOperationException("Failed to format float value.");
+        _writer.Advance(written);
+
+        _cursor = (_cursor.X + written, _cursor.Y);
+    }
+
+    public void Write(double value, StandardFormat format = default)
+    {
+        if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
+        if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
+
+        Span<byte> buffer = _writer.GetSpan(64);
+        bool doubleSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
+        if (doubleSuccess) throw new InvalidOperationException("Failed to format float value.");
+        _writer.Advance(written);
+
+        _cursor = (_cursor.X + written, _cursor.Y);
     }
 
     public void Flush(Stream output)

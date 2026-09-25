@@ -7,18 +7,9 @@ int height = args.Length > 1 ? int.Parse(args[1]) : 40;
 
 var etcher = new Etcher(width, height);
 var stream = Console.OpenStandardOutput();
-
-var drawStopwatch = new Stopwatch();
-var renderStopwatch = new Stopwatch();
 var frameStopwatch = Stopwatch.StartNew();
 
 float time = 0;
-int frameCount = 0;
-float fpsTimer = 0;
-float fps = 0;
-float avgDrawMs = 0;
-float avgPresentMs = 0;
-
 Console.CursorVisible = false;
 Console.Clear();
 
@@ -31,7 +22,6 @@ while (true)
     float t1 = time * 1.2f;
     float t2 = time * 0.8f;
 
-    drawStopwatch.Restart();
     for (int y = 0; y < height; y++)
     {
         float ny = (float)y / height;
@@ -63,24 +53,6 @@ while (true)
             etcher.Frame.Draw(x, y, color);
         }
     }
-    drawStopwatch.Stop();
 
-    renderStopwatch.Restart();
-    etcher.Render(stream);
-    renderStopwatch.Stop();
-
-    fpsTimer += deltaTime;
-    frameCount++;
-    if (fpsTimer >= 0.5)
-    {
-        fps = frameCount / fpsTimer;
-        avgDrawMs = (float)drawStopwatch.Elapsed.TotalMilliseconds;
-        avgPresentMs = (float)renderStopwatch.Elapsed.TotalMilliseconds;
-        frameCount = 0;
-        fpsTimer = 0;
-
-        Console.ResetColor();
-        Console.SetCursorPosition(0, height);
-        Console.Write($"[{width}x{height}] FPS: {fps:F1} - draw: {avgDrawMs:F3}ms - render: {avgPresentMs:F3}ms");
-    }
+    etcher.Render(stream, true);
 }
