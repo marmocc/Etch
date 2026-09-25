@@ -43,10 +43,10 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     public override int GetHashCode() => (int)this.RGBA;
     public override string ToString() => $"({R},{G},{B},{A})";
 
-    public static void Blend(ref Color destination, Color source)
+    public static Color Blend(Color destination, Color source)
     {
-        if (source.A == 0) return;
-        if (source.A == 255) { destination = source; return; }
+        if (source.A == 0) return destination;
+        if (source.A == 255) return source;
 
         int sA = source.A;
         int dA = 255 - sA;
@@ -59,7 +59,7 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         byte g = Utilities.Div255(gSum);
         byte b = Utilities.Div255(bSum);
 
-        destination = new Color(r, g, b, 255);
+        return new Color(r, g, b, 255);
     }
 
     public static void Blend(Span<Color> destination, Color source)
@@ -68,6 +68,6 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         if (source.A == 255) { destination.Fill(source); return; }
 
         for (int i = 0; i < destination.Length; i++)
-            Color.Blend(ref destination[i], source);
+            destination[i] = Color.Blend(destination[i], source);
     }
 }

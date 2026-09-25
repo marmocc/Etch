@@ -15,7 +15,7 @@ public sealed class Frame(int width, int height)
     public void Draw(int x, int y, Color color)
     {
         int index = y * Width + x;
-        Color.Blend(ref _data[index], color);
+        _data[index] = Color.Blend(_data[index], color);
     }
     public void Draw(int x, int y, int width, Color color)
     {
