@@ -118,8 +118,8 @@ public class Writer(int initialCapacity)
         if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
 
         Span<byte> buffer = _writer.GetSpan(16);
-        bool intSuccess = Utf8Formatter.TryFormat(value, buffer, out int written);
-        if (!intSuccess) throw new InvalidOperationException("Failed to format int value.");
+        bool longSuccess = Utf8Formatter.TryFormat(value, buffer, out int written);
+        if (!longSuccess) throw new InvalidOperationException("Failed to format int value.");
         _writer.Advance(written);
 
         _cursor = (_cursor.X + written, _cursor.Y);
@@ -132,7 +132,7 @@ public class Writer(int initialCapacity)
 
         Span<byte> buffer = _writer.GetSpan(32);
         bool floatSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
-        if(floatSuccess) throw new InvalidOperationException("Failed to format float value.");
+        if(!floatSuccess) throw new InvalidOperationException("Failed to format float value.");
         _writer.Advance(written);
 
         _cursor = (_cursor.X + written, _cursor.Y);
@@ -145,7 +145,7 @@ public class Writer(int initialCapacity)
 
         Span<byte> buffer = _writer.GetSpan(64);
         bool doubleSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
-        if (doubleSuccess) throw new InvalidOperationException("Failed to format float value.");
+        if (!doubleSuccess) throw new InvalidOperationException("Failed to format float value.");
         _writer.Advance(written);
 
         _cursor = (_cursor.X + written, _cursor.Y);
