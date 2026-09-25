@@ -130,7 +130,7 @@ public class Writer(int initialCapacity)
         if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
         if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
 
-        Span<byte> buffer = _writer.GetSpan(32);
+        Span<byte> buffer = _writer.GetSpan(16);
         bool floatSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
         if(!floatSuccess) throw new InvalidOperationException("Failed to format float value.");
         _writer.Advance(written);
@@ -143,7 +143,7 @@ public class Writer(int initialCapacity)
         if (!_cursorSet) throw new InvalidOperationException("Cursor position is unknown. Unable to Write.");
         if (!_colorSet) throw new InvalidOperationException("Color is unknown. Unable to Write.");
 
-        Span<byte> buffer = _writer.GetSpan(64);
+        Span<byte> buffer = _writer.GetSpan(16);
         bool doubleSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
         if (!doubleSuccess) throw new InvalidOperationException("Failed to format float value.");
         _writer.Advance(written);
