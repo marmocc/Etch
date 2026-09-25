@@ -36,28 +36,28 @@ jobs:
 
       - name: Run first benchmark on master
         run: |
-          dotnet run --project ../master/Etch.Benchmarks -c Release -- \
+          dotnet run --project ./master/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/first-master
 
       - name: Run first benchmark on other
         run: |
-          dotnet run --project ../other/Etch.Benchmarks -c Release -- \
+          dotnet run --project ./other/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/first-other
 
       - name: Run second benchmark on master
         run: |
-          dotnet run --project ../master/Etch.Benchmarks -c Release -- \
+          dotnet run --project ./master/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/second-master
 
       - name: Run second benchmark on other
         run: |
-          dotnet run --project ../other/Etch.Benchmarks -c Release -- \
+          dotnet run --project ./other/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/second-other
