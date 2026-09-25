@@ -1,4 +1,4 @@
-name: Benchmarks
+name: Benchmark
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         type: string
 
 jobs:
-  benchmarks:
+  benchmark:
     runs-on: ubuntu-latest
     steps:
       - name: Setup .NET
@@ -28,7 +28,7 @@ jobs:
 
       - name: Run benchmark on first
         run: |
-          dotnet run --project ./first/Etch.Benchmarks -c Release -- \
+          dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/first
@@ -41,7 +41,7 @@ jobs:
 
       - name: Run benchmark on second
         run: |
-          dotnet run --project ./second/Etch.Benchmarks -c Release -- \
+          dotnet run --project Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/second
