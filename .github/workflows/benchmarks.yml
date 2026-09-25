@@ -24,14 +24,7 @@ jobs:
       - name: Checkout first
         uses: actions/checkout@v4
         with:
-          path: first
           ref: ${{ inputs.first_ref }}
-
-      - name: Checkout second
-        uses: actions/checkout@v4
-        with:
-          path: second
-          ref: ${{ inputs.second_ref }}
 
       - name: Run benchmark on first
         run: |
@@ -39,6 +32,12 @@ jobs:
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/first
+
+      - name: Checkout second
+        uses: actions/checkout@v4
+        with:
+          path: second
+          ref: ${{ inputs.second_ref }}
 
       - name: Run benchmark on second
         run: |
