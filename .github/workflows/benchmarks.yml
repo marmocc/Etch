@@ -51,9 +51,11 @@ jobs:
         run: |
           {
             echo "## master results"
-            report=$(find BenchmarkDotNet.Artifacts/master/results \
-              -name '*-report-github.md' -print -quit)
-      
+            if [[ -d BenchmarkDotNet.Artifacts/master/results ]]; then
+              report=$(find BenchmarkDotNet.Artifacts/master/results -name '*-report-github.md' -print -quit)
+            else
+              report=""
+            fi
             if [[ -n "$report" ]]; then
               cat "$report"
             else
@@ -61,10 +63,13 @@ jobs:
             fi
       
             echo ""
+            
             echo "## other results"
-            report=$(find BenchmarkDotNet.Artifacts/other/results \
-              -name '*-report-github.md' -print -quit)
-      
+            if [[ -d BenchmarkDotNet.Artifacts/other/results ]]; then
+              report=$(find BenchmarkDotNet.Artifacts/other/results -name '*-report-github.md' -print -quit)
+            else
+              report=""
+            fi
             if [[ -n "$report" ]]; then
               cat "$report"
             else
