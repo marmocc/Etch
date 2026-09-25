@@ -20,5 +20,5 @@ public class ColorBenchmarks
     public bool Equals() => _color1.Equals(_color2);
 
     [Benchmark]
-    public Color Blend() => Color.Blend(_color1, _color2);
+    public void Blend() => Color.Blend(ref _color1, _color2);
 }

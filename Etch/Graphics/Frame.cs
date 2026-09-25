@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Etch.Graphics;
+﻿namespace Etch.Graphics;
 
 public sealed class Frame(int width, int height)
 {
