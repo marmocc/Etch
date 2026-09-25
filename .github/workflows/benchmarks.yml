@@ -22,40 +22,42 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Checkout master
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: master
+          path: repo
+
+      - name: Add worktrees for master and other
+        working-directory: repo
+        run: |
+          git worktree add ../master master
+          git worktree add ../other ${{ github.event.pull_request.head.sha || inputs.ref }}
 
       - name: Run first benchmark on master
         run: |
-          dotnet run --project Etch.Benchmarks -c Release -- \
+          dotnet run --project ../master/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/first-master
 
-      - name: Run second benchmark on master
-        run: |
-          dotnet run --project Etch.Benchmarks -c Release -- \
-            --filter '*' \
-            --exporters markdown \
-            --artifacts ./BenchmarkDotNet.Artifacts/second-master
-
-      - name: Checkout other
-        run: |
-          git checkout ${{ github.event.pull_request.head.sha || inputs.ref }}
-
       - name: Run first benchmark on other
         run: |
-          dotnet run --project Etch.Benchmarks -c Release -- \
+          dotnet run --project ../other/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/first-other
 
+      - name: Run second benchmark on master
+        run: |
+          dotnet run --project ../master/Etch.Benchmarks -c Release -- \
+            --filter '*' \
+            --exporters markdown \
+            --artifacts ./BenchmarkDotNet.Artifacts/second-master
+
       - name: Run second benchmark on other
         run: |
-          dotnet run --project Etch.Benchmarks -c Release -- \
+          dotnet run --project ../other/Etch.Benchmarks -c Release -- \
             --filter '*' \
             --exporters markdown \
             --artifacts ./BenchmarkDotNet.Artifacts/second-other
@@ -64,29 +66,14 @@ jobs:
         if: always()
         run: |
           {
-            echo "## master results"
-            if [[ -d BenchmarkDotNet.Artifacts/master/results ]]; then
-              report=$(find BenchmarkDotNet.Artifacts/master/results -name '*-report-github.md' -print -quit)
-            else
-              report=""
-            fi
-            if [[ -n "$report" ]]; then
-              cat "$report"
-            else
-              echo "_No results._"
-            fi
-      
-            echo ""
-            
-            echo "## other results"
-            if [[ -d BenchmarkDotNet.Artifacts/other/results ]]; then
-              report=$(find BenchmarkDotNet.Artifacts/other/results -name '*-report-github.md' -print -quit)
-            else
-              report=""
-            fi
-            if [[ -n "$report" ]]; then
-              cat "$report"
-            else
-              echo "_No results._"
-            fi
+            for dir in first-master first-other second-master second-other; do
+              echo "## $dir"
+              report=$(find "BenchmarkDotNet.Artifacts/$dir/results" -name '*-report-github.md' -print -quit 2>/dev/null)
+              if [[ -n "$report" ]]; then
+                cat "$report"
+              else
+                echo "_No results._"
+              fi
+              echo ""
+            done
           } >> "$GITHUB_STEP_SUMMARY"
