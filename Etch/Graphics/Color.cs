@@ -20,7 +20,7 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         {
             int luminance = (306 * R + 601 * G + 117 * B) >> 10;
             int index = (luminance * 70) >> 8;
-            ReadOnlySpan<byte> ramp = " .'`^\",_-~:;!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
+            ReadOnlySpan<byte> ramp = " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
             return ramp[index];
         }
     }
