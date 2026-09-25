@@ -50,11 +50,9 @@ jobs:
       - name: Write results to job summary
         run: |
           {
-            echo "## First"
-            echo "### ${{ inputs.first_ref }}"
+            echo "## First - ${{ inputs.first_ref }}"
             cat BenchmarkDotNet.Artifacts/first/results/*-report-github.md
             echo ""
-            echo "## Second"
-            echo "### ${{ inputs.second_ref }}"
+            echo "## Second - ${{ inputs.second_ref }}"
             cat BenchmarkDotNet.Artifacts/second/results/*-report-github.md
           } >> "$GITHUB_STEP_SUMMARY"
