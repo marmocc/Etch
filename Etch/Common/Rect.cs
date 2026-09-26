@@ -6,7 +6,7 @@ public readonly struct Rect(Int2 position, Int2 size)
     public readonly Int2 Size = size;
 
     public Int2 Start => Position;
-    public Int2 End => Position + Size;
+    public Int2 End => Position + Size - Int2.One;
 
     public bool Contains(Int2 point) => Start < point && point < End;
     public bool Contains(Rect rect) => Contains(rect.Start) && Contains(rect.End);
