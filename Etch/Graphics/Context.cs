@@ -1,6 +1,7 @@
 ﻿using Etch.Common;
+using Etch.Terminal;
 
-namespace Etch.Terminal;
+namespace Etch.Graphics;
 
 public readonly ref struct Context(Writer writer, Rect bounds)
 {

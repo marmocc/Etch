@@ -1,5 +1,4 @@
 ﻿using Etch.Common;
-using Etch.Terminal;
 
 namespace Etch.Graphics;
 
