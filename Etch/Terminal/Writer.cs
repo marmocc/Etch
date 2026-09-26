@@ -39,7 +39,7 @@ public sealed class Writer
 
         buffer[written++] = (byte)';';
 
-        bool colSuccess = Utf8Formatter.TryFormat(oneIndexedPosition.Y, buffer[written..], out int colWritten);
+        bool colSuccess = Utf8Formatter.TryFormat(oneIndexedPosition.X, buffer[written..], out int colWritten);
         if (!colSuccess) throw new InvalidOperationException("Failed to format column value.");
         written += colWritten;
 
