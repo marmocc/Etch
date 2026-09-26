@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Etch.Graphics;
+namespace Etch.Common;
 
 [StructLayout(LayoutKind.Explicit, Size = 4)]
 public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<Color>

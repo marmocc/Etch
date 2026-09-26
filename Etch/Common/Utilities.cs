@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Etch;
+namespace Etch.Common;
 
 public static class Utilities
 {

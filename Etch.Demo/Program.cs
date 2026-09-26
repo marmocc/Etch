@@ -1,11 +1,17 @@
 ﻿using Etch;
+using Etch.Common;
 using Etch.Graphics;
 using System.Diagnostics;
 
 int width = args.Length > 0 ? int.Parse(args[0]) : 80;
 int height = args.Length > 1 ? int.Parse(args[1]) : 40;
+Int2 size = new(width, height);
 
-var etcher = new Etcher(width, height);
+
+var etcher = new Etcher(size);
+var canvas = new Canvas(size);
+etcher.Add(canvas);
+
 var stream = Console.OpenStandardOutput();
 var frameStopwatch = Stopwatch.StartNew();
 
@@ -50,9 +56,10 @@ while (true)
             byte b = (byte)(MathF.Cos(intensity * MathF.PI * 0.5f) * 200 + 55);
 
             Color color = new(r, g, b, 255);
-            etcher.Frame.Draw(x, y, color);
+            Int2 position = new(x, y);
+            canvas.Draw(position, color);
         }
     }
 
-    etcher.Render(stream, true);
+    etcher.Render(stream);
 }
