@@ -24,10 +24,10 @@ public readonly struct Int2(int x, int y) : IEquatable<Int2>
 
     public static bool operator ==(Int2 left, Int2 right) => left.Equals(right);
     public static bool operator !=(Int2 left, Int2 right) => !(left == right);
-    public static bool operator >(Int2 left, Int2 right) => left.X > right.X && left.Y > right.X;
-    public static bool operator <(Int2 left, Int2 right) => left.X < right.X && left.Y < right.X;
-    public static bool operator >=(Int2 left, Int2 right) => left.X >= right.X && left.Y >= right.X;
-    public static bool operator <=(Int2 left, Int2 right) => left.X <= right.X && left.Y <= right.X;
+    public static bool operator >(Int2 left, Int2 right) => left.X > right.X && left.Y > right.Y;
+    public static bool operator <(Int2 left, Int2 right) => left.X < right.X && left.Y < right.Y;
+    public static bool operator >=(Int2 left, Int2 right) => left.X >= right.X && left.Y >= right.Y;
+    public static bool operator <=(Int2 left, Int2 right) => left.X <= right.X && left.Y <= right.Y;
 
     public static Int2 operator +(Int2 left, Int2 right) => new(left.X + right.X, right.Y + right.Y);
     public static Int2 operator +(Int2 left, int right) => new(left.X + right, left.Y + right);
