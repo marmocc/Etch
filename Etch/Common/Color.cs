@@ -56,9 +56,9 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         int gSum = source.G * sA + destination.G * dA;
         int bSum = source.B * sA + destination.B * dA;
 
-        byte r = Utilities.Div255(rSum);
-        byte g = Utilities.Div255(gSum);
-        byte b = Utilities.Div255(bSum);
+        byte r = Utilities.DivisionBy255(rSum);
+        byte g = Utilities.DivisionBy255(gSum);
+        byte b = Utilities.DivisionBy255(bSum);
 
         return new Color(r, g, b, 255);
     }

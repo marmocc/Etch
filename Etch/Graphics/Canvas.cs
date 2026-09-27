@@ -20,7 +20,7 @@ public sealed class Canvas(Int2 size) : IWidget
     {
         int count = Frame.Diff(_front, _back, _diff);
         foreach (var delta in _diff[..count])
-            context.Write(delta.Position, delta.Color, delta.Color.Glyph);
+            context.Plot(delta.Position, delta.Color, delta.Color.Glyph);
 
         (_front, _back) = (_back, _front);
         _front.Clear();
