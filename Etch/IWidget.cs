@@ -1,8 +1,10 @@
-﻿using Etch.Graphics;
+﻿using Etch.Common;
+using Etch.Terminal;
 
 namespace Etch;
 
 public interface IWidget
 {
+    Int2 Size { get; }
     void Render(Context context);
 }

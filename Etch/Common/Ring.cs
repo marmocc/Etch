@@ -9,6 +9,8 @@ public sealed class Ring<T>
     public int Count => _count;
     public int Capacity => _data.Length;
 
+    public T Last => _data[_head == 0 ? _count - 1 : _head - 1];
+
     public ReadOnlySpan<T> Head => _count < _data.Length
         ? _data.AsSpan(0, _count)
         : _data.AsSpan(_head);

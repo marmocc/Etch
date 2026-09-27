@@ -12,7 +12,7 @@ public sealed class Writer
     private Color _foreground;
     private Color _background;
 
-    public Writer(int initialCapacity) : this(initialCapacity, Int2.One, Color.White, Color.Black) { }
+    public Writer(int initialCapacity) : this(initialCapacity, Int2.Zero, Color.White, Color.Black) { }
     public Writer(int initialCapacity, Int2 initialCursor, Color initialForeground, Color initialBackground)
     {
         _output = new(initialCapacity);
@@ -24,22 +24,22 @@ public sealed class Writer
         _background = initialBackground;
     }
 
-
-    private void InternalMove(Int2 oneIndexedPosition)
+    private void InternalMove(Int2 position)
     {
+        Int2 correctedPosition = position + 1;
         Span<byte> buffer = _output.GetSpan(16);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
         buffer[written++] = (byte)'[';
 
-        bool rowSuccess = Utf8Formatter.TryFormat(oneIndexedPosition.Y, buffer[written..], out int rowWritten);
+        bool rowSuccess = Utf8Formatter.TryFormat(correctedPosition.Y, buffer[written..], out int rowWritten);
         if (!rowSuccess) throw new InvalidOperationException("Failed to format row value.");
         written += rowWritten;
 
         buffer[written++] = (byte)';';
 
-        bool colSuccess = Utf8Formatter.TryFormat(oneIndexedPosition.X, buffer[written..], out int colWritten);
+        bool colSuccess = Utf8Formatter.TryFormat(correctedPosition.X, buffer[written..], out int colWritten);
         if (!colSuccess) throw new InvalidOperationException("Failed to format column value.");
         written += colWritten;
 
@@ -111,21 +111,18 @@ public sealed class Writer
         _output.Advance(written);
     }
 
-    public void Move(Int2 zeroIndexedPosition)
+    public void Move(Int2 position)
     {
-        Int2 oneIndexedPosition = zeroIndexedPosition + 1;
-        if (_cursor == oneIndexedPosition) return;
-        InternalMove(oneIndexedPosition);
-        _cursor = oneIndexedPosition;
+        if (_cursor == position) return;
+        InternalMove(position);
+        _cursor = position;
     }
-
     public void Foreground(Color foreground)
     {
         if (_foreground == foreground) return;
         InternalForeground(foreground);
         _foreground = foreground;
     }
-
     public void Background(Color background)
     {
         if (_background == background) return;
@@ -133,67 +130,8 @@ public sealed class Writer
         _background = background;
     }
 
-    public void Write(byte value)
-    {
-        Span<byte> buffer = _output.GetSpan(1);
-        buffer[0] = value;
-        _output.Advance(1);
+    public Span<byte> GetSpan(int sizeHint) => _output.GetSpan(sizeHint);
+    public void Advance(int written) { _output.Advance(written); _cursor = _cursor.AddX(written); }
 
-        _cursor = _cursor.AddX(1);
-    }
-
-    public void Write(ReadOnlySpan<byte> text)
-    {
-        Span<byte> buffer = _output.GetSpan(text.Length);
-        text.CopyTo(buffer);
-        _output.Advance(text.Length);
-
-        _cursor = _cursor.AddX(text.Length);
-    }
-
-    public void Write(int value)
-    {
-        Span<byte> buffer = _output.GetSpan(16);
-        bool intSuccess = Utf8Formatter.TryFormat(value, buffer, out int written);
-        if (!intSuccess) throw new InvalidOperationException("Failed to format int value.");
-        _output.Advance(written);
-
-        _cursor = _cursor.AddX(written);
-    }
-
-    public void Write(long value)
-    {
-        Span<byte> buffer = _output.GetSpan(16);
-        bool longSuccess = Utf8Formatter.TryFormat(value, buffer, out int written);
-        if (!longSuccess) throw new InvalidOperationException("Failed to format int value.");
-        _output.Advance(written);
-
-        _cursor = _cursor.AddX(written);
-    }
-
-    public void Write(float value, StandardFormat format = default)
-    {
-        Span<byte> buffer = _output.GetSpan(16);
-        bool floatSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
-        if (!floatSuccess) throw new InvalidOperationException("Failed to format float value.");
-        _output.Advance(written);
-
-        _cursor = _cursor.AddX(written);
-    }
-
-    public void Write(double value, StandardFormat format = default)
-    {
-        Span<byte> buffer = _output.GetSpan(16);
-        bool doubleSuccess = Utf8Formatter.TryFormat(value, buffer, out int written, format);
-        if (!doubleSuccess) throw new InvalidOperationException("Failed to format float value.");
-        _output.Advance(written);
-
-        _cursor = _cursor.AddX(written);
-    }
-
-    public void Flush(Stream output)
-    {
-        output.Write(_output.WrittenSpan);
-        _output.Clear();
-    }
+    public void Flush(Stream output) { output.Write(_output.WrittenSpan); _output.Clear(); }
 }

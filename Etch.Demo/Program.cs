@@ -7,7 +7,6 @@ int width = args.Length > 0 ? int.Parse(args[0]) : 80;
 int height = args.Length > 1 ? int.Parse(args[1]) : 40;
 Int2 size = new(width, height);
 
-
 var etcher = new Etcher(size);
 var canvas = new Canvas(size);
 etcher.Add(canvas);

@@ -1,10 +1,11 @@
 ﻿using Etch.Common;
+using Etch.Terminal;
 
 namespace Etch.Graphics;
 
 public sealed class Canvas(Int2 size) : IWidget
 {
-    public readonly Int2 Size = size;
+    public Int2 Size { get; } = size;
     private Frame _front = new(size);
     private Frame _back = new(size);
 
@@ -20,7 +21,12 @@ public sealed class Canvas(Int2 size) : IWidget
     {
         int count = Frame.Diff(_front, _back, _diff);
         foreach (var delta in _diff[..count])
-            context.Plot(delta.Position, delta.Color, delta.Color.Glyph);
+        {
+            Span<byte> buffer = context.Prepare(delta.Position, 1, delta.Color);
+            if (buffer.IsEmpty) continue;
+            buffer[0] = delta.Color.Glyph;
+            context.Commit(1);
+        }
 
         (_front, _back) = (_back, _front);
         _front.Clear();

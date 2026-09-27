@@ -1,33 +1,18 @@
 ﻿using Etch.Common;
-using System.Text;
 
 namespace Etch.Logging;
 
-public sealed class Logger(int maxInformationCount, int maxWarningCount, int maxErrorCount)
+public sealed class Logger(int maxBufferCapacity)
 {
-    public bool ThrowOnInformation { get; set; } = false;
-    public bool ThrowOnWarning { get; set; } = false;
-    public bool ThrowOnError { get; set; } = false;
+    public Code ThrowOn { get; }
 
-    public readonly Ring<Information> InformationBuffer = new(maxInformationCount);
-    public readonly Ring<Warning> WarningBuffer = new(maxWarningCount);
-    public readonly Ring<Error> ErrorBuffer = new(maxErrorCount);
+    public readonly Ring<float> FrametimeBuffer = new(maxBufferCapacity);
+    public readonly Ring<Code> CodeBuffer = new(maxBufferCapacity);
 
-    public void Log(Information code)
+    public void Log(float frametime) => FrametimeBuffer.Push(frametime);
+    public void Log(Code code)
     {
-        if (ThrowOnInformation) throw new Exception($"[{code}] {Encoding.UTF8.GetString(Message.For(code))}");
-        InformationBuffer.Push(code);
-    }
-
-    public void Log(Warning code)
-    {
-        if (ThrowOnWarning) throw new Exception($"[{code}] {Encoding.UTF8.GetString(Message.For(code))}");
-        WarningBuffer.Push(code);
-    }
-
-    public void Log(Error code)
-    {
-        if (ThrowOnError) throw new Exception($"[{code}] {Encoding.UTF8.GetString(Message.For(code))}");
-        ErrorBuffer.Push(code);
+        if(ThrowOn == code) throw new Exception($"ThrowOn {code} condition was triggered.");
+        CodeBuffer.Push(code);
     }
 }
