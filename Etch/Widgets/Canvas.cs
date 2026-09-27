@@ -20,7 +20,7 @@ public sealed class Canvas(Int2 size) : IWidget
     public void Render(Context context)
     {
         int count = Matrix<Color>.Diff(_front, _back, _diff);
-        foreach (var delta in _diff[..count])
+        foreach (var delta in _diff.AsSpan(0, count))
         {
             Span<byte> buffer = context.Prepare(delta.Position, 1, delta.Data);
             if (buffer.IsEmpty) continue;
