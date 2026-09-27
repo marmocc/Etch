@@ -12,9 +12,9 @@ public class SpiralBenchmarks
     [Params(80)] public int Width;
     [Params(40)] public int Height;
 
-    private double _centerX, _centerY, _aspect;
+    private float _centerX, _centerY, _aspect;
     private const float FakeDeltaTime = 1f / 144f;
-    private double _time;
+    private float _time;
 
 
     private Etcher? _etcher;
@@ -28,9 +28,9 @@ public class SpiralBenchmarks
     public void Setup()
     {
         Int2 size = new(Width, Height);
-        _centerX = Width / 2.0;
-        _centerY = Height / 2.0;
-        _aspect = Width > 0 ? (double)Height / Width : 1.0;
+        _centerX = Width / 2.0f;
+        _centerY = Height / 2.0f;
+        _aspect = Width > 0 ? (float)Height / Width : 1.0f;
         _time = 0;
 
         _etcher = new Etcher();
@@ -43,15 +43,15 @@ public class SpiralBenchmarks
     }
 
 
-    private Color Spiral(int x, int y, double time)
+    private Color Spiral(int x, int y, float time)
     {
-        double dx = x - _centerX;
-        double dy = (y - _centerY) / _aspect;
+        float dx = (x - _centerX);
+        float dy = (y - _centerY) / _aspect;
 
-        double angle = Math.Atan2(dy, dx);
-        double radius = Math.Sqrt(dx * dx + dy * dy);
+        float angle = MathF.Atan2(dy, dx);
+        float radius = MathF.Sqrt(dx * dx + dy * dy);
 
-        double n = Math.Sin(radius * 0.5 - time * 3 + angle * 4);
+        float n = MathF.Sin(radius * 0.5f - time * 3f + angle * 4f);
         byte v = (byte)((n + 1) / 2 * 255);
 
         return new Color(v, (byte)(v / 3), (byte)(255 - v), 255);
