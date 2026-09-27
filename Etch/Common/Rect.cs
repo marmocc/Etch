@@ -12,5 +12,5 @@ public readonly struct Rect(Int2 position, Int2 size)
     public Rect? Interior => Size > Int2.Two ? new(Position + 1, Size - 2) : null;
 
     public bool Contains(Int2 point) => InclusiveStart <= point && point < ExclusiveEnd;
-    public bool Contains(Rect rect) => Contains(rect.InclusiveStart) && Contains(rect.ExclusiveEnd);
+    public bool Contains(Rect rect) => InclusiveStart <= rect.InclusiveStart && rect.ExclusiveEnd <= ExclusiveEnd;
 }
