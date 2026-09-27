@@ -2,7 +2,8 @@
 
 public enum Warning : ushort
 {
-
+    PlotOutOfBounds,
+    BlitOutOfBounds,
 }
 
 public static partial class Message

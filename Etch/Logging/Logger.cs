@@ -5,9 +5,9 @@ namespace Etch.Logging;
 
 public sealed class Logger(int maxInformationCount, int maxWarningCount, int maxErrorCount)
 {
-    public bool ThrowOnInformation = false;
-    public bool ThrowOnWarning = false;
-    public bool ThrowOnError = false;
+    public bool ThrowOnInformation { get; set; } = false;
+    public bool ThrowOnWarning { get; set; } = false;
+    public bool ThrowOnError { get; set; } = false;
 
     public readonly Ring<Information> InformationBuffer = new(maxInformationCount);
     public readonly Ring<Warning> WarningBuffer = new(maxWarningCount);
