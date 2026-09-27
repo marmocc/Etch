@@ -12,6 +12,7 @@ public readonly struct Int2(int x, int y) : IEquatable<Int2>
 
     public static Int2 Zero => new(0, 0);
     public static Int2 One => new(1, 1);
+    public static Int2 Two => new(2, 2);
 
     public Int2 WithX(int x) => new(x, Y);
     public Int2 WithY(int y) => new(X, y);

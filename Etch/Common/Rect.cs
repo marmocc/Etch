@@ -5,14 +5,12 @@ public readonly struct Rect(Int2 position, Int2 size)
     public readonly Int2 Position = position;
     public readonly Int2 Size = size;
 
-    public Int2 Start => Position;
-    public Int2 End => Position + Size - Int2.One;
+    public readonly Int2 Start => Position; // Inclusive Start
+    public readonly Int2 End => Position + Size; // Exclusive End
 
-    public bool Interior(Int2 point) => Start < point && point < End;
-    public bool Closure(Int2 point) => Start <= point && point <= End;
-    public bool Boundary(Int2 point) => Closure(point) && !Interior(point);
+    public static Rect Empty => new(Int2.Zero, Int2.Zero);
+    public Rect? Interior => Size > Int2.Two ? new(Start + 1, Size - 2) : null;
 
-    public bool Interior(Rect rect) => Interior(rect.Start) && Interior(rect.End);
-    public bool Closure(Rect rect) => Closure(rect.Start) && Closure(rect.End);
-    public bool Boundary(Rect rect) => Boundary(rect.Start) && Boundary(rect.End);
+    public bool Contains(Int2 point) => Start <= point && point < End;
+    public bool Contains(Rect rect) => Contains(rect.Start) && Contains(rect.End);
 }

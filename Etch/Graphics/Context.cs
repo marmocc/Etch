@@ -10,9 +10,18 @@ public readonly ref struct Context(Writer writer, Rect bounds)
 
     public void Write(Int2 position, Color color, byte glyph)
     {
-        if (!Bounds.Interior(position)) return;
+        if (!Bounds.Contains(position)) return;
         _writer.Move(position);
         _writer.Foreground(color);
         _writer.Write(glyph);
+    }
+
+    public void Write(Int2 position, Color color, ReadOnlySpan<byte> glyphs)
+    {
+        Rect writeRegion = new(position, new(glyphs.Length, 1));
+        if (!Bounds.Contains(writeRegion)) return;
+        _writer.Move(position);
+        _writer.Foreground(color);
+        _writer.Write(glyphs);
     }
 }
