@@ -6,7 +6,11 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var switcher = BenchmarkSwitcher.FromTypes([typeof(ColorBenchmarks)]);
+        var switcher = BenchmarkSwitcher.FromTypes(
+        [
+            typeof(ChaosBenchmarks),
+            typeof(SpiralBenchmarks)
+        ]);
         switcher.Run(args);
     }
 }
