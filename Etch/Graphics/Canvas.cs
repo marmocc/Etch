@@ -4,7 +4,7 @@ namespace Etch.Graphics;
 
 public sealed class Canvas(Int2 size) : IWidget
 {
-    public Int2 Size { get; } = size;
+    public readonly Int2 Size = size;
     private Frame _front = new(size);
     private Frame _back = new(size);
 
