@@ -13,53 +13,40 @@ etcher.Add(new(0, 0), canvas);
 etcher.Add(new(0, height), new FPS(1));
 
 var stream = Console.OpenStandardOutput();
-var frameStopwatch = Stopwatch.StartNew();
+var drawStopwatch = Stopwatch.StartNew();
 
 float time = 0;
 Console.CursorVisible = false;
 Console.Clear();
 
+float centerX = width / 2.0f;
+float centerY = height / 2.0f;
+float aspect = width > 0 ? (float)height / width : 1.0f;
+
 while (true)
 {
-    float deltaTime = (float)frameStopwatch.Elapsed.TotalSeconds;
-    frameStopwatch.Restart();
-    time += deltaTime;
-
-    float t1 = time * 1.2f;
-    float t2 = time * 0.8f;
+    float drawTime = (float)drawStopwatch.Elapsed.TotalSeconds;
+    drawStopwatch.Restart();
+    time += drawTime;
 
     for (int y = 0; y < height; y++)
     {
-        float ny = (float)y / height;
-
         for (int x = 0; x < width; x++)
         {
-            float nx = (float)x / width;
+            float dx = (x - centerX);
+            float dy = (y - centerY) / aspect;
 
-            float u = MathF.Sin(nx * 4.0f + t1) + MathF.Cos(ny * 4.0f - t2);
-            float v = MathF.Cos(nx * 3.0f - t2) + MathF.Sin(ny * 5.0f + t1);
+            float angle = MathF.Atan2(dy, dx);
+            float radius = MathF.Sqrt(dx * dx + dy * dy);
 
-            float cx = nx * 6.0f + u * 2.0f;
-            float cy = ny * 6.0f + v * 2.0f;
+            float n = MathF.Sin(radius * 0.5f - time * 3f + angle * 4f);
+            byte v = (byte)((n + 1) / 2 * 255);
 
-            float pseudoDist = MathF.Abs(cx) + MathF.Abs(cy) - (MathF.Min(MathF.Abs(cx), MathF.Abs(cy)) * 0.5f);
-
-            float n = MathF.Sin(cx + t1)
-                    + MathF.Cos(cy + t2)
-                    + MathF.Sin(pseudoDist - t1 * 1.5f);
-
-            float intensity = (n + 3.0f) / 6.0f;
-            intensity = Math.Clamp(intensity, 0.0f, 1.0f);
-
-            byte r = (byte)(MathF.Sin(intensity * MathF.PI + time) * 127 + 128);
-            byte g = (byte)(intensity * 255);
-            byte b = (byte)(MathF.Cos(intensity * MathF.PI * 0.5f) * 200 + 55);
-
-            Color color = new(r, g, b, 255);
-            Int2 position = new(x, y);
-            canvas.Draw(position, color);
+            Color color = new((byte)v, (byte)(v / 3), (byte)(255 - v), 255);
+            canvas.Draw(new(x, y), color);
         }
     }
 
-    etcher.Render(stream, deltaTime);
+    drawStopwatch.Stop();
+    etcher.Render(stream, drawTime);
 }
