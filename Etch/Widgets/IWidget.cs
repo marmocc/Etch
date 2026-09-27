@@ -1,7 +1,7 @@
 ﻿using Etch.Common;
 using Etch.Terminal;
 
-namespace Etch;
+namespace Etch.Widgets;
 
 public interface IWidget
 {

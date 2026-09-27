@@ -1,7 +1,8 @@
 ﻿using Etch.Common;
+using Etch.Graphics;
 using Etch.Terminal;
 
-namespace Etch.Graphics;
+namespace Etch.Widgets;
 
 public sealed class Canvas(Int2 size) : IWidget
 {
