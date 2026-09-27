@@ -9,25 +9,25 @@ public sealed class Logger(int maxInformationCount, int maxWarningCount, int max
     public bool ThrowOnWarning = false;
     public bool ThrowOnError = false;
 
-    private readonly Ring<Information> _informationBuffer = new(maxInformationCount);
-    private readonly Ring<Warning> _warningBuffer = new(maxWarningCount);
-    private readonly Ring<Error> _errorBuffer = new(maxErrorCount);
+    public readonly Ring<Information> InformationBuffer = new(maxInformationCount);
+    public readonly Ring<Warning> WarningBuffer = new(maxWarningCount);
+    public readonly Ring<Error> ErrorBuffer = new(maxErrorCount);
 
     public void Log(Information code)
     {
         if (ThrowOnInformation) throw new Exception($"[{code}] {Encoding.UTF8.GetString(Message.For(code))}");
-        _informationBuffer.Push(code);
+        InformationBuffer.Push(code);
     }
 
     public void Log(Warning code)
     {
         if (ThrowOnWarning) throw new Exception($"[{code}] {Encoding.UTF8.GetString(Message.For(code))}");
-        _warningBuffer.Push(code);
+        WarningBuffer.Push(code);
     }
 
     public void Log(Error code)
     {
         if (ThrowOnError) throw new Exception($"[{code}] {Encoding.UTF8.GetString(Message.For(code))}");
-        _errorBuffer.Push(code);
+        ErrorBuffer.Push(code);
     }
 }
