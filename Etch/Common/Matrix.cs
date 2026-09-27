@@ -13,7 +13,7 @@ public sealed class Matrix<T>(Int2 size)
     public ref T this[Int2 position] => ref _data[To1D(position)];
     public Span<T> this[Int2 position, int width] => _data.AsSpan(To1D(position), width);
 
-    public readonly record struct Delta(Int2 Position, T Data) { }
+    public readonly record struct Delta(Int2 Position, T Value) { }
     public static int Diff(Matrix<T> a, Matrix<T> b, Span<Delta> deltas)
     {
         int count = 0;
@@ -28,7 +28,8 @@ public sealed class Matrix<T>(Int2 size)
             {
                 int i = rowStartIndex + x;
                 T current = a._data[i];
-                if (!EqualityComparer<T>.Default.Equals(current, b._data[i]))
+                T previous = b._data[i];
+                if (!EqualityComparer<T>.Default.Equals(current, previous))
                     deltas[count++] = new(new(x, y), current);
             }
         }

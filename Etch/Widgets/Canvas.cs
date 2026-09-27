@@ -22,9 +22,9 @@ public sealed class Canvas(Int2 size) : IWidget
         int count = Matrix<Color>.Diff(_front, _back, _diff);
         foreach (var delta in _diff.AsSpan(0, count))
         {
-            Span<byte> buffer = context.Prepare(delta.Position, 1, delta.Data);
+            Span<byte> buffer = context.Prepare(delta.Position, 1, delta.Value);
             if (buffer.IsEmpty) continue;
-            buffer[0] = delta.Data.Glyph;
+            buffer[0] = delta.Value.Glyph;
             context.Commit(1);
         }
 
