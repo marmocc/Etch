@@ -39,7 +39,7 @@ public class ChaosBenchmarks
 
     [GlobalCleanup(Target = nameof(Etch))]
     public void SaveEtchBytes() =>
-    BytesColumn.Save(nameof(ChaosBenchmarks), nameof(Etch), _etchStream!.Length);
+        BytesColumn.Save(nameof(ChaosBenchmarks), nameof(Etch), _etchStream!.Length);
 
     [GlobalCleanup(Target = nameof(Raw))]
     public void SaveRawBytes() =>
