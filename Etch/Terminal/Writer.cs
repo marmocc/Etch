@@ -11,7 +11,7 @@ public sealed class Writer
     private Int2 _cursor;
     private Color _foreground;
     private Color _background;
-
+    
     public Writer(int initialCapacity) : this(initialCapacity, Int2.Zero, Color.White, Color.Black) { }
     public Writer(int initialCapacity, Int2 initialCursor, Color initialForeground, Color initialBackground)
     {
@@ -131,7 +131,7 @@ public sealed class Writer
     }
 
     public Span<byte> GetSpan(int sizeHint) => _output.GetSpan(sizeHint);
-    public void Advance(int written) { _output.Advance(written); _cursor = _cursor.AddX(written); }
+    public void Advance(int written) { _output.Advance(written); _cursor += new Int2(written, 0); }
 
     public void Flush(Stream output) { output.Write(_output.WrittenSpan); _output.Clear(); }
 }

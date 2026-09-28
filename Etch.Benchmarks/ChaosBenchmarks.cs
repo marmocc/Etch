@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using Etch.Common;
+using Etch.Graphics.Painters;
 using Etch.Widgets;
 using System.Buffers;
 using System.Buffers.Text;
@@ -28,7 +29,7 @@ public class ChaosBenchmarks
         _frame = 0;
 
         _etcher = new Etcher();
-        _canvas = new Canvas(size);
+        _canvas = new Canvas(size, new Chaos());
         _etcher.Add(Int2.Zero, _canvas);
         _etchStream = new MemoryStream(Width * Height * 64);
 
@@ -36,18 +37,14 @@ public class ChaosBenchmarks
         _rawBuffer = new ArrayBufferWriter<byte>(Width * Height * 64);
     }
 
+    [GlobalCleanup(Target = nameof(Etch))]
+    public void SaveEtchBytes() =>
+    BytesColumn.Save(nameof(ChaosBenchmarks), nameof(Etch), _etchStream!.Length);
 
-    private Color Chaos(int x, int y)
-    {
-        uint h = (uint)(x * 374761393 + y * 668265263 + _frame * 2246822519);
-        h = (h ^ (h >> 13)) * 1274126177;
-        h ^= h >> 16;
+    [GlobalCleanup(Target = nameof(Raw))]
+    public void SaveRawBytes() =>
+        BytesColumn.Save(nameof(ChaosBenchmarks), nameof(Raw), _rawStream!.Length);
 
-        byte r = (byte)(h);
-        byte g = (byte)(h >> 8);
-        byte b = (byte)(h >> 16);
-        return new Color(r, g, b, 255);
-    }
 
     [Benchmark]
     public void Etch()
@@ -55,10 +52,6 @@ public class ChaosBenchmarks
         _frame++;
         _etchStream!.SetLength(0);
         _etchStream.Position = 0;
-
-        for (int y = 0; y < Height; y++)
-            for (int x = 0; x < Width; x++)
-                _canvas!.Draw(new(x, y), Chaos(x, y));
 
         _etcher!.Render(_etchStream);
     }
@@ -72,10 +65,10 @@ public class ChaosBenchmarks
 
         for (int y = 0; y < Height; y++)
         {
+            Move(_rawBuffer!, 0, y);
             for (int x = 0; x < Width; x++)
             {
                 Color color = Chaos(x, y);
-                Move(_rawBuffer!, x, y);
                 Foreground(_rawBuffer!, color);
                 Write(_rawBuffer!, color.Glyph);
             }
@@ -85,6 +78,17 @@ public class ChaosBenchmarks
         _rawBuffer!.Clear();
     }
 
+    private Color Chaos(int x, int y)
+    {
+        uint h = (uint)(x * 374761393 + y * 668265263 + _frame * 2246822519);
+        h = (h ^ (h >> 13)) * 1274126177;
+        h ^= h >> 16;
+
+        byte r = (byte)(h);
+        byte g = (byte)(h >> 8);
+        byte b = (byte)(h >> 16);
+        return new Color(r, g, b, 255);
+    }
     private static void Write(ArrayBufferWriter<byte> _output, byte glyph)
     {
         Span<byte> buffer = _output.GetSpan(1);

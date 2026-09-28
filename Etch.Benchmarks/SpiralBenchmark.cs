@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using Etch.Common;
+using Etch.Graphics.Painters;
 using Etch.Widgets;
 using System.Buffers;
 using System.Buffers.Text;
@@ -34,7 +35,7 @@ public class SpiralBenchmarks
         _time = 0;
 
         _etcher = new Etcher();
-        _canvas = new Canvas(size);
+        _canvas = new Canvas(size, new Spiral());
         _etcher.Add(Int2.Zero, _canvas);
         _etchStream = new MemoryStream(Width * Height * 64);
 
@@ -42,20 +43,13 @@ public class SpiralBenchmarks
         _rawBuffer = new ArrayBufferWriter<byte>(Width * Height * 64);
     }
 
+    [GlobalCleanup(Target = nameof(Etch))]
+    public void SaveEtchBytes() =>
+    BytesColumn.Save(nameof(SpiralBenchmarks), nameof(Etch), _etchStream!.Length);
 
-    private Color Spiral(int x, int y, float time)
-    {
-        float dx = (x - _centerX);
-        float dy = (y - _centerY) / _aspect;
-
-        float angle = MathF.Atan2(dy, dx);
-        float radius = MathF.Sqrt(dx * dx + dy * dy);
-
-        float n = MathF.Sin(radius * 0.5f - time * 3f + angle * 4f);
-        byte v = (byte)((n + 1) / 2 * 255);
-
-        return new Color(v, (byte)(v / 3), (byte)(255 - v), 255);
-    }
+    [GlobalCleanup(Target = nameof(Raw))]
+    public void SaveRawBytes() =>
+        BytesColumn.Save(nameof(SpiralBenchmarks), nameof(Raw), _rawStream!.Length);
 
 
     [Benchmark]
@@ -64,10 +58,6 @@ public class SpiralBenchmarks
         _time += FakeDeltaTime;
         _etchStream!.SetLength(0);
         _etchStream.Position = 0;
-
-        for (int y = 0; y < Height; y++)
-            for (int x = 0; x < Width; x++)
-                _canvas!.Draw(new(x, y), Spiral(x, y, _time));
 
         _etcher!.Render(_etchStream);
     }
@@ -81,10 +71,10 @@ public class SpiralBenchmarks
 
         for (int y = 0; y < Height; y++)
         {
+            Move(_rawBuffer!, 0, y);
             for (int x = 0; x < Width; x++)
             {
                 Color color = Spiral(x, y, _time);
-                Move(_rawBuffer!, x, y);
                 Foreground(_rawBuffer!, color);
                 Write(_rawBuffer!, color.Glyph);
             }
@@ -92,6 +82,20 @@ public class SpiralBenchmarks
 
         _rawStream.Write(_rawBuffer!.WrittenSpan);
         _rawBuffer!.Clear();
+    }
+
+    private Color Spiral(int x, int y, float time)
+    {
+        float dx = (x - _centerX);
+        float dy = (y - _centerY) / _aspect;
+
+        float angle = MathF.Atan2(dy, dx);
+        float radius = MathF.Sqrt(dx * dx + dy * dy);
+
+        float n = MathF.Sin(radius * 0.5f - time * 3f + angle * 4f);
+        byte v = (byte)((n + 1) / 2 * 255);
+
+        return new Color(v, (byte)(v / 3), (byte)(255 - v), 255);
     }
 
     private static void Write(ArrayBufferWriter<byte> _output, byte glyph)

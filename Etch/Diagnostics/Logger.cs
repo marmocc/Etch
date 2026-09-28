@@ -1,6 +1,6 @@
 ﻿using Etch.Common;
 
-namespace Etch.Logging;
+namespace Etch.Diagnostics;
 
 public sealed class Logger(int maxBufferCapacity)
 {

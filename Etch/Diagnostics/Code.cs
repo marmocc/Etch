@@ -1,4 +1,4 @@
-﻿namespace Etch.Logging;
+﻿namespace Etch.Diagnostics;
 
 public enum Code
 {

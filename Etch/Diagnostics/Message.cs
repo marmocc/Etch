@@ -1,4 +1,4 @@
-﻿namespace Etch.Logging;
+﻿namespace Etch.Diagnostics;
 
 public static class Message
 {

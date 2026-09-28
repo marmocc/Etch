@@ -1,34 +1,26 @@
 ﻿using Etch.Common;
+using Etch.Graphics;
 using Etch.Terminal;
 
 namespace Etch.Widgets;
 
-public sealed class Canvas(Int2 size) : IWidget
+public sealed class Canvas(Int2 size, IPainter painter) : IWidget
 {
     public Int2 Size { get; } = size;
-    private Matrix<Color> _front = new(size);
-    private Matrix<Color> _back = new(size);
+    public IPainter Painter { get; } = painter;
 
-    private readonly Matrix<Color>.Delta[] _diff = new Matrix<Color>.Delta[size.X * size.Y];
-
-    public void Draw(Int2 position, Color color) =>
-        _front[position] = Color.Blend(_front[position], color);
-
-    public void Draw(Int2 position, int width, Color color) =>
-        Color.Blend(_front[position, width], color);
+    private Color[] _front = new Color[size.X * size.Y];
+    private Color[] _back = new Color[size.X * size.Y];
+    private readonly Delta[] _deltas = new Delta[size.X * size.Y];
 
     public void Render(Context context)
     {
-        int count = Matrix<Color>.Diff(_front, _back, _diff);
-        foreach (var delta in _diff.AsSpan(0, count))
-        {
-            Span<byte> buffer = context.Prepare(delta.Position, 1, delta.Value);
-            if (buffer.IsEmpty) continue;
-            buffer[0] = delta.Value.Glyph;
-            context.Commit(1);
-        }
+        Painter.Paint(new Brush(_front, Size, context.DeltaTime));
+        int count = Delta.Compute(_front, _back, _deltas);
+        foreach (var delta in _deltas.AsSpan(0, count))
+            context.Plot(delta.Index.Unflatten(Size.X), delta.Color);
 
         (_front, _back) = (_back, _front);
-        _front.Clear();
+        Array.Clear(_front);
     }
 }

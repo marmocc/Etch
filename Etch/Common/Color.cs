@@ -1,17 +1,16 @@
-﻿using System.Runtime.InteropServices;
+﻿namespace Etch.Common;
 
-namespace Etch.Common;
-
-[StructLayout(LayoutKind.Explicit, Size = 4)]
-public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<Color>
+public readonly struct Color : IEquatable<Color>
 {
-    [FieldOffset(0)] public readonly byte R = r;
-    [FieldOffset(1)] public readonly byte G = g;
-    [FieldOffset(2)] public readonly byte B = b;
-    [FieldOffset(3)] public readonly byte A = a;
+    public const byte RShift = 0, GShift = 8, BShift = 16, AShift = 24;
+    public readonly uint Packed;
+    public Color(byte r, byte g, byte b, byte a = 255) =>
+        Packed = ((uint)r << RShift) | ((uint)g << GShift) | ((uint)b << BShift) | ((uint)a << AShift);
 
-    // uint representation of the whole Color struct.
-    [FieldOffset(0)] public readonly uint RGBA;
+    public byte R => (byte)(Packed >> RShift);
+    public byte G => (byte)(Packed >> GShift);
+    public byte B => (byte)(Packed >> BShift);
+    public byte A => (byte)(Packed >> AShift);
 
     // Glyph representation of the Color's Luminance
     public readonly byte Glyph
@@ -37,11 +36,11 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
     public Color WithBlue(byte blue) => new(R, G, blue, A);
     public Color WithAlpha(byte alpha) => new(R, G, B, alpha);
 
-    public bool Equals(Color other) => this.RGBA == other.RGBA;
+    public bool Equals(Color other) => Packed == other.Packed;
     public override bool Equals(object? obj) => obj is Color color && Equals(color);
     public static bool operator ==(Color left, Color right) => left.Equals(right);
     public static bool operator !=(Color left, Color right) => !(left == right);
-    public override int GetHashCode() => this.RGBA.GetHashCode();
+    public override int GetHashCode() => Packed.GetHashCode();
     public override string ToString() => $"({R},{G},{B},{A})";
 
     public static Color Blend(Color destination, Color source)
@@ -56,9 +55,9 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         int gSum = source.G * sA + destination.G * dA;
         int bSum = source.B * sA + destination.B * dA;
 
-        byte r = Utilities.DivisionBy255(rSum);
-        byte g = Utilities.DivisionBy255(gSum);
-        byte b = Utilities.DivisionBy255(bSum);
+        byte r = Toolbox.DivisionBy255(rSum);
+        byte g = Toolbox.DivisionBy255(gSum);
+        byte b = Toolbox.DivisionBy255(bSum);
 
         return new Color(r, g, b, 255);
     }
@@ -69,6 +68,6 @@ public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<
         if (source.A == 255) { destination.Fill(source); return; }
 
         for (int i = 0; i < destination.Length; i++)
-            destination[i] = Color.Blend(destination[i], source);
+            destination[i] = Blend(destination[i], source);
     }
 }
