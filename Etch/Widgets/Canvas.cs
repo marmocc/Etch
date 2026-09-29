@@ -1,5 +1,6 @@
 ﻿using Etch.Common;
 using Etch.Graphics;
+using Etch.Graphics.Painters;
 using Etch.Terminal;
 
 namespace Etch.Widgets;

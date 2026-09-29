@@ -1,6 +1,6 @@
 ﻿using Etch.Common;
 
-namespace Etch.Graphics;
+namespace Etch.Graphics.Painters;
 
 public interface IPainter
 {
