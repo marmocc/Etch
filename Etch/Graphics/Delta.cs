@@ -17,7 +17,7 @@ public readonly struct Delta(Flat index, Color color)
 
         for (int i = 0; i < firstAsUint.Length; i++)
             if (firstAsUint[i] != secondAsUint[i])
-                output[count++] = new(i, first[i]);
+                output[count++] = new(new(i), first[i]);
 
         return count;
     }

@@ -26,7 +26,7 @@ public sealed class Canvas(Int2 size, IPainter painter) : IWidget
         Painter.Paint(new Brush(_front, Size, context.DeltaTime));
         int count = Delta.Compute(_front, _back, _deltas);
         foreach (var delta in _deltas.AsSpan(0, count))
-            context.Write(delta.Index.Unflatten(Size.X), GlyphFrom(delta.Color), delta.Color, Color.Black);
+            context.Plot(delta.Index.Unflatten(Size.X), GlyphFrom(delta.Color), delta.Color, Color.Black);
 
         (_front, _back) = (_back, _front);
         Array.Clear(_front);

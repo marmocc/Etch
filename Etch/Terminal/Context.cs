@@ -8,7 +8,7 @@ public readonly ref struct Context(float deltaTime, Writer writer, Rect bounds)
     private readonly Writer _writer = writer;
     private readonly Rect _bounds = bounds;
 
-    public bool Write(Int2 position, byte glyph, Color foreground, Color background)
+    public bool Plot(Int2 position, byte glyph, Color foreground, Color background)
     {
         if (!_bounds.Contains(position)) return false;
         

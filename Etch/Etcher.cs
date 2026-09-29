@@ -20,13 +20,10 @@ public sealed class Etcher
     {
         float deltaTime = (float)_stopwatch.Elapsed.TotalSeconds;
         _logger.Log(deltaTime);
-
         _stopwatch.Restart();
 
         foreach (var slot in _slots)
             slot.Widget.Render(new(deltaTime, _writer, new(slot.Position, slot.Widget.Size)));
         _writer.Flush(stream);
-
-        _stopwatch.Stop();
     }
 }
