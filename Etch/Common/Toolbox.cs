@@ -9,8 +9,4 @@ public static class Toolbox
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int CeilingDivision(int x, int y) => (x + y - 1) / y;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int From2DTo1D(Int2 index, int width) => index.Y * width + index.X;
-
 }
