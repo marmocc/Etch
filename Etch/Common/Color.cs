@@ -1,18 +1,14 @@
 ﻿namespace Etch.Common;
 
-public readonly struct Color : IEquatable<Color>
+public readonly struct Color(byte r, byte g, byte b, byte a = 255) : IEquatable<Color>
 {
     public const byte RShift = 0, GShift = 8, BShift = 16, AShift = 24;
+    public readonly uint Packed = ((uint)r << RShift) | ((uint)g << GShift) | ((uint)b << BShift) | ((uint)a << AShift);
 
-    public readonly uint Packed;
-    public Color(uint packed) => Packed = packed;
-    public Color(byte r, byte g, byte b, byte a = 255) =>
-        Packed = ((uint)r << RShift) | ((uint)g << GShift) | ((uint)b << BShift) | ((uint)a << AShift);
-
-    public byte R => (byte)(Packed >> RShift);
-    public byte G => (byte)(Packed >> GShift);
-    public byte B => (byte)(Packed >> BShift);
-    public byte A => (byte)(Packed >> AShift);
+    public readonly byte R => (byte)(Packed >> RShift);
+    public readonly byte G => (byte)(Packed >> GShift);
+    public readonly byte B => (byte)(Packed >> BShift);
+    public readonly byte A => (byte)(Packed >> AShift);
 
     public static Color Transparent => new(0, 0, 0, 0);
     public static Color White => new(255, 255, 255, 255);
