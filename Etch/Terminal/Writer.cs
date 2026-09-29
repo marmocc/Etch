@@ -133,5 +133,5 @@ public sealed class Writer
     public Span<byte> GetSpan(int sizeHint) => _output.GetSpan(sizeHint);
     public void Advance(int written) { _output.Advance(written); _cursor += new Int2(written, 0); }
 
-    public void Flush(Stream output) { output.Write(_output.WrittenSpan); _output.Clear(); }
+    public void Flush(Stream output) { output.Write(_output.WrittenSpan); _output.ResetWrittenCount(); }
 }
