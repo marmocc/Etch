@@ -16,12 +16,13 @@ public readonly struct Int2(int x, int y) : IEquatable<Int2>
     public override bool Equals(object? obj) => obj is Int2 int2 && Equals(int2);
     public override int GetHashCode() => HashCode.Combine(X, Y);
 
+    public bool AllLess(Int2 other) => X < other.X && Y < other.Y;
+    public bool AllLessOrEqual(Int2 other) => X <= other.X && Y <= other.X;
+    public bool AllGreater(Int2 other) => X > other.X && Y > other.Y;
+    public bool AllGreaterOrEqual(Int2 other) => X >= other.X && Y >= other.Y;
+
     public static bool operator ==(Int2 left, Int2 right) => left.Equals(right);
     public static bool operator !=(Int2 left, Int2 right) => !(left == right);
-    public static bool operator >(Int2 left, Int2 right) => left.X > right.X && left.Y > right.Y;
-    public static bool operator <(Int2 left, Int2 right) => left.X < right.X && left.Y < right.Y;
-    public static bool operator >=(Int2 left, Int2 right) => left.X >= right.X && left.Y >= right.Y;
-    public static bool operator <=(Int2 left, Int2 right) => left.X <= right.X && left.Y <= right.Y;
 
     public static Int2 operator +(Int2 left, Int2 right) => new(left.X + right.X, left.Y + right.Y);
     public static Int2 operator +(Int2 left, int right) => new(left.X + right, left.Y + right);
