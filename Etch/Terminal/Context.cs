@@ -10,9 +10,10 @@ public readonly ref struct Context(float deltaTime, Writer writer, Rect bounds)
 
     public bool Plot(Int2 position, byte glyph, Color foreground, Color background)
     {
-        if (!_bounds.Contains(position)) return false;
+        Int2 absolutePosition = position + _bounds.Position;
+        if (!_bounds.Contains(absolutePosition)) return false;
         
-        _writer.Move(position);
+        _writer.Move(absolutePosition);
         _writer.Foreground(foreground);
         _writer.Background(background);
 
