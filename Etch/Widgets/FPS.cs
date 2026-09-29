@@ -7,7 +7,6 @@ public class FPS(int intervalSeconds) : IWidget
 {
     public const int Width = 6; // "XXXXXX"
     public Int2 Size { get; } = new(Width, 1);
-    public static ReadOnlySpan<byte> Default => "??????"u8;
     public readonly int IntervalSeconds = intervalSeconds;
 
     private int _frames = 0;
@@ -24,8 +23,9 @@ public class FPS(int intervalSeconds) : IWidget
 
         Span<byte> buffer = context.Prepare(Int2.Zero, Width, Color.White, Color.Black);
         if (buffer.IsEmpty) return;
-        if (fps >= 1_000_000 || fps <= 0) Default.CopyTo(buffer);
-        else buffer[Format.Into(buffer, fps)..].Fill((byte)'.');
+
+        buffer.Fill((byte)'.');
+        if (fps >= 0 && fps <= 1_000_000) Format.Into(buffer, fps);
         context.Commit(buffer.Length);
     }
 }
