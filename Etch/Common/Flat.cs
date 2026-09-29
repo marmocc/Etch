@@ -31,8 +31,6 @@ public readonly struct Flat(int value) : IEquatable<Flat>
     public static bool operator <=(Flat left, Flat right) => left.Value <= right.Value;
     public static bool operator <=(Flat left, int right) => left.Value <= right;
 
-    public static implicit operator Flat(int integer) => new(integer);
-
     public static Flat operator +(Flat left, int right) => new(left.Value + right);
     public static Flat operator +(Flat left, Flat right) => new(left.Value + right.Value);
     public static Flat operator ++(Flat flat) => new(flat.Value + 1);
