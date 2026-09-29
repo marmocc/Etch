@@ -25,7 +25,7 @@ public class FPS(int intervalSeconds) : IWidget
         if (buffer.IsEmpty) return;
 
         buffer.Fill((byte)'.');
-        if (fps >= 0 && fps <= 1_000_000) Format.Into(buffer, fps);
+        if (fps >= 0 && fps < 1_000_000) Format.Into(buffer, fps);
         context.Commit(buffer.Length);
     }
 }
