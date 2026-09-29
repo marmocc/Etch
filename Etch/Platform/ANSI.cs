@@ -1,8 +1,10 @@
 ﻿using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Etch.Platform;
 
-public static class ConsoleHost
+[SupportedOSPlatform("windows")]
+public static class ANSI
 {
     private const int STD_OUTPUT_HANDLE = -11;
     private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -16,7 +18,7 @@ public static class ConsoleHost
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
-    public static bool EnableANSI()
+    public static bool Enable()
     {
         IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
         if (handle == IntPtr.Zero || handle == new IntPtr(-1)) return false;

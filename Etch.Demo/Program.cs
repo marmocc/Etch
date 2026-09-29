@@ -13,7 +13,7 @@ var canvas = new Canvas(size, new Chaos());
 etcher.Add(new(0, 0), new FPS(1));
 etcher.Add(new(0, 1), canvas);
 
-ConsoleHost.EnableANSI();
+if (OperatingSystem.IsWindows()) ANSI.Enable();
 var stream = Console.OpenStandardOutput();
 Console.CursorVisible = false;
 Console.Clear();
