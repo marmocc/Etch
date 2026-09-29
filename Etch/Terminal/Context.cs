@@ -32,7 +32,9 @@ public readonly ref struct Context(float deltaTime, Writer writer, Rect bounds)
         _writer.Foreground(foreground);
         _writer.Background(background);
 
-        return _writer.GetSpan(width);
+        Span<byte> atLeastWidth = _writer.GetSpan(width);
+        Span<byte> exactlyWidth = atLeastWidth[..width];
+        return exactlyWidth;
     }
 
     public void Commit(int written) => _writer.Advance(written);

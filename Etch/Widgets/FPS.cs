@@ -24,9 +24,8 @@ public class FPS(int intervalSeconds) : IWidget
 
         Span<byte> buffer = context.Prepare(Int2.Zero, Width, Color.White, Color.Black);
         if (buffer.IsEmpty) return;
-        int written = buffer.Length;
         if (fps >= 1_000_000 || fps <= 0) Default.CopyTo(buffer);
-        else written = Format.Into(buffer, fps);
-        context.Commit(written);
+        else buffer[Format.Into(buffer, fps)..].Fill((byte)'.');
+        context.Commit(buffer.Length);
     }
 }
