@@ -3,7 +3,7 @@ using Etch.Terminal;
 
 namespace Etch.Widgets;
 
-public class FPS(int intervalSeconds) : IWidget
+public sealed class FPS(int intervalSeconds) : IWidget
 {
     public const int Width = 6; // "XXXXXX"
     public Int2 Size { get; } = new(Width, 1);
