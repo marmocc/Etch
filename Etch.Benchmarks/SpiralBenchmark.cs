@@ -76,7 +76,7 @@ public class SpiralBenchmarks
             {
                 Color color = Spiral(x, y, _time);
                 Foreground(_rawBuffer!, color);
-                Write(_rawBuffer!, color.Glyph);
+                Write(_rawBuffer!, Canvas.GlyphFrom(color));
             }
         }
 

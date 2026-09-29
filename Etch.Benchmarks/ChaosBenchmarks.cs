@@ -70,7 +70,7 @@ public class ChaosBenchmarks
             {
                 Color color = Chaos(x, y);
                 Foreground(_rawBuffer!, color);
-                Write(_rawBuffer!, color.Glyph);
+                Write(_rawBuffer!, Canvas.GlyphFrom(color));
             }
         }
 

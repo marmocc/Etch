@@ -8,28 +8,29 @@ public readonly ref struct Context(float deltaTime, Writer writer, Rect bounds)
     private readonly Writer _writer = writer;
     private readonly Rect _bounds = bounds;
 
-    public bool Plot(Int2 position, Color color)
+    public bool Write(Int2 position, byte glyph, Color foreground, Color background)
     {
-        Int2 absolutePosition = position + _bounds.Position;
-        if (!_bounds.Contains(absolutePosition)) return false;
+        if (!_bounds.Contains(position)) return false;
+        
+        _writer.Move(position);
+        _writer.Foreground(foreground);
+        _writer.Background(background);
 
-        _writer.Move(absolutePosition);
-        _writer.Foreground(color);
-        Span<byte> buffer = _writer.GetSpan(1);
-        buffer[0] = color.Glyph;
+        _writer.GetSpan(1)[0] = glyph;
         _writer.Advance(1);
 
         return true;
     }
 
-    public Span<byte> Prepare(Int2 position, int width, Color color)
+    public Span<byte> Prepare(Int2 position, int width, Color foreground, Color background)
     {
         Int2 absolutePosition = position + _bounds.Position;
         Rect writeRegion = new(absolutePosition, new(width, 1));
         if (!_bounds.Contains(writeRegion)) return Span<byte>.Empty;
 
         _writer.Move(absolutePosition);
-        _writer.Foreground(color);
+        _writer.Foreground(foreground);
+        _writer.Background(background);
 
         return _writer.GetSpan(width);
     }

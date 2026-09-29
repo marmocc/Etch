@@ -3,7 +3,9 @@
 public readonly struct Color : IEquatable<Color>
 {
     public const byte RShift = 0, GShift = 8, BShift = 16, AShift = 24;
+
     public readonly uint Packed;
+    public Color(uint packed) => Packed = packed;
     public Color(byte r, byte g, byte b, byte a = 255) =>
         Packed = ((uint)r << RShift) | ((uint)g << GShift) | ((uint)b << BShift) | ((uint)a << AShift);
 
@@ -11,18 +13,6 @@ public readonly struct Color : IEquatable<Color>
     public byte G => (byte)(Packed >> GShift);
     public byte B => (byte)(Packed >> BShift);
     public byte A => (byte)(Packed >> AShift);
-
-    // Glyph representation of the Color's Luminance
-    public readonly byte Glyph
-    {
-        get
-        {
-            int luminance = (306 * R + 601 * G + 117 * B) >> 10;
-            int index = (luminance * 70) >> 8;
-            ReadOnlySpan<byte> ramp = " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
-            return ramp[index];
-        }
-    }
 
     public static Color Transparent => new(0, 0, 0, 0);
     public static Color White => new(255, 255, 255, 255);

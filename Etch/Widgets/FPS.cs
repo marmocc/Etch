@@ -22,7 +22,7 @@ public class FPS(int intervalSeconds) : IWidget
         _time = 0f;
         _frames = 0;
 
-        Span<byte> buffer = context.Prepare(Int2.Zero, Width, Color.White);
+        Span<byte> buffer = context.Prepare(Int2.Zero, Width, Color.White, Color.Black);
         if (buffer.IsEmpty) return;
         int written = buffer.Length;
         if (fps >= 1_000_000 || fps <= 0) Default.CopyTo(buffer);

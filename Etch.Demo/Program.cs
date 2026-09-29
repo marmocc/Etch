@@ -8,7 +8,7 @@ int height = Console.WindowHeight - 1;
 Int2 size = new(height * 2, height);
 
 var etcher = new Etcher();
-var canvas = new Canvas(size, new Spiral());
+var canvas = new Canvas(size, new Chaos());
 
 etcher.Add(new(0, 0), new FPS(1));
 etcher.Add(new(0, 1), canvas);
