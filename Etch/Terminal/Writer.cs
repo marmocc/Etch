@@ -6,16 +6,20 @@ namespace Etch.Terminal;
 
 public sealed class Writer
 {
-    private readonly ArrayBufferWriter<byte> _output;
+    private readonly Stream _output;
+    private readonly ArrayBufferWriter<byte> _buffer;
 
     private Int2 _cursor;
     private Color _foreground;
     private Color _background;
+
+    public static Writer Terminal => field ??= new(8192, Console.OpenStandardOutput());
     
-    public Writer(int initialCapacity) : this(initialCapacity, Int2.Zero, Color.White, Color.Black) { }
-    public Writer(int initialCapacity, Int2 initialCursor, Color initialForeground, Color initialBackground)
+    public Writer(int initialCapacity, Stream output) : this(initialCapacity, output, Int2.Zero, Color.White, Color.Black) { }
+    public Writer(int initialCapacity, Stream output, Int2 initialCursor, Color initialForeground, Color initialBackground)
     {
-        _output = new(initialCapacity);
+        _output = output;
+        _buffer = new(initialCapacity);
         InternalMove(initialCursor);
         _cursor = initialCursor;
         InternalForeground(initialForeground);
@@ -27,7 +31,7 @@ public sealed class Writer
     private void InternalMove(Int2 position)
     {
         Int2 correctedPosition = position + 1;
-        Span<byte> buffer = _output.GetSpan(16);
+        Span<byte> buffer = _buffer.GetSpan(16);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
@@ -44,11 +48,11 @@ public sealed class Writer
         written += colWritten;
 
         buffer[written++] = (byte)'H';
-        _output.Advance(written);
+        _buffer.Advance(written);
     }
     private void InternalForeground(Color foreground)
     {
-        Span<byte> buffer = _output.GetSpan(24);
+        Span<byte> buffer = _buffer.GetSpan(24);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
@@ -76,11 +80,11 @@ public sealed class Writer
         written += bWritten;
 
         buffer[written++] = (byte)'m';
-        _output.Advance(written);
+        _buffer.Advance(written);
     }
     private void InternalBackground(Color background)
     {
-        Span<byte> buffer = _output.GetSpan(24);
+        Span<byte> buffer = _buffer.GetSpan(24);
         int written = 0;
 
         buffer[written++] = 0x1B; // ESC
@@ -108,7 +112,7 @@ public sealed class Writer
         written += bWritten;
 
         buffer[written++] = (byte)'m';
-        _output.Advance(written);
+        _buffer.Advance(written);
     }
 
     public void Move(Int2 position)
@@ -130,8 +134,8 @@ public sealed class Writer
         _background = background;
     }
 
-    public Span<byte> GetSpan(int sizeHint) => _output.GetSpan(sizeHint);
-    public void Advance(int written) { _output.Advance(written); _cursor += new Int2(written, 0); }
+    public Span<byte> GetSpan(int sizeHint) => _buffer.GetSpan(sizeHint);
+    public void Advance(int written) { _buffer.Advance(written); _cursor += new Int2(written, 0); }
 
-    public void Flush(Stream output) { output.Write(_output.WrittenSpan); _output.ResetWrittenCount(); }
+    public void Flush() { _output.Write(_buffer.WrittenSpan); _buffer.ResetWrittenCount(); }
 }

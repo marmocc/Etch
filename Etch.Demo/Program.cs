@@ -1,22 +1,16 @@
-﻿using Etch;
-using Etch.Common;
+﻿using Etch.Common;
+using Etch.Graphics;
 using Etch.Graphics.Painters;
 using Etch.Platform;
-using Etch.Widgets;
+using Etch.Terminal;
 
-int height = Console.WindowHeight - 1;
+int height = Console.WindowHeight;
 Int2 size = new(height * 2, height);
 
-var etcher = new Etcher();
-var canvas = new Canvas(size, new Chaos());
-
-etcher.Add(new(0, 0), new FPS(1));
-etcher.Add(new(0, 1), canvas);
-
+var canvas = new Canvas(size, Writer.Terminal, new Chaos());
 if (OperatingSystem.IsWindows()) ANSI.Enable();
-var stream = Console.OpenStandardOutput();
 Console.CursorVisible = false;
 Console.Clear();
 
 while (true)
-    etcher.Render(stream);
+    canvas.Render();

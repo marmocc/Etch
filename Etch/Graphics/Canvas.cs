@@ -1,18 +1,21 @@
 ﻿using Etch.Common;
-using Etch.Graphics;
 using Etch.Graphics.Painters;
 using Etch.Terminal;
+using System.Diagnostics;
 
-namespace Etch.Widgets;
+namespace Etch.Graphics;
 
-public sealed class Canvas(Int2 size, IPainter painter) : IWidget
+public sealed class Canvas(Int2 size, Writer output, IPainter painter)
 {
     public Int2 Size { get; } = size;
-    public IPainter Painter { get; } = painter;
+    public Writer Output { get; } = output;
+    public IPainter Painter { get; set; } = painter;
 
     private Color[] _front = new Color[size.X * size.Y];
     private Color[] _back = new Color[size.X * size.Y];
     private readonly Delta[] _deltas = new Delta[size.X * size.Y];
+
+    private readonly Stopwatch _stopwatch = new();
 
     public static byte GlyphFrom(Color color)
     {
@@ -22,12 +25,23 @@ public sealed class Canvas(Int2 size, IPainter painter) : IWidget
         return ramp[index];
     }
 
-    public void Render(Context context)
+    public void Render()
     {
-        Painter.Paint(new Brush(_front, Size, context.DeltaTime));
+        float deltaTime = (float)_stopwatch.Elapsed.TotalSeconds;
+
+        Painter.Paint(new Brush(_front, Size, deltaTime));
         int count = Delta.Compute(_front, _back, _deltas);
+
         foreach (var delta in _deltas.AsSpan(0, count))
-            context.Plot(delta.Index.Unflatten(Size.X), GlyphFrom(delta.Color), delta.Color, Color.Black);
+        {
+            Output.Move(delta.Index.Unflatten(Size.X));
+            Output.Foreground(delta.Color);
+            Span<byte> buffer = Output.GetSpan(1);
+            buffer[0] = GlyphFrom(delta.Color);
+            Output.Advance(1);
+        }
+
+        Output.Flush();
 
         (_front, _back) = (_back, _front);
         Array.Clear(_front);

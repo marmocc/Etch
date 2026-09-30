@@ -1,7 +1,8 @@
 using BenchmarkDotNet.Attributes;
 using Etch.Common;
+using Etch.Graphics;
 using Etch.Graphics.Painters;
-using Etch.Widgets;
+using Etch.Terminal;
 using System.Buffers;
 using System.Buffers.Text;
 
@@ -18,7 +19,7 @@ public class SpiralBenchmarks
     private float _time;
 
 
-    private Etcher? _etcher;
+    private Writer? _writer;
     private Canvas? _canvas;
     private MemoryStream? _etchStream;
 
@@ -34,10 +35,9 @@ public class SpiralBenchmarks
         _aspect = Width > 0 ? (float)Height / Width : 1.0f;
         _time = 0;
 
-        _etcher = new Etcher();
-        _canvas = new Canvas(size, new Spiral());
-        _etcher.Add(Int2.Zero, _canvas);
         _etchStream = new MemoryStream(Width * Height * 64);
+        _writer = new(_etchStream.Capacity, _etchStream);
+        _canvas = new Canvas(size, _writer, new Spiral());
 
         _rawStream = new MemoryStream(Width * Height * 64);
         _rawBuffer = new ArrayBufferWriter<byte>(Width * Height * 64);
@@ -59,7 +59,7 @@ public class SpiralBenchmarks
         _etchStream!.SetLength(0);
         _etchStream.Position = 0;
 
-        _etcher!.Render(_etchStream);
+        _canvas!.Render();
     }
 
     [Benchmark(Baseline = true)]

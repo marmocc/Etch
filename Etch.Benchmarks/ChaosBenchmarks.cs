@@ -1,7 +1,8 @@
 using BenchmarkDotNet.Attributes;
 using Etch.Common;
+using Etch.Graphics;
 using Etch.Graphics.Painters;
-using Etch.Widgets;
+using Etch.Terminal;
 using System.Buffers;
 using System.Buffers.Text;
 
@@ -15,7 +16,7 @@ public class ChaosBenchmarks
 
     private int _frame;
 
-    private Etcher? _etcher;
+    private Writer? _writer;
     private Canvas? _canvas;
     private MemoryStream? _etchStream;
 
@@ -28,10 +29,9 @@ public class ChaosBenchmarks
         Int2 size = new(Width, Height);
         _frame = 0;
 
-        _etcher = new Etcher();
-        _canvas = new Canvas(size, new Chaos());
-        _etcher.Add(Int2.Zero, _canvas);
         _etchStream = new MemoryStream(Width * Height * 64);
+        _writer = new Writer(_etchStream.Capacity, _etchStream);
+        _canvas = new Canvas(size, _writer, new Chaos());
 
         _rawStream = new MemoryStream(Width * Height * 64);
         _rawBuffer = new ArrayBufferWriter<byte>(Width * Height * 64);
@@ -53,7 +53,7 @@ public class ChaosBenchmarks
         _etchStream!.SetLength(0);
         _etchStream.Position = 0;
 
-        _etcher!.Render(_etchStream);
+        _canvas!.Render();
     }
 
     [Benchmark(Baseline = true)]
