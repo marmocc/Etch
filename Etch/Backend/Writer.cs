@@ -2,7 +2,7 @@
 using System.Buffers;
 using System.Buffers.Text;
 
-namespace Etch.Terminal;
+namespace Etch.Backend;
 
 public sealed class Writer
 {

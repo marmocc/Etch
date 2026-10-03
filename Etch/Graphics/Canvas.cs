@@ -1,6 +1,6 @@
-﻿using Etch.Common;
+﻿using Etch.Backend;
+using Etch.Common;
 using Etch.Graphics.Painters;
-using Etch.Terminal;
 using System.Diagnostics;
 
 namespace Etch.Graphics;

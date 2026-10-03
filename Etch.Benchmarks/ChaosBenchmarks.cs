@@ -1,8 +1,8 @@
 using BenchmarkDotNet.Attributes;
+using Etch.Backend;
 using Etch.Common;
 using Etch.Graphics;
 using Etch.Graphics.Painters;
-using Etch.Terminal;
 using System.Buffers;
 using System.Buffers.Text;
 

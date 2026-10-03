@@ -1,8 +1,8 @@
-﻿using Etch.Common;
+﻿using Etch.Backend;
+using Etch.Common;
 using Etch.Graphics;
 using Etch.Graphics.Painters;
 using Etch.Platform;
-using Etch.Terminal;
 
 int height = Console.WindowHeight;
 Int2 size = new(height * 2, height);
