@@ -16,7 +16,7 @@ public class Surface(Int2 size, Stream stream) : ISurface
 
     public void Present(Canvas canvas)
     {
-        int count = Delta.Compute(Last, canvas.Data, Deltas);
+        int count = Delta.Compute(canvas.Data, Last, Deltas);
         foreach(var delta in Deltas.AsSpan(0, count))
         {
             Writer.Move(delta.Index.Unflatten(size.X));
