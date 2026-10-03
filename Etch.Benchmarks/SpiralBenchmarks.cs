@@ -55,7 +55,6 @@ public class SpiralBenchmarks
             for (int x = 0; x < Width; x++)
                 _canvas!.Data[Flat.Flatten(x, y, Width).Value] = Painters.Spiral(x, y, Width, Height, _time);
         _surface!.Present(_canvas!);
-        _etchStream.Flush();
     }
 
     [Benchmark(Baseline = true)]
