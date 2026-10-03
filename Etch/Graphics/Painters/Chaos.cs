@@ -23,7 +23,7 @@ public sealed class Chaos : IPainter
                 byte b = (byte)(h >> 16);
                 Color color = new(r, g, b, 255);
                 Int2 position = new(x, y);
-                brush.Draw(position, color);
+                brush.Draw(position, new(color));
             }
         }
     }

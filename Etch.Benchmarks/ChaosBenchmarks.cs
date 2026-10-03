@@ -68,9 +68,9 @@ public class ChaosBenchmarks
             Move(_rawBuffer!, 0, y);
             for (int x = 0; x < Width; x++)
             {
-                Color color = Chaos(x, y);
-                Foreground(_rawBuffer!, color);
-                Write(_rawBuffer!, Canvas.GlyphFrom(color));
+                Pixel pixel = Chaos(x, y);
+                Foreground(_rawBuffer!, pixel.Color);
+                Write(_rawBuffer!, pixel.Glyph);
             }
         }
 
@@ -78,7 +78,7 @@ public class ChaosBenchmarks
         _rawBuffer!.Clear();
     }
 
-    private Color Chaos(int x, int y)
+    private Pixel Chaos(int x, int y)
     {
         uint h = (uint)(x * 374761393 + y * 668265263 + _frame * 2246822519);
         h = (h ^ (h >> 13)) * 1274126177;
@@ -87,7 +87,7 @@ public class ChaosBenchmarks
         byte r = (byte)(h);
         byte g = (byte)(h >> 8);
         byte b = (byte)(h >> 16);
-        return new Color(r, g, b, 255);
+        return new(new(r, g, b, 255));
     }
     private static void Write(ArrayBufferWriter<byte> _output, byte glyph)
     {

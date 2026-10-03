@@ -30,7 +30,7 @@ public sealed class Spiral : IPainter
 
                 Color color = new(v, (byte)(v / 3), (byte)(255 - v), 255);
                 Int2 position = new(x, y);
-                brush.Draw(position, color);
+                brush.Draw(position, new(color));
             }
         }
     }

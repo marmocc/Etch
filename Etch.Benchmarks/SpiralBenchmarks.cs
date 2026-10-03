@@ -74,9 +74,9 @@ public class SpiralBenchmarks
             Move(_rawBuffer!, 0, y);
             for (int x = 0; x < Width; x++)
             {
-                Color color = Spiral(x, y, _time);
-                Foreground(_rawBuffer!, color);
-                Write(_rawBuffer!, Canvas.GlyphFrom(color));
+                Pixel pixel = Spiral(x, y, _time);
+                Foreground(_rawBuffer!, pixel.Color);
+                Write(_rawBuffer!, pixel.Glyph);
             }
         }
 
@@ -84,7 +84,7 @@ public class SpiralBenchmarks
         _rawBuffer!.Clear();
     }
 
-    private Color Spiral(int x, int y, float time)
+    private Pixel Spiral(int x, int y, float time)
     {
         float dx = (x - _centerX);
         float dy = (y - _centerY) / _aspect;
@@ -95,7 +95,7 @@ public class SpiralBenchmarks
         float n = MathF.Sin(radius * 0.5f - time * 3f + angle * 4f);
         byte v = (byte)((n + 1) / 2 * 255);
 
-        return new Color(v, (byte)(v / 3), (byte)(255 - v), 255);
+        return new(new(v, (byte)(v / 3), (byte)(255 - v), 255));
     }
 
     private static void Write(ArrayBufferWriter<byte> _output, byte glyph)
