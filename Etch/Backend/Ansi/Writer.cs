@@ -1,8 +1,9 @@
 ﻿using Etch.Common;
+using Etch.Graphics;
 using System.Buffers;
 using System.Buffers.Text;
 
-namespace Etch.Backend;
+namespace Etch.Backend.Ansi;
 
 public sealed class Writer
 {
@@ -12,8 +13,6 @@ public sealed class Writer
     private Int2 _cursor;
     private Color _foreground;
     private Color _background;
-
-    public static Writer Terminal => field ??= new(8192, Console.OpenStandardOutput());
     
     public Writer(int initialCapacity, Stream output) : this(initialCapacity, output, Int2.Zero, Color.White, Color.Black) { }
     public Writer(int initialCapacity, Stream output, Int2 initialCursor, Color initialForeground, Color initialBackground)
@@ -136,6 +135,7 @@ public sealed class Writer
 
     public Span<byte> GetSpan(int sizeHint) => _buffer.GetSpan(sizeHint);
     public void Advance(int written) { _buffer.Advance(written); _cursor += new Int2(written, 0); }
+    public void Write(byte value) { GetSpan(1)[0] = value; Advance(1); _cursor += new Int2(1, 0); }
 
     public void Flush() { _output.Write(_buffer.WrittenSpan); _buffer.ResetWrittenCount(); }
 }

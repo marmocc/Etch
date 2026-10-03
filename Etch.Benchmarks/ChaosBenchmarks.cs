@@ -1,10 +1,7 @@
 using BenchmarkDotNet.Attributes;
-using Etch.Backend;
+using Etch.Backend.Ansi;
 using Etch.Common;
 using Etch.Graphics;
-using Etch.Graphics.Painters;
-using System.Buffers;
-using System.Buffers.Text;
 
 namespace Etch.Benchmarks;
 
@@ -16,12 +13,12 @@ public class ChaosBenchmarks
 
     private int _frame;
 
-    private Writer? _writer;
+    private Surface? _surface;
     private Canvas? _canvas;
     private MemoryStream? _etchStream;
 
     private MemoryStream? _rawStream;
-    private ArrayBufferWriter<byte>? _rawBuffer;
+    private Writer? _rawWriter;
 
     [GlobalSetup]
     public void Setup()
@@ -30,11 +27,11 @@ public class ChaosBenchmarks
         _frame = 0;
 
         _etchStream = new MemoryStream(Width * Height * 64);
-        _writer = new Writer(_etchStream.Capacity, _etchStream);
-        _canvas = new Canvas(size, _writer, new Chaos());
+        _surface = new Surface(size, _etchStream);
+        _canvas = new Canvas(size);
 
         _rawStream = new MemoryStream(Width * Height * 64);
-        _rawBuffer = new ArrayBufferWriter<byte>(Width * Height * 64);
+        _rawWriter = new Writer(Width * Height * 64, _rawStream);
     }
 
     [GlobalCleanup(Target = nameof(Etch))]
@@ -53,7 +50,10 @@ public class ChaosBenchmarks
         _etchStream!.SetLength(0);
         _etchStream.Position = 0;
 
-        _canvas!.Render();
+        for (int y = 0; y < Height; y++)
+            for (int x = 0; x < Width; x++)
+                _canvas!.Data[Flat.Flatten(x, y, Width).Value] = Painters.Chaos(x, y, _frame);
+        _surface!.Present(_canvas!);
     }
 
     [Benchmark(Baseline = true)]
@@ -65,87 +65,15 @@ public class ChaosBenchmarks
 
         for (int y = 0; y < Height; y++)
         {
-            Move(_rawBuffer!, 0, y);
+            _rawWriter!.Move(new(0, y));
             for (int x = 0; x < Width; x++)
             {
-                Pixel pixel = Chaos(x, y);
-                Foreground(_rawBuffer!, pixel.Color);
-                Write(_rawBuffer!, pixel.Glyph);
+                Color color = Painters.Chaos(x, y, _frame);
+                _rawWriter!.Foreground(color);
+                _rawWriter!.Write(Surface.Density(color));
             }
         }
 
-        _rawStream.Write(_rawBuffer!.WrittenSpan);
-        _rawBuffer!.Clear();
-    }
-
-    private Pixel Chaos(int x, int y)
-    {
-        uint h = (uint)(x * 374761393 + y * 668265263 + _frame * 2246822519);
-        h = (h ^ (h >> 13)) * 1274126177;
-        h ^= h >> 16;
-
-        byte r = (byte)(h);
-        byte g = (byte)(h >> 8);
-        byte b = (byte)(h >> 16);
-        return new(new(r, g, b, 255));
-    }
-    private static void Write(ArrayBufferWriter<byte> _output, byte glyph)
-    {
-        Span<byte> buffer = _output.GetSpan(1);
-        buffer[0] = glyph;
-        _output.Advance(1);
-    }
-    private static void Move(ArrayBufferWriter<byte> _output, int x, int y)
-    {
-        Span<byte> buffer = _output.GetSpan(16);
-        int written = 0;
-
-        buffer[written++] = 0x1B; // ESC
-        buffer[written++] = (byte)'[';
-
-        bool rowSuccess = Utf8Formatter.TryFormat(y + 1, buffer[written..], out int rowWritten);
-        if (!rowSuccess) throw new InvalidOperationException("Failed to format row value.");
-        written += rowWritten;
-
-        buffer[written++] = (byte)';';
-
-        bool colSuccess = Utf8Formatter.TryFormat(x + 1, buffer[written..], out int colWritten);
-        if (!colSuccess) throw new InvalidOperationException("Failed to format column value.");
-        written += colWritten;
-
-        buffer[written++] = (byte)'H';
-        _output.Advance(written);
-    }
-    private static void Foreground(ArrayBufferWriter<byte> _output, Color foreground)
-    {
-        Span<byte> buffer = _output.GetSpan(24);
-        int written = 0;
-
-        buffer[written++] = 0x1B; // ESC
-        buffer[written++] = (byte)'[';
-        buffer[written++] = (byte)'3'; // 3 for Foreground
-        buffer[written++] = (byte)'8';
-        buffer[written++] = (byte)';';
-        buffer[written++] = (byte)'2';
-        buffer[written++] = (byte)';';
-
-        bool rSuccess = Utf8Formatter.TryFormat(foreground.R, buffer[written..], out int rWritten);
-        if (!rSuccess) throw new InvalidOperationException("Failed to format red value.");
-        written += rWritten;
-
-        buffer[written++] = (byte)';';
-
-        bool gSuccess = Utf8Formatter.TryFormat(foreground.G, buffer[written..], out int gWritten);
-        if (!gSuccess) throw new InvalidOperationException("Failed to format green value.");
-        written += gWritten;
-
-        buffer[written++] = (byte)';';
-
-        bool bSuccess = Utf8Formatter.TryFormat(foreground.B, buffer[written..], out int bWritten);
-        if (!bSuccess) throw new InvalidOperationException("Failed to format blue value.");
-        written += bWritten;
-
-        buffer[written++] = (byte)'m';
-        _output.Advance(written);
+        _rawWriter!.Flush();
     }
 }

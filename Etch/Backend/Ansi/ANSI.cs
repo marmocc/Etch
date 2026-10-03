@@ -1,10 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace Etch.Platform;
+namespace Etch.Backend.Ansi;
 
 [SupportedOSPlatform("windows")]
-public static class ANSI
+public static class Ansi
 {
     private const int STD_OUTPUT_HANDLE = -11;
     private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;

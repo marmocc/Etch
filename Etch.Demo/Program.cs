@@ -1,14 +1,20 @@
-﻿using Etch.Backend;
-using Etch.Common;
+﻿using Etch.Common;
 using Etch.Graphics;
-using Etch.Graphics.Painters;
-using Etch.Platform;
+using Etch.Backend.Ansi;
 
-int height = Console.WindowHeight;
-Int2 size = new(height * 2, height);
+Int2 size = new(Console.WindowWidth, Console.WindowHeight);
 
 Console.Clear();
 Console.CursorVisible = false;
-if (OperatingSystem.IsWindows()) ANSI.Enable();
-var canvas = new Canvas(size, Writer.Terminal, new Chaos());
-while (true) canvas.Render();
+if (OperatingSystem.IsWindows()) Ansi.Enable();
+var canvas = new Canvas(size);
+
+int frame = 0;
+while (true)
+{
+    frame++;
+    for(int y = 0; y < size.Y; y++)
+        for (int x = 0; x < size.X; x++)
+            canvas.Data[Flat.Flatten(x, y, size.X).Value] = Painters.Chaos(x, y, frame);
+    Surface.Default.Present(canvas);
+}
