@@ -11,8 +11,7 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface<Context>
     public static Surface Default => field ??= new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
 
     public Int2 Size { get; } = size;
-
-    public void Run<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
+    public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
     {
         long frame = 0;
         long start = Stopwatch.GetTimestamp();
@@ -28,6 +27,8 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface<Context>
             painter.Paint(new Context(frame, elapsed, delta, Size, _writer, _back));
             _writer.Flush();
             frame++;
+
+            if (until > 0 && frame >= until) break;
         }
     }
 

@@ -89,7 +89,7 @@ public sealed class Surface : ISurface<Context>, IDisposable
         _window.FramebufferResize += OnFramebufferResize;
     }
 
-    public void Run<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
+    public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
     {
         try
         {
@@ -118,6 +118,8 @@ public sealed class Surface : ISurface<Context>, IDisposable
                 Draw(_window.FramebufferSize);
                 _window.SwapBuffers();
                 frame++;
+
+                if (until > 0 && frame >= until) break;
             }
         }
         finally

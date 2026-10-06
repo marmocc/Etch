@@ -1,6 +1,5 @@
 ﻿using Etch.Backend;
 using Etch.Common;
-using System.Timers;
 
 namespace Etch.Painters;
 

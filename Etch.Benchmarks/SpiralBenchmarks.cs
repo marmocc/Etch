@@ -1,21 +1,21 @@
 using BenchmarkDotNet.Attributes;
 using Etch.Backend.ANSI;
 using Etch.Common;
-using Etch.Graphics;
+using Etch.Painters;
 
 namespace Etch.Benchmarks;
 
 [MemoryDiagnoser]
 public class SpiralBenchmarks
 {
+    private const int FrameCount = 100;
+
     [Params(80)] public int Width;
     [Params(40)] public int Height;
 
-    private const float FakeDeltaTime = 1f / 144f;
-    private float _time;
+    private Int2 _size;
 
     private Surface? _surface;
-    private Canvas? _canvas;
     private MemoryStream? _etchStream;
 
     private MemoryStream? _rawStream;
@@ -24,57 +24,40 @@ public class SpiralBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        Int2 size = new(Width, Height);
-        _time = 0;
+        _size = new(Width, Height);
 
-        _etchStream = new MemoryStream(Width * Height * 64);
-        _surface = new Surface(size, _etchStream);
-        _canvas = new Canvas(size);
+        _etchStream = new MemoryStream(Width * Height * 32 * FrameCount);
+        _surface = new Surface(_size, _etchStream);
 
-        _rawStream = new MemoryStream(Width * Height * 64);
+        _rawStream = new MemoryStream(Width * Height * 32 * FrameCount);
         _rawWriter = new Writer(Width * Height * 64, _rawStream);
     }
 
     [GlobalCleanup(Target = nameof(Etch))]
     public void SaveEtchBytes() =>
-        BytesColumn.Save(nameof(SpiralBenchmarks), nameof(Etch), _etchStream!.Length);
+        BytesColumn.Save(nameof(SpiralBenchmarks), nameof(Etch), _etchStream!.Length / FrameCount);
 
     [GlobalCleanup(Target = nameof(Raw))]
     public void SaveRawBytes() =>
-        BytesColumn.Save(nameof(SpiralBenchmarks), nameof(Raw), _rawStream!.Length);
+        BytesColumn.Save(nameof(SpiralBenchmarks), nameof(Raw), _rawStream!.Length / FrameCount);
 
-
-    [Benchmark]
+    [Benchmark(OperationsPerInvoke = FrameCount)]
     public void Etch()
     {
-        _time += FakeDeltaTime;
         _etchStream!.SetLength(0);
-        _etchStream.Position = 0;
-
-        for (int y = 0; y < Height; y++)
-            for (int x = 0; x < Width; x++)
-                _canvas!.Data[Flat.Flatten(x, y, Width).Value] = Painters.Spiral(x, y, Width, Height, _time);
-        _surface!.Present(_canvas!);
+        _surface!.Run(new Spiral(), FrameCount);
     }
 
-    [Benchmark(Baseline = true)]
+    [Benchmark(Baseline = true, OperationsPerInvoke = FrameCount)]
     public void Raw()
     {
-        _time += FakeDeltaTime;
         _rawStream!.SetLength(0);
-        _rawStream.Position = 0;
+        Spiral painter = new();
 
-        for (int y = 0; y < Height; y++)
+        for (long frame = 0; frame < FrameCount; frame++)
         {
-            _rawWriter!.Move(new(0, y));
-            for (int x = 0; x < Width; x++)
-            {
-                Color color = Painters.Spiral(x, y, Width, Height, _time);
-                _rawWriter!.Foreground(color);
-                _rawWriter!.Write(Surface.Density(color));
-            }
+            painter.Paint(new Context(frame, frame / 144.0, 1f / 144f, _size, _rawWriter!, Span<Color>.Empty));
+            _rawWriter!.Flush();
         }
-
-        _rawWriter!.Flush();
     }
 }
