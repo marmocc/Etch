@@ -21,13 +21,11 @@ public readonly ref struct Context(long frame, double elapsed, float delta, Int2
         if (!position.AllLess(Size)) return;
 
         Flat flat = position.Flatten(Size);
-        if(_back.IsEmpty || _back[flat.Value] == color) return;
+        if(_back[flat.Value] == color) return;
 
         _writer.Move(position);
         _writer.Foreground(color);
         _writer.Write(Density(color));
-        
-        if(_back.IsEmpty) return;
         _back[flat.Value] = color;
     }
 

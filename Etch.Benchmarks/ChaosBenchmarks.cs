@@ -56,7 +56,7 @@ public class ChaosBenchmarks
 
         for (long frame = 0; frame < FrameCount; frame++)
         {
-            painter.Paint(new Context(frame, frame / 144.0, 1f / 144f, _size, _rawWriter!, Span<Color>.Empty));
+            painter.Paint(new RawContext(frame, frame / 144.0, 1f / 144f, _size, _rawWriter!));
             _rawWriter!.Flush();
         }
     }
