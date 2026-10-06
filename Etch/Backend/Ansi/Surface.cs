@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Backend.Ansi;
 
-public class Surface(Int2 size, Stream stream) : ISurface
+/*public sealed class Surface(Int2 size, Stream stream) : ISurface
 {
     public static ReadOnlySpan<byte> Ramp => " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
     public static byte Density(Color color) => Ramp[color.Luminance * Ramp.Length >> 8];
@@ -37,4 +37,4 @@ public class Surface(Int2 size, Stream stream) : ISurface
 
         Writer.Flush();
     }
-}
+}*/

@@ -1,8 +1,7 @@
-﻿using Etch.Graphics;
+﻿namespace Etch.Backend;
 
-namespace Etch.Backend;
-
-internal interface ISurface
+public interface ISurface<TContext> where TContext : IContext, allows ref struct
 {
-    void Present(Canvas canvas);
+    void Run(Action<TContext> draw);
+    void Stop();
 }
