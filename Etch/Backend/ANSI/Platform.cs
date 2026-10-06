@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace Etch.Backend.Ansi;
+namespace Etch.Backend.ANSI;
 
 public static class Platform
 {

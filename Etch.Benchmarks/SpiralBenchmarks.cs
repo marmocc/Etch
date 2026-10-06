@@ -1,5 +1,5 @@
 using BenchmarkDotNet.Attributes;
-using Etch.Backend.Ansi;
+using Etch.Backend.ANSI;
 using Etch.Common;
 using Etch.Graphics;
 

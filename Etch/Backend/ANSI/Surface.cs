@@ -2,7 +2,7 @@
 using Etch.Graphics;
 using System.Runtime.InteropServices;
 
-namespace Etch.Backend.Ansi;
+namespace Etch.Backend.ANSI;
 
 /*public sealed class Surface(Int2 size, Stream stream) : ISurface
 {
