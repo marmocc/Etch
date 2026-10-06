@@ -18,7 +18,10 @@ public readonly ref struct Chaos : IPainter
                 byte r = (byte)(h);
                 byte g = (byte)(h >> 8);
                 byte b = (byte)(h >> 16);
-                context.Plot(new Int2(x, y), new Color(r, g, b, 255));
+
+                Color color = new(r, g, b, 255);
+                Int2 postion = new(x, y);
+                context.Plot(postion, color);
             }
         }
     }
