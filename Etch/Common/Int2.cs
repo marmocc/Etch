@@ -16,6 +16,9 @@ public readonly struct Int2(int x, int y) : IEquatable<Int2>
     public override bool Equals(object? obj) => obj is Int2 int2 && Equals(int2);
     public override int GetHashCode() => HashCode.Combine(X, Y);
 
+    public Flat Flatten(int stride) => new(Y * stride + X);
+    public Flat Flatten(Int2 size) => new(Y * size.X + X);
+
     public bool AllLess(Int2 other) => X < other.X && Y < other.Y;
     public bool AllLessOrEqual(Int2 other) => X <= other.X && Y <= other.Y;
     public bool AllGreater(Int2 other) => X > other.X && Y > other.Y;

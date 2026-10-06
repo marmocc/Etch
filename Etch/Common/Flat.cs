@@ -7,10 +7,7 @@ public readonly struct Flat(int value) : IEquatable<Flat>
     public static Flat None => new(-1);
     public static Flat Zero => new(0);
 
-    public static Flat Flatten(int x, int y, int width) => new(y * width + x);
-    public static Flat Flatten(int x, int y, Int2 size) => new(y * size.X + x);
-    public static Flat Flatten(Int2 position, Int2 size) => new(position.Y * size.X + position.X);
-    public Int2 Unflatten(int width) { var (q, r) = Math.DivRem(Value, width); return new(r, q); }
+    public Int2 Unflatten(int stride) { var (q, r) = Math.DivRem(Value, stride); return new(r, q); }
     public Int2 Unflatten(Int2 size) { var (q, r) = Math.DivRem(Value, size.X); return new(r, q); }
     public bool IsWithin(Int2 size) => (uint)Value < (uint)(size.X * size.Y);
 

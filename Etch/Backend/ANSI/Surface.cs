@@ -1,5 +1,4 @@
 ﻿using Etch.Common;
-using Etch.Graphics;
 using System.Runtime.InteropServices;
 
 namespace Etch.Backend.ANSI;

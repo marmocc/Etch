@@ -1,9 +1,4 @@
-﻿using Etch.Common;
-using Etch.Backend.OpenGL;
+﻿using Etch.Backend.OpenGL;
+using Etch.Painters;
 
-int frame = 0;
-
-Surface.Default.Run(ctx =>
-{
-    ctx.Clear(Color.Black);
-});
+Surface.Default.Run(new Chaos());
