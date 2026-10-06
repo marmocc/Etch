@@ -112,6 +112,16 @@ public sealed class Writer
         buffer[written++] = (byte)'m';
         _buffer.Advance(written);
     }
+    private void InternalClear()
+    {
+        Span<byte> buffer = _buffer.GetSpan(4);
+        int written = 0;
+        buffer[written++] = 0x1B; // ESC
+        buffer[written++] = (byte)'[';
+        buffer[written++] = (byte)'2';
+        buffer[written++] = (byte)'J';
+        _buffer.Advance(written);
+    }
 
     public void Move(Int2 position)
     {
@@ -131,6 +141,7 @@ public sealed class Writer
         InternalBackground(background);
         _background = background;
     }
+    public void Clear() { InternalClear(); _cursor = Int2.Zero; }
 
     public Span<byte> GetSpan(int sizeHint) => _buffer.GetSpan(sizeHint);
     public void Advance(int written) { _buffer.Advance(written); _cursor += new Int2(written, 0); }

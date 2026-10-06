@@ -19,4 +19,5 @@ public readonly ref struct Context(long frame, double elapsed, float delta, Int2
         Flat flat = position.Flatten(Size);
         _cells[flat.Value] = color;
     }
+    public void Clear() => _cells.Clear();
 }

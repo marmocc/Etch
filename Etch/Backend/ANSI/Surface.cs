@@ -1,39 +1,38 @@
 ﻿using Etch.Common;
-using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Etch.Backend.ANSI;
 
-/*public sealed class Surface(Int2 size, Stream stream) : ISurface
+public sealed class Surface(Int2 size, Stream stream) : ISurface<Context>
 {
-    public static ReadOnlySpan<byte> Ramp => " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
-    public static byte Density(Color color) => Ramp[color.Luminance * Ramp.Length >> 8];
-    public readonly Writer Writer = new(8192, stream);
-    public Color[] Last = new Color[size.X * size.Y];
+    private readonly Writer _writer = new(size.X * size.Y * 64, stream);
+    private readonly Color[] _back = new Color[size.X * size.Y];
 
     public static Surface Default => field ??= new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
 
-    public void Present(Canvas canvas)
+    public Int2 Size { get; } = size;
+
+    public void Run<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
     {
-        ReadOnlySpan<Color> front = canvas.Data;
-        Span<Color> back = Last;
+        long frame = 0;
+        long start = Stopwatch.GetTimestamp();
+        long last = start;
 
-        ReadOnlySpan<uint> frontAsUint = MemoryMarshal.Cast<Color, uint>(front);
-        ReadOnlySpan<uint> backAsUint = MemoryMarshal.Cast<Color, uint>(back);
-        if (frontAsUint.SequenceEqual(backAsUint)) return;
-
-        for (int i = 0; i < front.Length; i++)
+        while (true)
         {
-            Color current = front[i];
-            if (current != back[i])
-            {
-                back[i] = current;
-                Writer.Move(new Flat(i).Unflatten(size.X));
-                Writer.Foreground(current);
-                Writer.Write(Density(current));
-            }
+            long now = Stopwatch.GetTimestamp();
+            double elapsed = (now - start) / (double)Stopwatch.Frequency;
+            float delta = (float)((now - last) / (double)Stopwatch.Frequency);
+            last = now;
 
+            painter.Paint(new Context(frame, elapsed, delta, Size, _writer, _back));
+            _writer.Flush();
+            frame++;
         }
-
-        Writer.Flush();
     }
-}*/
+
+    public void Stop()
+    {
+        throw new NotImplementedException();
+    }
+}
