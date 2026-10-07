@@ -2,13 +2,9 @@
 
 namespace Etch.Backend.ANSI;
 
-public readonly ref struct Context(long frame, double elapsed, float delta, Int2 size, Writer writer, Span<Color> back) : IContext
+public readonly ref struct Context(long frame, double elapsed, float delta, Int2 size, Span<Color> cells) : IContext
 {
-    public static ReadOnlySpan<byte> Ramp => " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
-    public static byte Density(Color color) => Ramp[color.Luminance * Ramp.Length >> 8];
-
-    private readonly Writer _writer = writer;
-    private readonly Span<Color> _back = back;
+    private readonly Span<Color> _cells = cells;
 
     public long Frame { get; } = frame;
     public double Elapsed { get; } = elapsed;
@@ -21,13 +17,6 @@ public readonly ref struct Context(long frame, double elapsed, float delta, Int2
         if (!position.AllLess(Size)) return;
 
         Flat flat = position.Flatten(Size);
-        if(_back[flat.Value] == color) return;
-
-        _writer.Move(position);
-        _writer.Foreground(color);
-        _writer.Write(Density(color));
-        _back[flat.Value] = color;
+        _cells[flat.Value] = color;
     }
-
-    public void Clear() { _writer.Clear(); _back.Clear(); }
 }

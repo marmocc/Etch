@@ -9,10 +9,8 @@ internal readonly ref struct RawContext(long frame, double elapsed, float delta,
     public long Frame { get; } = frame;
     public double Elapsed { get; } = elapsed;
     public float Delta { get; } = delta;
+
     public Int2 Size { get; } = size;
-
-    public void Clear() => writer.Clear();
-
     public void Plot(Int2 position, Color color)
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;
@@ -20,6 +18,6 @@ internal readonly ref struct RawContext(long frame, double elapsed, float delta,
 
         writer.Move(position);
         writer.Foreground(color);
-        writer.Write(Context.Density(color));
+        writer.Write(Surface.Density(color));
     }
 }
