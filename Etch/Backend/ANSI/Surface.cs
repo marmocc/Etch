@@ -8,7 +8,7 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface
     private readonly Writer _writer = new(size.X * size.Y * 64, stream);
     private readonly Color[] _back = new Color[size.X * size.Y];
 
-    public static Surface Default => field ??= new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
+    public static Surface Default => new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
 
     public Int2 Size { get; } = size;
     public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct

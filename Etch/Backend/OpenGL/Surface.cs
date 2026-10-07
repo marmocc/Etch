@@ -47,7 +47,7 @@ public sealed class Surface : ISurface, IDisposable
     private readonly int _framebufferLocation;
     private bool _disposed;
 
-    public static Surface Default => field ??= new(new Int2(80, 40));
+    public static Surface Default => new(new Int2(80, 40));
 
     public Surface(Int2 size)
     {
