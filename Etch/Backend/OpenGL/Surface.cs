@@ -6,7 +6,7 @@ using Silk.NET.Windowing;
 
 namespace Etch.Backend.OpenGL;
 
-public sealed class Surface : ISurface<Context>, IDisposable
+public sealed class Surface : ISurface, IDisposable
 {
     public const int CellWidth = 8;
     public const int CellHeight = 16;

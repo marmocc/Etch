@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Etch.Backend.ANSI;
 
-public sealed class Surface(Int2 size, Stream stream) : ISurface<Context>
+public sealed class Surface(Int2 size, Stream stream) : ISurface
 {
     private readonly Writer _writer = new(size.X * size.Y * 64, stream);
     private readonly Color[] _back = new Color[size.X * size.Y];
