@@ -4,8 +4,8 @@ public readonly struct Flat(int value) : IEquatable<Flat>
 {
     public readonly int Value = value;
 
-    public static Flat None => new(-1);
-    public static Flat Zero => new(0);
+    public static Flat None { get; } = new(-1);
+    public static Flat Zero { get; } = new(0);
 
     public Int2 Unflatten(int stride) { var (q, r) = Math.DivRem(Value, stride); return new(r, q); }
     public Int2 Unflatten(Int2 size) { var (q, r) = Math.DivRem(Value, size.X); return new(r, q); }
