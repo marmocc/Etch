@@ -141,7 +141,7 @@ public sealed class Writer
         InternalBackground(background);
         _background = background;
     }
-    public void Clear() { InternalClear(); _cursor = Int2.Zero; }
+    public void Clear() => InternalClear();
 
     public Span<byte> GetSpan(int sizeHint) => _buffer.GetSpan(sizeHint);
     public void Advance(int written) { _buffer.Advance(written); _cursor += new Int2(written, 0); }

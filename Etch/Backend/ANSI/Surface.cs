@@ -22,11 +22,11 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface
     private void Present()
     {
         ReadOnlySpan<Color> current = _current;
-        Span<Color> shadow = _shadow;
+        ReadOnlySpan<Color> shadow = _shadow;
 
-        ReadOnlySpan<uint> frontAsUint = MemoryMarshal.Cast<Color, uint>(current);
-        ReadOnlySpan<uint> backAsUint = MemoryMarshal.Cast<Color, uint>(shadow);
-        if(frontAsUint.SequenceEqual(backAsUint)) return;
+        ReadOnlySpan<uint> currentAsUint = MemoryMarshal.Cast<Color, uint>(current);
+        ReadOnlySpan<uint> shadowAsUint = MemoryMarshal.Cast<Color, uint>(shadow);
+        if(currentAsUint.SequenceEqual(shadowAsUint)) return;
 
         for (int i = 0; i < current.Length; i++)
         {
@@ -37,13 +37,14 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface
                 _writer.Move(position);
                 _writer.Foreground(color);
                 _writer.Write(Density(color));
-                shadow[i] = color;
             }
         }
     }
 
     public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
     {
+        _writer.Clear();
+
         long frame = 0;
         long start = Stopwatch.GetTimestamp();
         long last = start;
