@@ -18,6 +18,7 @@ public sealed class Writer
     {
         _output = output;
         _buffer = new(initialCapacity);
+        InternalClear();
         InternalMove(initialCursor);
         _cursor = initialCursor;
         InternalForeground(initialForeground);
