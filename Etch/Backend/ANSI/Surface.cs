@@ -31,19 +31,18 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface
         for (int i = 0; i < current.Length; i++)
         {
             Color color = current[i];
-            if (color != shadow[i])
-            {
-                Int2 position = new Flat(i).Unflatten(Size);
-                _writer.Move(position);
-                _writer.Foreground(color);
-                _writer.Write(Density(color));
-            }
+            if (color == shadow[i]) continue;
+            Int2 position = new Flat(i).Unflatten(Size);
+            _writer.Move(position);
+            _writer.Foreground(color);
+            _writer.Write(Density(color));
         }
     }
 
     public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
     {
         _writer.Clear();
+        Array.Clear(_shadow);
 
         long frame = 0;
         long start = Stopwatch.GetTimestamp();
