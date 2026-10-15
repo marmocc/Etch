@@ -24,9 +24,9 @@ public readonly ref struct Spiral : IPainter
                 float n = MathF.Sin(radius * 0.5f - (float)context.Elapsed * 3f + angle * 4f);
                 byte v = (byte)((n + 1) / 2 * 255);
 
-                Color color = new(v, (byte)(v / 3), (byte)(255 - v), 255);
+                RGB color = new(v, (byte)(v / 3), (byte)(255 - v));
                 Int2 position = new(x, y);
-                context.Plot(position, color);
+                context.Plot(position, Etchel.Solid(color));
             }
         }
     }

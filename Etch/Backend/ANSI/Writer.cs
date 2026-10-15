@@ -10,11 +10,11 @@ public sealed class Writer
     private readonly ArrayBufferWriter<byte> _buffer;
 
     private Int2 _cursor;
-    private Color _foreground;
-    private Color _background;
+    private RGB _foreground;
+    private RGB _background;
     
-    public Writer(int initialCapacity, Stream output) : this(initialCapacity, output, Int2.Zero, Color.White, Color.Black) { }
-    public Writer(int initialCapacity, Stream output, Int2 initialCursor, Color initialForeground, Color initialBackground)
+    public Writer(int initialCapacity, Stream output) : this(initialCapacity, output, Int2.Zero, RGB.White, RGB.Black) { }
+    public Writer(int initialCapacity, Stream output, Int2 initialCursor, RGB initialForeground, RGB initialBackground)
     {
         _output = output;
         _buffer = new(initialCapacity);
@@ -49,7 +49,7 @@ public sealed class Writer
         buffer[written++] = (byte)'H';
         _buffer.Advance(written);
     }
-    private void InternalForeground(Color foreground)
+    private void InternalForeground(RGB foreground)
     {
         Span<byte> buffer = _buffer.GetSpan(24);
         int written = 0;
@@ -81,7 +81,7 @@ public sealed class Writer
         buffer[written++] = (byte)'m';
         _buffer.Advance(written);
     }
-    private void InternalBackground(Color background)
+    private void InternalBackground(RGB background)
     {
         Span<byte> buffer = _buffer.GetSpan(24);
         int written = 0;
@@ -130,13 +130,13 @@ public sealed class Writer
         InternalMove(position);
         _cursor = position;
     }
-    public void Foreground(Color foreground)
+    public void Foreground(RGB foreground)
     {
         if (_foreground == foreground) return;
         InternalForeground(foreground);
         _foreground = foreground;
     }
-    public void Background(Color background)
+    public void Background(RGB background)
     {
         if (_background == background) return;
         InternalBackground(background);

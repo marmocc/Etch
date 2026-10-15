@@ -22,7 +22,7 @@ public sealed class Surface : ISurface, IDisposable
 
     private const string FragmentSource = """
         #version 330 core
-        uniform sampler2D uCells;
+        uniform usampler2D uCells;
         uniform ivec2 uGrid;
         uniform vec2 uFramebuffer;
         out vec4 fragColor;
@@ -31,13 +31,20 @@ public sealed class Surface : ISurface, IDisposable
             vec2 uv = gl_FragCoord.xy / uFramebuffer;
             ivec2 cell = ivec2(uv.x * float(uGrid.x), (1.0 - uv.y) * float(uGrid.y));
             cell = clamp(cell, ivec2(0), uGrid - 1);
-            fragColor = vec4(texelFetch(uCells, cell, 0).rgb, 1.0);
+
+            // .r = low word of the Etchel (glyph + foreground), .g = high word (background in bits 0-23).
+            uint background = texelFetch(uCells, cell, 0).g;
+            fragColor = vec4(
+                float(background & 0xFFu),
+                float((background >> 8) & 0xFFu),
+                float((background >> 16) & 0xFFu),
+                255.0) / 255.0;
         }
         """;
 
     public Int2 Size { get; }
 
-    private readonly Color[] _cells;
+    private readonly Etchel[] _etchels;
     private readonly IWindow _window;
     private readonly GL _gl;
     private readonly uint _texture;
@@ -52,7 +59,7 @@ public sealed class Surface : ISurface, IDisposable
     public Surface(Int2 size)
     {
         Size = size;
-        _cells = new Color[size.X * size.Y];
+        _etchels = new Etchel[size.X * size.Y];
 
         WindowOptions options = WindowOptions.Default with
         {
@@ -76,8 +83,8 @@ public sealed class Surface : ISurface, IDisposable
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Nearest);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge);
-        _gl.TexImage2D<Color>(TextureTarget.Texture2D, 0, InternalFormat.Rgba8,
-            (uint)size.X, (uint)size.Y, 0, PixelFormat.Rgba, PixelType.UnsignedByte, _cells);
+        _gl.TexImage2D<Etchel>(TextureTarget.Texture2D, 0, InternalFormat.RG32ui,
+            (uint)size.X, (uint)size.Y, 0, PixelFormat.RGInteger, PixelType.UnsignedInt, _etchels);
 
         _vao = _gl.GenVertexArray();
         _gl.BindVertexArray(_vao);
@@ -107,13 +114,13 @@ public sealed class Surface : ISurface, IDisposable
                 double elapsed = Stopwatch.GetElapsedTime(start, now).TotalSeconds;
                 last = now;
 
-                Array.Clear(_cells);
-                Context context = new(frame, elapsed, delta, Size, _cells);
+                Array.Clear(_etchels);
+                Context context = new(frame, elapsed, delta, Size, _etchels);
                 painter.Paint(context);
 
                 _gl.BindTexture(TextureTarget.Texture2D, _texture);
-                _gl.TexSubImage2D<Color>(TextureTarget.Texture2D, 0, 0, 0,
-                    (uint)Size.X, (uint)Size.Y, PixelFormat.Rgba, PixelType.UnsignedByte, _cells);
+                _gl.TexSubImage2D<Etchel>(TextureTarget.Texture2D, 0, 0, 0,
+                    (uint)Size.X, (uint)Size.Y, PixelFormat.RGInteger, PixelType.UnsignedInt, _etchels);
 
                 Draw(_window.FramebufferSize);
                 _window.SwapBuffers();

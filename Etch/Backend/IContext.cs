@@ -9,5 +9,5 @@ public interface IContext
     float Delta { get; }
 
     Int2 Size { get; }
-    void Plot(Int2 position, Color color);
+    void Plot(Int2 position, Etchel etchel);
 }

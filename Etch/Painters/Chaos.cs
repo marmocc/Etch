@@ -19,9 +19,9 @@ public readonly ref struct Chaos : IPainter
                 byte g = (byte)(h >> 8);
                 byte b = (byte)(h >> 16);
 
-                Color color = new(r, g, b, 255);
+                RGB color = new(r, g, b);
                 Int2 postion = new(x, y);
-                context.Plot(postion, color);
+                context.Plot(postion, Etchel.Solid(color));
             }
         }
     }
