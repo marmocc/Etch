@@ -20,6 +20,9 @@ public sealed class Surface : ISurface, IDisposable
         }
         """;
 
+    /// <summary>
+    /// Depends on <see cref="Etchel.Layout"/>
+    /// </summary>
     private const string FragmentSource = """
         #version 330 core
         uniform usampler2D uCells;
