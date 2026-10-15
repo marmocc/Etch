@@ -11,13 +11,14 @@ internal readonly ref struct RawContext(long frame, double elapsed, float delta,
     public float Delta { get; } = delta;
 
     public Int2 Size { get; } = size;
-    public void Plot(Int2 position, RGBA color)
+    public void Plot(Int2 position, Etchel etchel)
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;
         if (!position.AllLess(Size)) return;
 
         writer.Move(position);
-        writer.Foreground(color);
-        writer.Write(Surface.Density(color));
+        writer.Foreground(etchel.Foreground);
+        writer.Background(etchel.Background);
+        writer.Write(etchel.Glyph.Codepoint);
     }
 }
