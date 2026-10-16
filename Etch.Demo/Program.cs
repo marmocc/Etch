@@ -2,4 +2,4 @@
 using Etch.Painters;
 
 Etch.Diagnostics.Health.Check();
-Surface.Default.Run(new Spiral());
+Surface.Default().Run(new Spiral());

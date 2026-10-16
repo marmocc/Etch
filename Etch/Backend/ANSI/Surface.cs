@@ -11,7 +11,7 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface
     private Etchel[] _current = new Etchel[size.X * size.Y];
     private Etchel[] _shadow = new Etchel[size.X * size.Y];
 
-    public static Surface Default => new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
+    public static Surface Default() => new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
 
     public static ReadOnlySpan<byte> Ramp => " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
     public static byte Density(RGBA color) => Ramp[color.Luminance * Ramp.Length >> 8];
