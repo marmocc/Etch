@@ -1,6 +1,6 @@
 ﻿using Etch.Common;
 
-namespace Etch.Backend.ANSI;
+namespace Etch.Backend;
 
 public readonly ref struct Context(long frame, double elapsed, float delta, Int2 size, Span<Etchel> etchels) : IContext
 {
