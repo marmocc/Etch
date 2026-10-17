@@ -47,6 +47,8 @@ public sealed class Surface : ISurface, IDisposable
 
     public Int2 Size { get; }
 
+    public bool Stopping => throw new NotImplementedException();
+
     private readonly Etchel[] _etchels;
     private readonly IWindow _window;
     private readonly GL _gl;
@@ -99,7 +101,7 @@ public sealed class Surface : ISurface, IDisposable
         _window.FramebufferResize += OnFramebufferResize;
     }
 
-    public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
+    public void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
     {
         try
         {
@@ -118,8 +120,8 @@ public sealed class Surface : ISurface, IDisposable
                 last = now;
 
                 Array.Clear(_etchels);
-                Context context = new(frame, elapsed, delta, Size, _etchels);
-                painter.Paint(context);
+                //Context context = new(frame, elapsed, delta, Size, _etchels);
+                //painter.Paint(context);
 
                 _gl.BindTexture(TextureTarget.Texture2D, _texture);
                 _gl.TexSubImage2D<Etchel>(TextureTarget.Texture2D, 0, 0, 0,
@@ -128,8 +130,6 @@ public sealed class Surface : ISurface, IDisposable
                 Draw(_window.FramebufferSize);
                 _window.SwapBuffers();
                 frame++;
-
-                if (until > 0 && frame >= until) break;
             }
         }
         finally
@@ -208,5 +208,20 @@ public sealed class Surface : ISurface, IDisposable
             throw new InvalidOperationException($"{type} failed to compile: {log}");
         }
         return shader;
+    }
+
+    public Pace Tick<TPainter>(ref TPainter painter) where TPainter : IPainter, allows ref struct
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Wait(Pace pace)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Wake()
+    {
+        throw new NotImplementedException();
     }
 }

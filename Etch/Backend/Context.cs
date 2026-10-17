@@ -2,15 +2,18 @@
 
 namespace Etch.Backend;
 
-public readonly ref struct Context(long frame, double elapsed, float delta, Int2 size, Span<Etchel> etchels) : IContext
+public readonly ref struct Context(ulong frame, TimeSpan elapsed, TimeSpan delta, Int2 size, Span<Etchel> etchels) : IContext
 {
     private readonly Span<Etchel> _etchels = etchels;
 
-    public long Frame { get; } = frame;
-    public double Elapsed { get; } = elapsed;
-    public float Delta { get; } = delta;
+    public ulong Frame { get; } = frame;
+    public TimeSpan Elapsed { get; } = elapsed;
+    public TimeSpan Delta { get; } = delta;
 
     public Int2 Size { get; } = size;
+
+    public void Clear() => _etchels.Clear();
+    public void Fill(Etchel etchel) => _etchels.Fill(etchel);
     public void Plot(Int2 position, Etchel etchel)
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;

@@ -5,11 +5,11 @@ namespace Etch.Painters;
 
 public readonly ref struct Spiral : IPainter
 {
-    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
+    public Pace Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
     {
         float centerX = context.Size.X / 2.0f;
         float centerY = context.Size.Y / 2.0f;
-        float aspect = context.Size.X > 0 ? (float)context.Size.Y / context.Size.X : 1.0f;
+        float aspect = 1f / 2f;
 
         for (int y = 0; y < context.Size.Y; y++)
         {
@@ -21,7 +21,7 @@ public readonly ref struct Spiral : IPainter
                 float angle = MathF.Atan2(dy, dx);
                 float radius = MathF.Sqrt(dx * dx + dy * dy);
 
-                float n = MathF.Sin(radius * 0.5f - (float)context.Elapsed * 3f + angle * 4f);
+                float n = MathF.Sin(radius * 0.5f - (float)context.Elapsed.TotalSeconds * 3f + angle * 4f);
                 byte v = (byte)((n + 1) / 2 * 255);
 
                 RGB color = new(v, (byte)(v / 3), (byte)(255 - v));
@@ -29,5 +29,7 @@ public readonly ref struct Spiral : IPainter
                 context.Plot(position, Etchel.Solid(color));
             }
         }
+
+        return Pace.Continuous;
     }
 }

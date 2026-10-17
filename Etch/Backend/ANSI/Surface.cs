@@ -4,34 +4,43 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Backend.ANSI;
 
-public sealed class Surface(Int2 size, Stream stream) : ISurface
+public sealed class Surface(Int2 size, Stream output) : ISurface
 {
-    private readonly Writer _writer = new(size.X * size.Y * 64, stream);
-    
-    private Etchel[] _current = new Etchel[size.X * size.Y];
-    private Etchel[] _shadow = new Etchel[size.X * size.Y];
+    private readonly long _start = Stopwatch.GetTimestamp();
+    private readonly AutoResetEvent _wake = new(false);
+    private volatile bool _stopping = false;
 
-    public static Surface Default() => new(new Int2(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput());
-
-    public static ReadOnlySpan<byte> Ramp => " .'`^\",:_;-~!><+il?I][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"u8;
-    public static byte Density(RGBA color) => Ramp[color.Luminance * Ramp.Length >> 8];
+    private readonly Writer _writer = new(size.X * size.Y * 64, output);
+    private readonly Etchel[] _current = new Etchel[size.X * size.Y];
+    private readonly Etchel[] _shadow = new Etchel[size.X * size.Y];
 
     public Int2 Size { get; } = size;
 
-    private void Swap() => (_current, _shadow) = (_shadow, _current);
+    public static Surface Terminal()
+    {
+        Stream terminalStream = Console.OpenStandardOutput();
+        Int2 terminalSize = new(Console.WindowWidth, Console.WindowHeight);
+        Surface surface = new(terminalSize, terminalStream);
+        Console.CancelKeyPress += (_, e) => { e.Cancel = true; surface.Stop(); };
+        Console.CursorVisible = false;
+        return surface;
+    }
+
     private void Present()
     {
         ReadOnlySpan<Etchel> current = _current;
-        ReadOnlySpan<Etchel> shadow = _shadow;
+        Span<Etchel> shadow = _shadow;
 
         ReadOnlySpan<ulong> currentAsULong = MemoryMarshal.Cast<Etchel, ulong>(current);
         ReadOnlySpan<ulong> shadowAsULong = MemoryMarshal.Cast<Etchel, ulong>(shadow);
-        if(currentAsULong.SequenceEqual(shadowAsULong)) return;
+        if (currentAsULong.SequenceEqual(shadowAsULong)) return;
 
         for (int i = 0; i < current.Length; i++)
         {
             Etchel etchel = current[i];
             if (etchel == shadow[i]) continue;
+
+            shadow[i] = etchel;
             Int2 position = new Flat(i).Unflatten(Size);
             _writer.Move(position);
             _writer.Foreground(etchel.Foreground);
@@ -40,37 +49,34 @@ public sealed class Surface(Int2 size, Stream stream) : ISurface
         }
     }
 
-    public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
+    private void Wait(Pace pace)
     {
-        _writer.Clear();
-        Array.Clear(_shadow);
+        TimeSpan elapsed = Stopwatch.GetElapsedTime(_start);
+        TimeSpan remaining = pace.Remaining(elapsed);
+        if (remaining == TimeSpan.Zero) return;
+        _wake.WaitOne(remaining);
+    }
 
-        long frame = 0;
-        long start = Stopwatch.GetTimestamp();
-        long last = start;
-
-        while (true)
+    public void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
+    {
+        TimeSpan previousElapsed = TimeSpan.Zero;
+        ulong frames = 0;
+        while(!_stopping)
         {
-            long now = Stopwatch.GetTimestamp();
-            double elapsed = (now - start) / (double)Stopwatch.Frequency;
-            float delta = (float)((now - last) / (double)Stopwatch.Frequency);
-            last = now;
+            TimeSpan elapsed = Stopwatch.GetElapsedTime(_start);
+            TimeSpan delta = elapsed - previousElapsed;
+            previousElapsed = elapsed;
 
-            Array.Clear(_current);
-            Context context = new(frame, elapsed, delta, Size, _current);
-            painter.Paint(context);
+            Context context = new(frames, elapsed, delta, Size, _current);
+            Pace pace = painter.Paint(context);
+            frames++;
+
             Present();
-            Swap();
-
             _writer.Flush();
-            frame++;
-
-            if (until > 0 && frame >= until) break;
+            Wait(pace);
         }
     }
 
-    public void Stop()
-    {
-        throw new NotImplementedException();
-    }
+    public void Wake() => _wake.Set();
+    public void Stop() { _stopping = true; Wake(); }
 }

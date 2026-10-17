@@ -1,5 +1,5 @@
-﻿using Etch.Backend.OpenGL;
+﻿using Etch.Backend.ANSI;
 using Etch.Painters;
 
 Etch.Diagnostics.Health.Check();
-Surface.Default().Run(new Spiral());
+Surface.Terminal().Start(new Spiral());
