@@ -8,7 +8,6 @@ public readonly ref struct Pace(TimeSpan deadline) : IEquatable<Pace>
     public static Pace Indefinite => new(TimeSpan.MaxValue);
     public static Pace At(TimeSpan deadline) => new(deadline);
 
-    public Pace With(TimeSpan deadline) => new(deadline);
     public TimeSpan Remaining(TimeSpan now)
     {
         if (Equals(Indefinite)) return Timeout.InfiniteTimeSpan;
