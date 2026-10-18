@@ -1,14 +1,11 @@
 ﻿using Etch.Common;
 using Etch.Diagnostics;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Etch.Backend.ANSI;
 
 public sealed class Surface(Int2 size, Stream output) : ISurface
 {
-    private readonly long _origin = Stopwatch.GetTimestamp();
-    private TimeSpan _paint, _present, _flush, _wait;
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
 
@@ -17,6 +14,7 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
     private readonly Etchel[] _shadow = new Etchel[size.X * size.Y];
 
     public Int2 Size { get; } = size;
+    public Timings Timings { get; } = new();
 
     public static Surface Terminal()
     {
@@ -53,30 +51,23 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
 
     private void Wait(Pace pace)
     {
-        TimeSpan elapsed = Stopwatch.GetElapsedTime(_origin);
-        TimeSpan remaining = pace.Remaining(elapsed);
+        TimeSpan remaining = pace.Remaining(Timings.Elapsed);
         if (remaining == TimeSpan.Zero) return;
         _wake.WaitOne(remaining);
     }
 
     public void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
     {
-        long mark = Stopwatch.GetTimestamp(); 
-        TimeSpan previousElapsed = Stopwatch.GetElapsedTime(_origin, mark);
         ulong frames = 0;
-
+        Timings.Begin();
         while(!_stopping)
         {
-            TimeSpan elapsed = Stopwatch.GetElapsedTime(_origin, mark);
-            TimeSpan delta = elapsed - previousElapsed;
-            previousElapsed = elapsed;
-
             Pace pace;
-            Context context = new(frames, elapsed, delta, Size, _current);
-            using (new Probe(ref mark, ref _paint)) pace = painter.Paint(context);
-            using (new Probe(ref mark, ref _present)) Present();
-            using (new Probe(ref mark, ref _flush)) _writer.Flush();
-            using (new Probe(ref mark, ref _wait)) Wait(pace);
+            Context context = new(frames, Timings.Elapsed, Timings.Frame, Size, _current);
+            using (Timings.MeasurePaint()) pace = painter.Paint(context);
+            using (Timings.MeasurePresent()) Present();
+            using (Timings.MeasureFlush()) _writer.Flush();
+            using (Timings.MeasureWait()) Wait(pace);
             frames++;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Etch.Common;
+using Etch.Diagnostics;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -46,8 +47,7 @@ public sealed class Surface : ISurface, IDisposable
         """;
 
     public Int2 Size { get; }
-
-    public bool Stopping => throw new NotImplementedException();
+    public Timings Timings { get; }
 
     private readonly Etchel[] _etchels;
     private readonly IWindow _window;
