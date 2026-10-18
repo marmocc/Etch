@@ -59,7 +59,6 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
     public void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
     {
         ulong frames = 0;
-        Pace pace = painter.Pace;
         Timings.Begin();
         while(!_stopping)
         {
@@ -67,7 +66,7 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
             using (Timings.MeasurePaint()) painter.Paint(context);
             using (Timings.MeasurePresent()) Present();
             using (Timings.MeasureFlush()) _writer.Flush();
-            using (Timings.MeasureWait()) Wait(pace);
+            using (Timings.MeasureWait()) Wait(painter.Pace);
             frames++;
         }
     }
