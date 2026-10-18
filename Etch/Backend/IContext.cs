@@ -8,7 +8,6 @@ public interface IContext
     TimeSpan Elapsed { get; }
     TimeSpan Delta { get; }
 
-
     Int2 Size { get; }
     void Clear();
     void Fill(Etchel etchel);
