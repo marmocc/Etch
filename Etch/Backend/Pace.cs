@@ -1,18 +1,18 @@
 ﻿namespace Etch.Backend;
 
-public readonly ref struct Pace(TimeSpan deadline) : IEquatable<Pace>
+public readonly struct Pace(TimeSpan interval) : IEquatable<Pace>
 {
-    private readonly TimeSpan _deadline = deadline;
+    public readonly TimeSpan Interval = interval;
 
     public static Pace Continuous => new(TimeSpan.Zero);
     public static Pace Indefinite => new(TimeSpan.MaxValue);
-    public static Pace At(TimeSpan deadline) => new(deadline);
+    public static Pace Every(TimeSpan interval) => new(interval);
+    public static Pace Every(double interval) => new(TimeSpan.FromSeconds(interval));
+    public static Pace Target(int fps) => new(TimeSpan.FromSeconds(1.0 / fps));
 
-    public TimeSpan Remaining(TimeSpan now)
-    {
-        if (Equals(Indefinite)) return Timeout.InfiniteTimeSpan;
-        return _deadline > now ? _deadline - now : TimeSpan.Zero;
-    }
-
-    public bool Equals(Pace other) => _deadline == other._deadline;
+    public bool Equals(Pace other) => Interval == other.Interval;
+    public override bool Equals(object? obj) => obj is Pace other && Equals(other);
+    public static bool operator ==(Pace left, Pace right) => left.Equals(right);
+    public static bool operator !=(Pace left, Pace right) => !(left == right);
+    public override int GetHashCode() => Interval.GetHashCode();
 }

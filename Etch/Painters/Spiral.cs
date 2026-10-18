@@ -5,7 +5,8 @@ namespace Etch.Painters;
 
 public readonly ref struct Spiral : IPainter
 {
-    public Pace Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
+    public Pace Pace => Pace.Target(5);
+    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
     {
         float centerX = context.Size.X / 2.0f;
         float centerY = context.Size.Y / 2.0f;
@@ -29,7 +30,5 @@ public readonly ref struct Spiral : IPainter
                 context.Plot(position, Etchel.Solid(color));
             }
         }
-
-        return Pace.Continuous;
     }
 }

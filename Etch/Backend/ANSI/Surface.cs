@@ -51,20 +51,20 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
 
     private void Wait(Pace pace)
     {
-        TimeSpan remaining = pace.Remaining(Timings.Elapsed);
-        if (remaining == TimeSpan.Zero) return;
-        _wake.WaitOne(remaining);
+        if (pace == Pace.Continuous) return;
+        else if (pace == Pace.Indefinite) _wake.WaitOne();
+        else _wake.WaitOne(pace.Interval);
     }
 
     public void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
     {
         ulong frames = 0;
+        Pace pace = painter.Pace;
         Timings.Begin();
         while(!_stopping)
         {
-            Pace pace;
             Context context = new(frames, Timings.Elapsed, Timings.Frame, Size, _current);
-            using (Timings.MeasurePaint()) pace = painter.Paint(context);
+            using (Timings.MeasurePaint()) painter.Paint(context);
             using (Timings.MeasurePresent()) Present();
             using (Timings.MeasureFlush()) _writer.Flush();
             using (Timings.MeasureWait()) Wait(pace);

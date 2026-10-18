@@ -2,5 +2,6 @@
 
 public interface IPainter
 {
-    Pace Paint<TContext>(TContext context) where TContext : IContext, allows ref struct;
+    Pace Pace { get; }
+    void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct;
 }
