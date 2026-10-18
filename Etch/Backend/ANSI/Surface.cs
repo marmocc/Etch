@@ -1,4 +1,5 @@
 ﻿using Etch.Common;
+using Etch.Diagnostics;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -6,7 +7,8 @@ namespace Etch.Backend.ANSI;
 
 public sealed class Surface(Int2 size, Stream output) : ISurface
 {
-    private readonly long _start = Stopwatch.GetTimestamp();
+    private readonly long _origin = Stopwatch.GetTimestamp();
+    private TimeSpan _paint, _present, _flush, _wait;
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
 
@@ -51,7 +53,7 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
 
     private void Wait(Pace pace)
     {
-        TimeSpan elapsed = Stopwatch.GetElapsedTime(_start);
+        TimeSpan elapsed = Stopwatch.GetElapsedTime(_origin);
         TimeSpan remaining = pace.Remaining(elapsed);
         if (remaining == TimeSpan.Zero) return;
         _wake.WaitOne(remaining);
@@ -59,21 +61,23 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
 
     public void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct
     {
-        TimeSpan previousElapsed = TimeSpan.Zero;
+        long mark = Stopwatch.GetTimestamp(); 
+        TimeSpan previousElapsed = Stopwatch.GetElapsedTime(_origin, mark);
         ulong frames = 0;
+
         while(!_stopping)
         {
-            TimeSpan elapsed = Stopwatch.GetElapsedTime(_start);
+            TimeSpan elapsed = Stopwatch.GetElapsedTime(_origin, mark);
             TimeSpan delta = elapsed - previousElapsed;
             previousElapsed = elapsed;
 
+            Pace pace;
             Context context = new(frames, elapsed, delta, Size, _current);
-            Pace pace = painter.Paint(context);
+            using (new Probe(ref mark, ref _paint)) pace = painter.Paint(context);
+            using (new Probe(ref mark, ref _present)) Present();
+            using (new Probe(ref mark, ref _flush)) _writer.Flush();
+            using (new Probe(ref mark, ref _wait)) Wait(pace);
             frames++;
-
-            Present();
-            _writer.Flush();
-            Wait(pace);
         }
     }
 
