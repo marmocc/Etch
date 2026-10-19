@@ -130,7 +130,7 @@ public sealed class Surface : ISurface, IDisposable
         }
         else
         {
-            _window.IsEventDriven = false;
+            _window.IsEventDriven = true;
             GlfwProvider.GLFW.Value.WaitEventsTimeout(interval.TotalSeconds);
         }
     }

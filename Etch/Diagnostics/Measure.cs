@@ -7,7 +7,7 @@ namespace Etch.Diagnostics;
 /// </summary>
 /// <param name="mark">Starting timestamp.</param>
 /// <param name="duration">Duration measurement.</param>
-public readonly ref struct Probe(ref long mark, ref TimeSpan duration) : IDisposable
+public readonly ref struct Measure(ref long mark, ref TimeSpan duration) : IDisposable
 {
     private readonly long _start = mark;
     private readonly ref long _mark = ref mark;
