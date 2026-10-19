@@ -16,7 +16,7 @@ public sealed class Surface(Int2 size, Stream output) : ISurface
     public Int2 Size { get; } = size;
     public Timings Timings { get; } = new();
 
-    public static Surface Terminal()
+    public static Surface Default()
     {
         Stream terminalStream = Console.OpenStandardOutput();
         Int2 terminalSize = new(Console.WindowWidth, Console.WindowHeight);
