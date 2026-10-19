@@ -5,7 +5,6 @@ namespace Etch.Painters;
 
 public readonly ref struct Chaos : IPainter
 {
-    public Pace Pace => Pace.Continuous;
     public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
     {
         for(int y = 0; y < context.Size.Y; y++)

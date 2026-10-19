@@ -1,14 +1,15 @@
 ﻿using Etch.Common;
-using Etch.Diagnostics;
 
 namespace Etch.Backend;
 
 public interface ISurface
 {
     Int2 Size { get; }
-    Timings Timings { get; }
+    bool Stopping { get; }
 
-    void Start<TPainter>(TPainter painter) where TPainter : IPainter, allows ref struct;
+    void Present(ReadOnlySpan<Etchel> etchels);
+    void Wait(TimeSpan interval);
+
     void Wake();
     void Stop();
 }

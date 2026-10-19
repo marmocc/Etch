@@ -5,7 +5,6 @@ namespace Etch.Painters;
 
 public readonly ref struct Spiral : IPainter
 {
-    public Pace Pace => Pace.Target(5);
     public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
     {
         float centerX = context.Size.X / 2.0f;
