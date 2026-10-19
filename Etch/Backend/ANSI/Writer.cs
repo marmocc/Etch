@@ -148,5 +148,10 @@ public sealed class Writer
     public void Advance(int written) { _buffer.Advance(written); _cursor += new Int2(written, 0); }
     public void Write(byte value) { GetSpan(1)[0] = value; Advance(1); }
 
-    public void Flush() { _output.Write(_buffer.WrittenSpan); _buffer.ResetWrittenCount(); }
+    public void Flush()
+    {
+        if (_buffer.WrittenCount == 0) return;
+        _output.Write(_buffer.WrittenSpan);
+        _buffer.ResetWrittenCount();
+    }
 }

@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+﻿using Etch.Backend.ANSI;
 using Etch.Common;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -46,8 +47,8 @@ public sealed class Surface : ISurface, IDisposable
         """;
 
     public Int2 Size { get; }
+    public bool Stopping => _window.IsClosing;
 
-    private readonly Etchel[] _etchels;
     private readonly IWindow _window;
     private readonly GL _gl;
     private readonly uint _texture;
@@ -62,7 +63,6 @@ public sealed class Surface : ISurface, IDisposable
     public Surface(Int2 size)
     {
         Size = size;
-        _etchels = new Etchel[size.X * size.Y];
 
         WindowOptions options = WindowOptions.Default with
         {
@@ -86,8 +86,9 @@ public sealed class Surface : ISurface, IDisposable
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Nearest);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge);
+
         _gl.TexImage2D<Etchel>(TextureTarget.Texture2D, 0, InternalFormat.RG32ui,
-            (uint)size.X, (uint)size.Y, 0, PixelFormat.RGInteger, PixelType.UnsignedInt, _etchels);
+            (uint)size.X, (uint)size.Y, 0, PixelFormat.RGInteger, PixelType.UnsignedInt, null);
 
         _vao = _gl.GenVertexArray();
         _gl.BindVertexArray(_vao);
@@ -95,49 +96,46 @@ public sealed class Surface : ISurface, IDisposable
         _program = BuildProgram(_gl, VertexSource, FragmentSource);
         _gridLocation = _gl.GetUniformLocation(_program, "uGrid");
         _framebufferLocation = _gl.GetUniformLocation(_program, "uFramebuffer");
-
-        _window.FramebufferResize += OnFramebufferResize;
     }
 
-    public void Run<TPainter>(TPainter painter, int until = 0) where TPainter : IPainter, allows ref struct
+    public void Present(ReadOnlySpan<Etchel> etchels)
     {
-        try
+        Vector2D<int> framebuffer = _window.FramebufferSize;
+
+        _gl.BindTexture(TextureTarget.Texture2D, _texture);
+        _gl.TexSubImage2D<Etchel>(TextureTarget.Texture2D, 0, 0, 0,
+            (uint)Size.X, (uint)Size.Y, PixelFormat.RGInteger, PixelType.UnsignedInt, etchels);
+
+        _gl.UseProgram(_program);
+        _gl.BindVertexArray(_vao);
+        _gl.BindTexture(TextureTarget.Texture2D, _texture);
+        _gl.Uniform2(_gridLocation, Size.X, Size.Y);
+        _gl.Uniform2(_framebufferLocation, (float)framebuffer.X, (float)framebuffer.Y);
+        _gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
+
+        _window.SwapBuffers();
+    }
+
+    public void Wait(TimeSpan interval)
+    {
+        if (interval == TimeSpan.Zero)
         {
-            long frame = 0;
-            long start = Stopwatch.GetTimestamp();
-            long last = start;
-
-            while (!_window.IsClosing)
-            {
-                _window.DoEvents();
-                if (_window.IsClosing) break;
-
-                long now = Stopwatch.GetTimestamp();
-                float delta = (float)Stopwatch.GetElapsedTime(last, now).TotalSeconds;
-                double elapsed = Stopwatch.GetElapsedTime(start, now).TotalSeconds;
-                last = now;
-
-                Array.Clear(_etchels);
-                Context context = new(frame, elapsed, delta, Size, _etchels);
-                painter.Paint(context);
-
-                _gl.BindTexture(TextureTarget.Texture2D, _texture);
-                _gl.TexSubImage2D<Etchel>(TextureTarget.Texture2D, 0, 0, 0,
-                    (uint)Size.X, (uint)Size.Y, PixelFormat.RGInteger, PixelType.UnsignedInt, _etchels);
-
-                Draw(_window.FramebufferSize);
-                _window.SwapBuffers();
-                frame++;
-
-                if (until > 0 && frame >= until) break;
-            }
+            _window.IsEventDriven = false;
+            _window.DoEvents();
         }
-        finally
+        else if (interval == TimeSpan.MaxValue)
         {
-            Dispose();
+            _window.IsEventDriven = true;
+            _window.DoEvents();
+        }
+        else
+        {
+            _window.IsEventDriven = true;
+            GlfwProvider.GLFW.Value.WaitEventsTimeout(interval.TotalSeconds);
         }
     }
 
+    public void Wake() => _window.ContinueEvents();
     public void Stop() => _window.Close();
 
     public void Dispose()
@@ -145,29 +143,11 @@ public sealed class Surface : ISurface, IDisposable
         if (_disposed) return;
         _disposed = true;
 
-        _window.FramebufferResize -= OnFramebufferResize;
         _gl.DeleteTexture(_texture);
         _gl.DeleteVertexArray(_vao);
         _gl.DeleteProgram(_program);
         _gl.Dispose();
         _window.Dispose();
-    }
-
-    private void OnFramebufferResize(Vector2D<int> size)
-    {
-        _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
-        Draw(size);
-        _window.SwapBuffers();
-    }
-
-    private void Draw(Vector2D<int> framebuffer)
-    {
-        _gl.UseProgram(_program);
-        _gl.BindVertexArray(_vao);
-        _gl.BindTexture(TextureTarget.Texture2D, _texture);
-        _gl.Uniform2(_gridLocation, Size.X, Size.Y);
-        _gl.Uniform2(_framebufferLocation, (float)framebuffer.X, (float)framebuffer.Y);
-        _gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
     }
 
     private static uint BuildProgram(GL gl, string vertexSource, string fragmentSource)
