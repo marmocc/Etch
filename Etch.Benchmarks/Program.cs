@@ -45,18 +45,10 @@ public class EtchAgainstRaw
         _frame++;
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public void Raw()
     {
         _stream.SetLength(0);
-
-        // We simulate the Chaos painter logic but write directly to the stream
-        // bypassing Etchel, Context, and Surface diffing.
-        // We still use the terminal state optimizations (only move/color if changed).
-
-        // For Raw, we can't easily maintain a "shadow" state without adding more fields
-        // so we just do a full screen write which is what Etch does when every cell changes.
-
         Span<byte> buffer = stackalloc byte[64];
         int written = 0;
 
@@ -104,7 +96,7 @@ public class EtchAgainstRaw
                 _stream.Write(buffer[..written]);
 
                 // Glyph
-                buffer[0] = (byte)' '; // Chaos uses Space for Solid
+                buffer[0] = (byte)' ';
                 _stream.Write(buffer[..1]);
             }
         }
