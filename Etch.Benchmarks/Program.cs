@@ -33,18 +33,12 @@ public class RenderLoopBenchmarks
     [Benchmark]
     public void Tick()
     {
-        // We instantiate the ref struct Painter here.
-        // Since it's a readonly ref struct with no state, this is essentially free.
         Chaos painter = new();
-
         Context context = new(0, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
         painter.Paint(context);
         _surface.Present(_etchels);
     }
 
     [GlobalCleanup]
-    public void Cleanup()
-    {
-        _surface.Dispose();
-    }
+    public void Cleanup() => _surface.Dispose();
 }
