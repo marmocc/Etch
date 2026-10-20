@@ -18,9 +18,11 @@ public class Program
 [MemoryDiagnoser]
 public class RenderLoopBenchmarks
 {
-    private Surface _surface;
-    private IPainter _painter;
-    private Etchel[] _etchels;
+    // Using 'default!' to suppress the unassigned variable warnings.
+    // These are guaranteed to be initialized in [GlobalSetup].
+    private Surface _surface = default!;
+    private Chaos _painter = default!;
+    private Etchel[] _etchels = default!;
     private Int2 _size = new(80, 40);
 
     [GlobalSetup]
@@ -35,11 +37,8 @@ public class RenderLoopBenchmarks
     [Benchmark]
     public void Tick()
     {
-        // We simulate the loop interior:
-        // 1. Create Context (stack allocated ref struct)
-        // 2. Paint (Chaos painter produces significant work)
-        // 3. Present (Diffing and ANSI generation)
-
+        // By calling _painter.Paint(context) where _painter is typed as 'Chaos',
+        // the JIT can devirtualize this call, matching the performance of the generic Renderer.
         Context context = new(0, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
         _painter.Paint(context);
         _surface.Present(_etchels);
