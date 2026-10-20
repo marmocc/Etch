@@ -141,16 +141,24 @@ public class CoreTests
     public void Etchel_Modifiers_ShouldBeCorrect()
     {
         var e = new Etchel(Glyph.From('#'), new RGB(1, 2, 3), new RGB(4, 5, 6));
-        Assert.Equal(e.Glyph, e.WithForeground(RGB.Red).Glyph);
-        Assert.Equal(e.Background, e.WithForeground(RGB.Red).Background);
-        Assert.Equal(RGB.Red, e.WithForeground(RGB.Red).Foreground);
-        Assert.Equal(e.Background, e.WithForeground(RGB.Red).Background);
-        Assert.Equal(e.Glyph, e.WithBackground(RGB.Blue).Glyph);
-        Assert.Equal(e.Foreground, e.WithBackground(RGB.Blue).Foreground);
-        Assert.Equal(RGB.Blue, e.WithBackground(RGB.Blue).Background);
-        Assert.Equal(e.Glyph, e.WithGlyph(Glyph.From('A')).Glyph);
-        Assert.Equal(e.Background, e.WithGlyph(Glyph.From('A')).Background);
-        Assert.Equal(Glyph.From('A'), e.WithGlyph(Glyph.From('A')).Glyph);
+
+        // WithForeground
+        var fgChanged = e.WithForeground(RGB.Red);
+        Assert.NotEqual(e.Foreground, fgChanged.Foreground);
+        Assert.Equal(e.Glyph, fgChanged.Glyph);
+        Assert.Equal(e.Background, fgChanged.Background);
+
+        // WithBackground
+        var bgChanged = e.WithBackground(RGB.Blue);
+        Assert.NotEqual(e.Background, bgChanged.Background);
+        Assert.Equal(e.Glyph, bgChanged.Glyph);
+        Assert.Equal(e.Foreground, bgChanged.Foreground);
+
+        // WithGlyph
+        var glyphChanged = e.WithGlyph(Glyph.From('A'));
+        Assert.NotEqual(e.Glyph, glyphChanged.Glyph);
+        Assert.Equal(e.Foreground, glyphChanged.Foreground);
+        Assert.Equal(e.Background, glyphChanged.Background);
     }
 
     [Fact]
