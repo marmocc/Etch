@@ -75,7 +75,7 @@ public class CoreTests
     [Fact]
     public void RGBA_Basic_ShouldBeCorrect()
     {
-        Assert.Equal(0, default(RGBA).Packed);
+        Assert.Equal(0U, default(RGBA).Packed);
         Assert.Equal(0x04030201U, new RGBA(1, 2, 3, 4).Packed);
         Assert.Equal(4, new RGBA(1, 2, 3, 4).A);
         Assert.Equal(new RGBA(1, 2, 3, 9), new RGBA(1, 2, 3, 4).WithAlpha(9));
