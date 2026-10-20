@@ -44,10 +44,10 @@ public class CoreTests
     {
         Assert.Equal(uint.MaxValue, new Field<uint>(0, 32).Mask);
         Assert.Equal(ulong.MaxValue, new Field<ulong>(0, 64).Mask);
-        Assert.Equal(0xFFFFFF, new Field<ulong>(40, 24).Read(ulong.MaxValue));
-        Assert.Equal(0xFFFF00FF, new Field<uint>(8, 8).Write(0xFFFFFFFF, 0));
-        Assert.Equal(0x0000AB00, new Field<uint>(8, 8).Write(0, 0xAB));
-        Assert.Equal(0xDEADBEEF, new Field<uint>(0, 32).Read(0xDEADBEEF));
+        Assert.Equal(0xFFFFFFUL, new Field<ulong>(40, 24).Read(ulong.MaxValue));
+        Assert.Equal(0xFFFF00FFU, new Field<uint>(8, 8).Write(0xFFFFFFFFU, 0U));
+        Assert.Equal(0x0000AB00U, new Field<uint>(8, 8).Write(0U, 0xABU));
+        Assert.Equal(0xDEADBEEFU, new Field<uint>(0, 32).Read(0xDEADBEEFU));
     }
 
     [Fact]
@@ -64,8 +64,8 @@ public class CoreTests
         Assert.Equal(4, Unsafe.SizeOf<RGB>());
         Assert.Equal(4, Unsafe.SizeOf<RGBA>());
         Assert.Equal(RGB.Black, default(RGB));
-        Assert.Equal(0x00FFFFFF, new RGB(0xFFFFFFFF).Packed);
-        Assert.Equal(0x030201, new RGB(1, 2, 3).Packed);
+        Assert.Equal(0x00FFFFFFU, new RGB(0xFFFFFFFFU).Packed);
+        Assert.Equal(0x030201U, new RGB(1, 2, 3).Packed);
         Assert.True(new RGB(1, 2, 3).R == 1 && new RGB(1, 2, 3).G == 2 && new RGB(1, 2, 3).B == 3);
         Assert.Equal(new RGB(9, 2, 3), new RGB(1, 2, 3).WithRed(9));
         Assert.Equal(255, RGB.White.Luminance);
@@ -76,7 +76,7 @@ public class CoreTests
     public void RGBA_Basic_ShouldBeCorrect()
     {
         Assert.Equal(0, default(RGBA).Packed);
-        Assert.Equal(0x04030201, new RGBA(1, 2, 3, 4).Packed);
+        Assert.Equal(0x04030201U, new RGBA(1, 2, 3, 4).Packed);
         Assert.Equal(4, new RGBA(1, 2, 3, 4).A);
         Assert.Equal(new RGBA(1, 2, 3, 9), new RGBA(1, 2, 3, 4).WithAlpha(9));
         Assert.Equal(1, new RGBA(1, 2, 3, 4).WithAlpha(9).R);
@@ -119,7 +119,7 @@ public class CoreTests
     public void Etchel_Basic_ShouldBeCorrect()
     {
         Assert.Equal(8, Unsafe.SizeOf<Etchel>());
-        Assert.Equal(0, default(Etchel).Packed);
+        Assert.Equal(0UL, default(Etchel).Packed);
         Assert.Equal(Glyph.Empty, default(Etchel).Glyph);
         Assert.Equal(RGB.Black, default(Etchel).Foreground);
         Assert.Equal(RGB.Black, default(Etchel).Background);
