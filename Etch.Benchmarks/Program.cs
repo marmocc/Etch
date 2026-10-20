@@ -22,6 +22,7 @@ public class RenderLoopBenchmarks
     private MemoryStream _stream = default!;
     private Etchel[] _etchels = default!;
     private Int2 _size = new(80, 40);
+    private ulong _frame = 0;
 
     [GlobalSetup]
     public void Setup()
@@ -36,7 +37,11 @@ public class RenderLoopBenchmarks
     {
         Chaos painter = new();
 
-        Context context = new(0, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
+        // Increment frame to ensure Chaos generates a new pattern each tick.
+        // This forces the ANSI surface to actually find diffs and perform work.
+        _frame++;
+
+        Context context = new(_frame, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
         painter.Paint(context);
         _surface.Present(_etchels);
     }
