@@ -141,28 +141,16 @@ public class CoreTests
     public void Etchel_Modifiers_ShouldBeCorrect()
     {
         var e = new Etchel(Glyph.From('#'), new RGB(1, 2, 3), new RGB(4, 5, 6));
-
-        // Test WithForeground
-        var fgChanged = e.WithForeground(RGB.Red);
-        Assert.NotEqual(e.Glyph, fgChanged.Glyph); // This was the bug - it should NOT match if we changed it?
-        // Wait, I'm confusing myself. WithForeground should NOT change the glyph.
-        // Let's be explicit.
-
-        Assert.Equal(e.Glyph, fgChanged.Glyph); // Glyph stays same
-        Assert.Equal(e.Background, fgChanged.Background); // Background stays same
-        Assert.Equal(RGB.Red, fgChanged.Foreground); // Foreground changes
-
-        // Test WithBackground
-        var bgChanged = e.WithBackground(RGB.Blue);
-        Assert.Equal(e.Glyph, bgChanged.Glyph); // Glyph stays same
-        Assert.Equal(e.Foreground, bgChanged.Foreground); // Foreground stays same
-        Assert.Equal(RGB.Blue, bgChanged.Background); // Background changes
-
-        // Test WithGlyph
-        var glyphChanged = e.WithGlyph(Glyph.From('A'));
-        Assert.NotEqual(e.Glyph, glyphChanged.Glyph); // Glyph CHANGES
-        Assert.Equal(e.Foreground, glyphChanged.Foreground); // Foreground stays same
-        Assert.Equal(e.Background, glyphChanged.Background); // Background stays same
+        Assert.Equal(e.Glyph, e.WithForeground(RGB.Red).Glyph);
+        Assert.Equal(e.Background, e.WithForeground(RGB.Red).Background);
+        Assert.Equal(RGB.Red, e.WithForeground(RGB.Red).Foreground);
+        Assert.Equal(e.Background, e.WithForeground(RGB.Red).Background);
+        Assert.Equal(e.Glyph, e.WithBackground(RGB.Blue).Glyph);
+        Assert.Equal(e.Foreground, e.WithBackground(RGB.Blue).Foreground);
+        Assert.Equal(RGB.Blue, e.WithBackground(RGB.Blue).Background);
+        Assert.Equal(e.Glyph, e.WithGlyph(Glyph.From('A')).Glyph);
+        Assert.Equal(e.Background, e.WithGlyph(Glyph.From('A')).Background);
+        Assert.Equal(Glyph.From('A'), e.WithGlyph(Glyph.From('A')).Glyph);
     }
 
     [Fact]
