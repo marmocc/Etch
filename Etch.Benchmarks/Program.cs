@@ -15,43 +15,34 @@ public class Program
     }
 }
 
-public class MockPainter : IPainter
-{
-    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
-    {
-        context.Clear();
-        context.Plot(new Int2(0, 0), Etchel.Solid(RGB.Red));
-    }
-}
-
 [MemoryDiagnoser]
 public class RenderLoopBenchmarks
 {
     private Surface _surface;
-    private MockPainter _painter = new();
-    private TimeSpan _interval = TimeSpan.FromMilliseconds(16);
+    private IPainter _painter;
+    private Etchel[] _etchels;
+    private Int2 _size = new(80, 40);
 
     [GlobalSetup]
     public void Setup()
     {
-        // Use a MemoryStream to avoid Terminal/GPU overhead
         using var ms = new MemoryStream();
-        _surface = new Surface(new Int2(1920, 1080), ms);
+        _surface = new Surface(_size, ms);
+        _painter = new Chaos();
+        _etchels = new Etchel[_size.X * _size.Y];
     }
 
     [Benchmark]
-    public void FrameTick()
+    public void Tick()
     {
-        // We simulate the logic inside the while(true) loop of Renderer.Start
-        // but only the parts that depend on the data layout and painting.
+        // We simulate the loop interior:
+        // 1. Create Context (stack allocated ref struct)
+        // 2. Paint (Chaos painter produces significant work)
+        // 3. Present (Diffing and ANSI generation)
 
-        int sizeX = _surface.Size.X;
-        int sizeY = _surface.Size.Y;
-        Etchel[] etchels = new Etchel[sizeX * sizeY];
-
-        Context context = new(0, TimeSpan.Zero, TimeSpan.Zero, _surface.Size, etchels);
+        Context context = new(0, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
         _painter.Paint(context);
-        _surface.Present(etchels);
+        _surface.Present(_etchels);
     }
 
     [GlobalCleanup]
