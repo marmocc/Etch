@@ -11,49 +11,31 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        BenchmarkRunner.Run<RenderLoopBenchmarks>();
+        BenchmarkRunner.Run<EtchAgainstRaw>();
     }
 }
 
-/// <summary>
-/// A stream that ignores all writes, preventing "Stream too long" errors during benchmarks.
-/// </summary>
-public sealed class NullStream : Stream
-{
-    public override bool CanRead => false;
-    public override bool CanSeek => false;
-    public override bool CanWrite => true;
-    public override long Length => 0;
-    public override long Position { get => 0; set { } }
-    public override void Flush() { }
-    public override int Read(Span<byte> buffer) => 0;
-    public override void Write(ReadOnlySpan<byte> buffer) { }
-    public override void SetLength(long value) { }
-    public override int ReadByte() => -1;
-    public override void WriteByte(byte value) { }
-}
-
 [MemoryDiagnoser]
-public class RenderLoopBenchmarks
+public class EtchAgainstRaw
 {
     private Surface _surface = default!;
-    private Stream _stream = default!;
+    private MemoryStream _stream = default!;
     private Etchel[] _etchels = default!;
     private Int2 _size = new(80, 40);
 
     [GlobalSetup]
     public void Setup()
     {
-        _stream = new NullStream();
+        _stream = new MemoryStream();
         _surface = new Surface(_size, _stream);
         _etchels = new Etchel[_size.X * _size.Y];
     }
 
     [Benchmark]
-    public void Tick()
+    public void Etch()
     {
+        _stream.SetLength(0);
         Chaos painter = new();
-
         Context context = new(_frame, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
         painter.Paint(context);
         _surface.Present(_etchels);
