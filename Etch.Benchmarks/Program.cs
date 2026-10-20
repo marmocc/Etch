@@ -36,14 +36,10 @@ public class RenderLoopBenchmarks
     public void Tick()
     {
         Chaos painter = new();
-
-        // Increment frame to ensure Chaos generates a new pattern each tick.
-        // This forces the ANSI surface to actually find diffs and perform work.
-        _frame++;
-
         Context context = new(_frame, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
         painter.Paint(context);
         _surface.Present(_etchels);
+        _frame++;
     }
 
     [GlobalCleanup]
