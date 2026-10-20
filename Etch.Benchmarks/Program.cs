@@ -56,9 +56,17 @@ public class EtchAgainstRaw
         int totalWritten = 0;
         Span<byte> buffer = _rawBuffer;
 
+        // Match Etchel.Solid: Set foreground to Black once for the whole frame
+        // \x1b[38;2;0;0;0m
+        buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'3'; buffer[totalWritten++] = (byte)'8';
+        buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = 0;
+        buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = 0; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = 0;
+        buffer[totalWritten++] = (byte)'m';
+
         for (int y = 0; y < _size.Y; y++)
         {
             // Move Cursor
+            int written = 0;
             buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'[';
             Utf8Formatter.TryFormat(y + 1, buffer.Slice(totalWritten), out int ry); totalWritten += ry;
             buffer[totalWritten++] = (byte)';';
@@ -74,22 +82,14 @@ public class EtchAgainstRaw
                 byte g = (byte)(h >> 8);
                 byte b = (byte)(h >> 16);
 
-                // Foreground
-                buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'3'; buffer[totalWritten++] = (byte)'8'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';';
+                // Background Only (matching Etchel.Solid)
+                int bOffset = totalWritten;
+                buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'4'; buffer[totalWritten++] = (byte)'8'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';';
                 Utf8Formatter.TryFormat(r, buffer.Slice(totalWritten), out int rw); totalWritten += rw;
                 buffer[totalWritten++] = (byte)';';
                 Utf8Formatter.TryFormat(g, buffer.Slice(totalWritten), out int gw); totalWritten += gw;
                 buffer[totalWritten++] = (byte)';';
                 Utf8Formatter.TryFormat(b, buffer.Slice(totalWritten), out int bw); totalWritten += bw;
-                buffer[totalWritten++] = (byte)'m';
-
-                // Background
-                buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'4'; buffer[totalWritten++] = (byte)'8'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';';
-                Utf8Formatter.TryFormat(r, buffer.Slice(totalWritten), out int r2w); totalWritten += r2w;
-                buffer[totalWritten++] = (byte)';';
-                Utf8Formatter.TryFormat(g, buffer.Slice(totalWritten), out int g2w); totalWritten += g2w;
-                buffer[totalWritten++] = (byte)';';
-                Utf8Formatter.TryFormat(b, buffer.Slice(totalWritten), out int b2w); totalWritten += b2w;
                 buffer[totalWritten++] = (byte)'m';
 
                 // Glyph
