@@ -1,11 +1,17 @@
-# Etch
+<h1 align="center">Etch</h1>
 
-[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
-[![C#](https://img.shields.io/badge/C%23-14-239120)](https://learn.microsoft.com/dotnet/csharp/)
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-purple)](https://deepwiki.com/marmocc/Etch)
+<p align="center">
+  Cell-based graphics library fully compatible with terminals and windows alike.
+</p>
 
-<figure align="center">
-  <img src="Docs/Spiral.png" alt="The Spiral painter running in a terminal and in a window">
-  <figcaption><em>The same <code>Spiral</code> painter rendered by the ANSI backend (left) and the OpenGL backend (right).</em></figcaption>
-</figure>
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
+  <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-10.0-512BD4" alt=".NET"></a>
+  <a href="https://learn.microsoft.com/dotnet/csharp"><img src="https://img.shields.io/badge/C%23-14-239120" alt="C#"></a>
+  <a href="https://deepwiki.com/marmocc/Etch"><img src="https://img.shields.io/badge/DeepWiki-Documentation-purple" alt="DeepWiki"></a>
+</p>
+
+---
+
+![](Docs/Spiral.png)
+*`Spiral` painter running in both a terminal (left) and a window (right).*
