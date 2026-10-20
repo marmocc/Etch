@@ -66,7 +66,6 @@ public class EtchAgainstRaw
         for (int y = 0; y < _size.Y; y++)
         {
             // Move Cursor
-            int written = 0;
             buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'[';
             Utf8Formatter.TryFormat(y + 1, buffer.Slice(totalWritten), out int ry); totalWritten += ry;
             buffer[totalWritten++] = (byte)';';
