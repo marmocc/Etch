@@ -40,7 +40,7 @@ public class CoreTests
     }
 
     [Fact]
-    public void Fields_Masks_ShouldBeCorrect()
+    public void Field_Masks_ShouldBeCorrect()
     {
         Assert.Equal(uint.MaxValue, new Field<uint>(0, 32).Mask);
         Assert.Equal(ulong.MaxValue, new Field<ulong>(0, 64).Mask);
@@ -59,7 +59,7 @@ public class CoreTests
     }
 
     [Fact]
-    public void Colors_Basic_ShouldBeCorrect()
+    public void Color_Basic_ShouldBeCorrect()
     {
         Assert.Equal(4, Unsafe.SizeOf<RGB>());
         Assert.Equal(4, Unsafe.SizeOf<RGBA>());
@@ -92,7 +92,7 @@ public class CoreTests
     }
 
     [Fact]
-    public void Glyphs_Basic_ShouldBeCorrect()
+    public void Glyph_Basic_ShouldBeCorrect()
     {
         Assert.Equal(1, Unsafe.SizeOf<Glyph>());
         Assert.True(default(Glyph).IsEmpty);
@@ -116,7 +116,7 @@ public class CoreTests
     }
 
     [Fact]
-    public void Etchels_Basic_ShouldBeCorrect()
+    public void Etchel_Basic_ShouldBeCorrect()
     {
         Assert.Equal(8, Unsafe.SizeOf<Etchel>());
         Assert.Equal(0, default(Etchel).Packed);
@@ -127,7 +127,7 @@ public class CoreTests
     }
 
     [Fact]
-    public void Etchels_Packing_ShouldBeCorrect()
+    public void Etchel_Packing_ShouldBeCorrect()
     {
         Etchel e = new(Glyph.From('#'), new RGB(1, 2, 3), new RGB(4, 5, 6));
         Assert.Equal(0x0006050403020123UL, e.Packed);
@@ -138,7 +138,7 @@ public class CoreTests
     }
 
     [Fact]
-    public void Etchels_Modifiers_ShouldBeCorrect()
+    public void Etchel_Modifiers_ShouldBeCorrect()
     {
         var e = new Etchel(Glyph.From('#'), new RGB(1, 2, 3), new RGB(4, 5, 6));
         Assert.Equal(e.Glyph, e.WithForeground(RGB.Red).Glyph);
@@ -146,16 +146,15 @@ public class CoreTests
         Assert.Equal(RGB.Red, e.WithForeground(RGB.Red).Foreground);
         Assert.Equal(e.Background, e.WithForeground(RGB.Red).Background);
         Assert.Equal(e.Glyph, e.WithBackground(RGB.Blue).Glyph);
-        Assert.Equal(RGB.Blue, e.WithBackground(RGB.Blue). Foreground); // wait, let me check
         Assert.Equal(e.Foreground, e.WithBackground(RGB.Blue).Foreground);
         Assert.Equal(RGB.Blue, e.WithBackground(RGB.Blue).Background);
-        Assert.Equal(e.Glyph, e.WithGlyph(Glyph.From('A')).Glyph); // check later
+        Assert.Equal(e.Glyph, e.WithGlyph(Glyph.From('A')).Glyph);
         Assert.Equal(e.Background, e.WithGlyph(Glyph.From('A')).Background);
         Assert.Equal(Glyph.From('A'), e.WithGlyph(Glyph.From('A')).Glyph);
     }
 
     [Fact]
-    public void Etchels_Solid_ShouldBeCorrect()
+    public void Etchel_Solid_ShouldBeCorrect()
     {
         Assert.Equal(Glyph.Empty, Etchel.Solid(RGB.Green).Glyph);
         Assert.Equal(RGB.Black, Etchel.Solid(RGB.Green).Foreground);
