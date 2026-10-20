@@ -23,6 +23,7 @@ public class EtchAgainstRaw
     private Surface _surface = default!;
     private MemoryStream _stream = default!;
     private Etchel[] _etchels = default!;
+    private byte[] _rawBuffer = default!;
     private Int2 _size = new(80, 40);
     private ulong _frame = 0;
 
@@ -32,6 +33,9 @@ public class EtchAgainstRaw
         _stream = new MemoryStream();
         _surface = new Surface(_size, _stream);
         _etchels = new Etchel[_size.X * _size.Y];
+        // Allocate a buffer large enough for a full screen of ANSI sequences
+        // ~60 bytes per cell * 3200 cells + cursor moves
+        _rawBuffer = new byte[1024 * 256];
     }
 
     [Benchmark]
@@ -49,23 +53,21 @@ public class EtchAgainstRaw
     public void Raw()
     {
         _stream.SetLength(0);
-        Span<byte> buffer = stackalloc byte[64];
-        int written = 0;
+
+        int totalWritten = 0;
+        Span<byte> buffer = _rawBuffer;
 
         for (int y = 0; y < _size.Y; y++)
         {
             // Move Cursor
-            written = 0;
-            buffer[written++] = 0x1B; buffer[written++] = (byte)'[';
-            Utf8Formatter.TryFormat(y + 1, buffer[written..], out int ry); written += ry;
-            buffer[written++] = (byte)';';
-            Utf8Formatter.TryFormat(0 + 1, buffer[written..], out int cx); written += cx; // Start of line
-            buffer[written++] = (byte)'H';
-            _stream.Write(buffer[..written]);
+            buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'[';
+            Utf8Formatter.TryFormat(y + 1, buffer.Slice(totalWritten), out int ry); totalWritten += ry;
+            buffer[totalWritten++] = (byte)';';
+            Utf8Formatter.TryFormat(0 + 1, buffer.Slice(totalWritten), out int cx); totalWritten += cx;
+            buffer[totalWritten++] = (byte)'H';
 
             for (int x = 0; x < _size.X; x++)
             {
-                // Chaos Math
                 uint h = (uint)(x * 374761393 + y * 668265263 + (long)_frame * 2246822519);
                 h = (h ^ (h >> 13)) * 1274126177;
                 h ^= h >> 16;
@@ -74,32 +76,30 @@ public class EtchAgainstRaw
                 byte b = (byte)(h >> 16);
 
                 // Foreground
-                written = 0;
-                buffer[written++] = 0x1B; buffer[written++] = (byte)'['; buffer[written++] = (byte)'3'; buffer[written++] = (byte)'8'; buffer[written++] = (byte)';'; buffer[written++] = (byte)'2'; buffer[written++] = (byte)';';
-                Utf8Formatter.TryFormat(r, buffer[written..], out int rw); written += rw;
-                buffer[written++] = (byte)';';
-                Utf8Formatter.TryFormat(g, buffer[written..], out int gw); written += gw;
-                buffer[written++] = (byte)';';
-                Utf8Formatter.TryFormat(b, buffer[written..], out int bw); written += bw;
-                buffer[written++] = (byte)'m';
-                _stream.Write(buffer[..written]);
+                buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'3'; buffer[totalWritten++] = (byte)'8'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';';
+                Utf8Formatter.TryFormat(r, buffer.Slice(totalWritten), out int rw); totalWritten += rw;
+                buffer[totalWritten++] = (byte)';';
+                Utf8Formatter.TryFormat(g, buffer.Slice(totalWritten), out int gw); totalWritten += gw;
+                buffer[totalWritten++] = (byte)';';
+                Utf8Formatter.TryFormat(b, buffer.Slice(totalWritten), out int bw); totalWritten += bw;
+                buffer[totalWritten++] = (byte)'m';
 
                 // Background
-                written = 0;
-                buffer[written++] = 0x1B; buffer[written++] = (byte)'['; buffer[written++] = (byte)'4'; buffer[written++] = (byte)'8'; buffer[written++] = (byte)';'; buffer[written++] = (byte)'2'; buffer[written++] = (byte)';';
-                Utf8Formatter.TryFormat(r, buffer[written..], out int r2w); written += r2w;
-                buffer[written++] = (byte)';';
-                Utf8Formatter.TryFormat(g, buffer[written..], out int g2w); written += g2w;
-                buffer[written++] = (byte)';';
-                Utf8Formatter.TryFormat(b, buffer[written..], out int b2w); written += b2w;
-                buffer[written++] = (byte)'m';
-                _stream.Write(buffer[..written]);
+                buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'4'; buffer[totalWritten++] = (byte)'8'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';';
+                Utf8Formatter.TryFormat(r, buffer.Slice(totalWritten), out int r2w); totalWritten += r2w;
+                buffer[totalWritten++] = (byte)';';
+                Utf8Formatter.TryFormat(g, buffer.Slice(totalWritten), out int g2w); totalWritten += g2w;
+                buffer[totalWritten++] = (byte)';';
+                Utf8Formatter.TryFormat(b, buffer.Slice(totalWritten), out int b2w); totalWritten += b2w;
+                buffer[totalWritten++] = (byte)'m';
 
                 // Glyph
-                buffer[0] = (byte)' ';
-                _stream.Write(buffer[..1]);
+                buffer[totalWritten++] = (byte)' ';
             }
         }
+
+        // The single bulk write that matches Etch's Writer.Flush()
+        _stream.Write(_rawBuffer, 0, totalWritten);
         _frame++;
     }
 
