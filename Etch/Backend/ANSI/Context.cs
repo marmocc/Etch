@@ -10,7 +10,12 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shad
     public Timings Timings { get; } = timings;
     public Int2 Size { get; } = size;
 
-    public void Clear(RGB fill) { _shadow.Fill(Etchel.Solid(fill)); _writer.Clear(fill); }
+    public void Clear(RGB fill) 
+    { 
+        _shadow.Fill(Etchel.Solid(fill));
+        if(_writer.Background != fill) _writer.Color(fill, false);
+        _writer.Clear(); 
+    }
     public void Plot(Int2 position, Etchel etchel)
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;
@@ -20,6 +25,9 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shad
         if (Intrinsics.Equals<Etchel, ulong>(etchel, _shadow[flat.Value])) return;
         _shadow[flat.Value] = etchel;
 
-        _writer.Write(position, etchel);
+        if (_writer.Position != position) _writer.Move(position);
+        if (_writer.Foreground != etchel.Foreground) _writer.Color(etchel.Foreground, true);
+        if (_writer.Background != etchel.Background) _writer.Color(etchel.Background, false);
+        _writer.Write(etchel.Glyph.Codepoint);
     }
 }

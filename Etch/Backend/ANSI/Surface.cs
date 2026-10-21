@@ -1,14 +1,13 @@
-﻿using Etch.Backend.OpenGL;
-using Etch.Common;
+﻿using Etch.Common;
 
 namespace Etch.Backend.ANSI;
 
-public sealed class Surface(Int2 size, Stream output) : ISurface<Context>, IDisposable
+public sealed class Surface(Int2 size, Stream output) : ISurface<Context>
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
-    private bool _disposed;
 
+    private bool _disposed = false;
     private readonly Writer _writer = new(size.X * size.Y * 64, output);
     private readonly Etchel[] _shadow = new Etchel[size.X * size.Y];
 
@@ -18,7 +17,9 @@ public sealed class Surface(Int2 size, Stream output) : ISurface<Context>, IDisp
     public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
     {
         Console.CancelKeyPress += (_, e) => { e.Cancel = true; Stop(); };
-        Console.CursorVisible = false;
+        _writer.Alternate(true);
+        _writer.Cursor(false);
+        _writer.Clear();
     }
 
     public Context Context(Timings timings) => new(timings, Size, _shadow, _writer);
@@ -37,7 +38,13 @@ public sealed class Surface(Int2 size, Stream output) : ISurface<Context>, IDisp
     {
         if (_disposed) return;
         _disposed = true;
-
         _wake.Dispose();
+
+        _writer.Alternate(false);
+        _writer.Cursor(true);
+        _writer.Reset();
+        _writer.Clear();
+
+        _writer.Flush();
     }
 }
