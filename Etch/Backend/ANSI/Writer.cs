@@ -19,10 +19,10 @@ public sealed class Writer
         _buffer = new byte[capacity];
         _pointer = 0;
 
-        Clear();
-        Move(Int2.Zero);
         Foreground(Color.Black);
         Background(Color.Black);
+        Move(Int2.Zero);
+        Clear();
     }
 
     private void Move(Int2 position)
