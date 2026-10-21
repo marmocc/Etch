@@ -1,5 +1,4 @@
 ﻿using Etch.Common;
-using System.Buffers;
 using System.Buffers.Text;
 
 namespace Etch.Backend.ANSI;
@@ -7,17 +6,20 @@ namespace Etch.Backend.ANSI;
 public sealed class Writer
 {
     private readonly Stream _output;
-    private readonly ArrayBufferWriter<byte> _buffer;
+    private readonly byte[] _buffer;
+    private uint _pointer;
 
     private Int2 _cursor;
     private RGB _foreground;
     private RGB _background;
-    
-    public Writer(int initialCapacity, Stream output) : this(initialCapacity, output, Int2.Zero, RGB.White, RGB.Black) { }
-    public Writer(int initialCapacity, Stream output, Int2 initialCursor, RGB initialForeground, RGB initialBackground)
+
+    public Writer(int capacity, Stream output) : this(capacity, output, Int2.Zero, RGB.White, RGB.Black) { }
+    public Writer(int capacity, Stream output, Int2 initialCursor, RGB initialForeground, RGB initialBackground)
     {
         _output = output;
-        _buffer = new(initialCapacity);
+        _buffer = new byte[capacity];
+        _pointer = 0;
+
         InternalClear();
         InternalMove(initialCursor);
         _cursor = initialCursor;
@@ -30,98 +32,87 @@ public sealed class Writer
     private void InternalMove(Int2 position)
     {
         Int2 correctedPosition = position + 1;
-        Span<byte> buffer = _buffer.GetSpan(16);
-        int written = 0;
 
-        buffer[written++] = 0x1B; // ESC
-        buffer[written++] = (byte)'[';
+        _buffer[_pointer++] = 0x1B; // ESC
+        _buffer[_pointer++] = (byte)'[';
 
-        bool rowSuccess = Utf8Formatter.TryFormat(correctedPosition.Y, buffer[written..], out int rowWritten);
+        bool rowSuccess = Utf8Formatter.TryFormat(correctedPosition.Y, _buffer.AsSpan(_pointer), out int rowWritten);
         if (!rowSuccess) throw new InvalidOperationException("Failed to format row value.");
-        written += rowWritten;
+        _pointer += (uint)rowWritten;
 
-        buffer[written++] = (byte)';';
+        _buffer[_pointer++] = (byte)';';
 
-        bool colSuccess = Utf8Formatter.TryFormat(correctedPosition.X, buffer[written..], out int colWritten);
+        bool colSuccess = Utf8Formatter.TryFormat(correctedPosition.X, _buffer.AsSpan(_pointer), out int colWritten);
         if (!colSuccess) throw new InvalidOperationException("Failed to format column value.");
-        written += colWritten;
+        _pointer += (uint)colWritten;
 
-        buffer[written++] = (byte)'H';
-        _buffer.Advance(written);
+        _buffer[_pointer++] = (byte)'H';
     }
+
     private void InternalForeground(RGB foreground)
     {
-        Span<byte> buffer = _buffer.GetSpan(24);
-        int written = 0;
+        _buffer[_pointer++] = 0x1B; // ESC
+        _buffer[_pointer++] = (byte)'[';
+        _buffer[_pointer++] = (byte)'3'; // 3 for Foreground
+        _buffer[_pointer++] = (byte)'8';
+        _buffer[_pointer++] = (byte)';';
+        _buffer[_pointer++] = (byte)'2';
+        _buffer[_pointer++] = (byte)';';
 
-        buffer[written++] = 0x1B; // ESC
-        buffer[written++] = (byte)'[';
-        buffer[written++] = (byte)'3'; // 3 for Foreground
-        buffer[written++] = (byte)'8';
-        buffer[written++] = (byte)';';
-        buffer[written++] = (byte)'2';
-        buffer[written++] = (byte)';';
-
-        bool rSuccess = Utf8Formatter.TryFormat(foreground.R, buffer[written..], out int rWritten);
+        bool rSuccess = Utf8Formatter.TryFormat(foreground.R, _buffer.AsSpan(_pointer), out int rWritten);
         if (!rSuccess) throw new InvalidOperationException("Failed to format red value.");
-        written += rWritten;
+        _pointer += (uint)rWritten;
 
-        buffer[written++] = (byte)';';
+        _buffer[_pointer++] = (byte)';';
 
-        bool gSuccess = Utf8Formatter.TryFormat(foreground.G, buffer[written..], out int gWritten);
+        bool gSuccess = Utf8Formatter.TryFormat(foreground.G, _buffer.AsSpan(_pointer), out int gWritten);
         if (!gSuccess) throw new InvalidOperationException("Failed to format green value.");
-        written += gWritten;
+        _pointer += (uint)gWritten;
 
-        buffer[written++] = (byte)';';
+        _buffer[_pointer++] = (byte)';';
 
-        bool bSuccess = Utf8Formatter.TryFormat(foreground.B, buffer[written..], out int bWritten);
+        bool bSuccess = Utf8Formatter.TryFormat(foreground.B, _buffer.AsSpan(_pointer), out int bWritten);
         if (!bSuccess) throw new InvalidOperationException("Failed to format blue value.");
-        written += bWritten;
+        _pointer += (uint)bWritten;
 
-        buffer[written++] = (byte)'m';
-        _buffer.Advance(written);
+        _buffer[_pointer++] = (byte)'m';
     }
+
     private void InternalBackground(RGB background)
     {
-        Span<byte> buffer = _buffer.GetSpan(24);
-        int written = 0;
+        _buffer[_pointer++] = 0x1B; // ESC
+        _buffer[_pointer++] = (byte)'[';
+        _buffer[_pointer++] = (byte)'4'; // 4 for Background
+        _buffer[_pointer++] = (byte)'8';
+        _buffer[_pointer++] = (byte)';';
+        _buffer[_pointer++] = (byte)'2';
+        _buffer[_pointer++] = (byte)';';
 
-        buffer[written++] = 0x1B; // ESC
-        buffer[written++] = (byte)'[';
-        buffer[written++] = (byte)'4'; // 4 for Background
-        buffer[written++] = (byte)'8';
-        buffer[written++] = (byte)';';
-        buffer[written++] = (byte)'2';
-        buffer[written++] = (byte)';';
-
-        bool rSuccess = Utf8Formatter.TryFormat(background.R, buffer[written..], out int rWritten);
+        bool rSuccess = Utf8Formatter.TryFormat(background.R, _buffer.AsSpan(_pointer), out int rWritten);
         if (!rSuccess) throw new InvalidOperationException("Failed to format red value.");
-        written += rWritten;
+        _pointer += (uint)rWritten;
 
-        buffer[written++] = (byte)';';
+        _buffer[_pointer++] = (byte)';';
 
-        bool gSuccess = Utf8Formatter.TryFormat(background.G, buffer[written..], out int gWritten);
+        bool gSuccess = Utf8Formatter.TryFormat(background.G, _buffer.AsSpan(_pointer), out int gWritten);
         if (!gSuccess) throw new InvalidOperationException("Failed to format green value.");
-        written += gWritten;
+        _pointer += (uint)gWritten;
 
-        buffer[written++] = (byte)';';
+        _buffer[_pointer++] = (byte)';';
 
-        bool bSuccess = Utf8Formatter.TryFormat(background.B, buffer[written..], out int bWritten);
+        bool bSuccess = Utf8Formatter.TryFormat(background.B, _buffer.AsSpan(_pointer), out int bWritten);
         if (!bSuccess) throw new InvalidOperationException("Failed to format blue value.");
-        written += bWritten;
+        _pointer += (uint)bWritten;
 
-        buffer[written++] = (byte)'m';
-        _buffer.Advance(written);
+        _buffer[_pointer++] = (byte)'m';
     }
+
     private void InternalClear()
     {
-        Span<byte> buffer = _buffer.GetSpan(4);
-        int written = 0;
-        buffer[written++] = 0x1B; // ESC
-        buffer[written++] = (byte)'[';
-        buffer[written++] = (byte)'2';
-        buffer[written++] = (byte)'J';
-        _buffer.Advance(written);
+        _buffer[_pointer++] = 0x1B; // ESC
+        _buffer[_pointer++] = (byte)'[';
+        _buffer[_pointer++] = (byte)'2';
+        _buffer[_pointer++] = (byte)'J';
     }
 
     public void Move(Int2 position)
@@ -130,28 +121,29 @@ public sealed class Writer
         InternalMove(position);
         _cursor = position;
     }
+
     public void Foreground(RGB foreground)
     {
         if (_foreground == foreground) return;
         InternalForeground(foreground);
         _foreground = foreground;
     }
+
     public void Background(RGB background)
     {
         if (_background == background) return;
         InternalBackground(background);
         _background = background;
     }
+
     public void Clear() => InternalClear();
 
-    public Span<byte> GetSpan(int sizeHint) => _buffer.GetSpan(sizeHint);
-    public void Advance(int written) { _buffer.Advance(written); _cursor += new Int2(written, 0); }
-    public void Write(byte value) { GetSpan(1)[0] = value; Advance(1); }
+    public void Write(byte value) { _buffer[_pointer++] = value; _cursor += new Int2(1, 0); }
 
     public void Flush()
     {
-        if (_buffer.WrittenCount == 0) return;
-        _output.Write(_buffer.WrittenSpan);
-        _buffer.ResetWrittenCount();
+        if (_pointer == 0) return;
+        _output.Write(_buffer, 0, (int)_pointer);
+        _pointer = 0;
     }
 }
