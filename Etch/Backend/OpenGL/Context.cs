@@ -10,7 +10,6 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> buff
     public Int2 Size { get; } = size;
 
     public void Clear() => _buffer.Clear();
-    public void Fill(Etchel etchel) => _buffer.Fill(etchel);
 
     public void Plot(Int2 position, Etchel etchel)
     {
