@@ -58,8 +58,7 @@ public sealed class Surface : ISurface<Context>, IDisposable
     private readonly Etchel[] _buffer;
     private bool _disposed;
 
-    public static Surface Default() => new(new Int2(80, 40));
-
+    public Surface() : this(new Int2(80, 40)) { }
     public Surface(Int2 size)
     {
         Size = size;

@@ -7,9 +7,13 @@ namespace Etch.Backend;
 
 public static class Renderer
 {
-    public static void Start<TContext, TSurface, TPainter>(TSurface surface, TPainter painter, TimeSpan interval)
-        where TContext : IContext, allows ref struct where TSurface : ISurface<TContext> where TPainter : IPainter, allows ref struct
+    public static void Start<TContext, TSurface, TPainter>(TimeSpan interval)
+        where TContext : IContext, allows ref struct 
+        where TSurface : ISurface<TContext>, new() 
+        where TPainter : IPainter, new(), allows ref struct
     {
+        TPainter painter = new();
+        TSurface surface = new();
         long origin = Stopwatch.GetTimestamp();
         ulong frame = 0;
 

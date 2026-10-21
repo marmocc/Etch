@@ -1,4 +1,5 @@
-﻿using Etch.Common;
+﻿using Etch.Backend.OpenGL;
+using Etch.Common;
 
 namespace Etch.Backend.ANSI;
 
@@ -14,14 +15,10 @@ public sealed class Surface(Int2 size, Stream output) : ISurface<Context>, IDisp
     public Int2 Size { get; } = size;
     public bool Stopping => _stopping;
 
-    public static Surface Default()
+    public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
     {
-        Stream terminalStream = Console.OpenStandardOutput();
-        Int2 terminalSize = new(Console.WindowWidth, Console.WindowHeight);
-        Surface surface = new(terminalSize, terminalStream);
-        Console.CancelKeyPress += (_, e) => { e.Cancel = true; surface.Stop(); };
+        Console.CancelKeyPress += (_, e) => { e.Cancel = true; Stop(); };
         Console.CursorVisible = false;
-        return surface;
     }
 
     public Context Context(Timings timings) => new(timings, Size, _shadow, _writer);

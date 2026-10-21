@@ -1,5 +1,5 @@
 ﻿using Etch.Backend;
-using Etch.Backend.OpenGL;
+using Etch.Backend.ANSI;
 using Etch.Painters;
 
-Renderer.Start(Surface.Default(), new Spiral(), TimeSpan.FromSeconds(1.0 / 15));
+Renderer.Start<Context, Surface, Spiral>(TimeSpan.FromSeconds(1.0 / 15));
