@@ -20,7 +20,9 @@ public sealed class Writer
         _pointer = 0;
 
         Clear();
-        Write(Int2.Zero, Etchel.Empty);
+        Move(Int2.Zero);
+        Foreground(Color.Black);
+        Background(Color.Black);
     }
 
     private void Move(Int2 position)
