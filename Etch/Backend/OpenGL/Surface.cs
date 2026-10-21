@@ -1,5 +1,4 @@
-﻿using Etch.Backend.ANSI;
-using Etch.Common;
+﻿using Etch.Common;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -7,7 +6,7 @@ using Silk.NET.Windowing;
 
 namespace Etch.Backend.OpenGL;
 
-public sealed class Surface : ISurface, IDisposable
+public sealed class Surface : ISurface<Context>, IDisposable
 {
     public const int CellWidth = 8;
     public const int CellHeight = 16;
@@ -56,6 +55,7 @@ public sealed class Surface : ISurface, IDisposable
     private readonly uint _program;
     private readonly int _gridLocation;
     private readonly int _framebufferLocation;
+    private readonly Etchel[] _buffer;
     private bool _disposed;
 
     public static Surface Default() => new(new Int2(80, 40));
@@ -96,15 +96,19 @@ public sealed class Surface : ISurface, IDisposable
         _program = BuildProgram(_gl, VertexSource, FragmentSource);
         _gridLocation = _gl.GetUniformLocation(_program, "uGrid");
         _framebufferLocation = _gl.GetUniformLocation(_program, "uFramebuffer");
+
+        _buffer = new Etchel[size.X * size.Y];
     }
 
-    public void Present(ReadOnlySpan<Etchel> etchels)
+    public Context Context(Timings timings) => new(timings, Size, _buffer);
+
+    public void Present()
     {
         Vector2D<int> framebuffer = _window.FramebufferSize;
 
         _gl.BindTexture(TextureTarget.Texture2D, _texture);
         _gl.TexSubImage2D<Etchel>(TextureTarget.Texture2D, 0, 0, 0,
-            (uint)Size.X, (uint)Size.Y, PixelFormat.RGInteger, PixelType.UnsignedInt, etchels);
+            (uint)Size.X, (uint)Size.Y, PixelFormat.RGInteger, PixelType.UnsignedInt, _buffer);
 
         _gl.UseProgram(_program);
         _gl.BindVertexArray(_vao);
