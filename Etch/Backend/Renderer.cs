@@ -1,4 +1,5 @@
-﻿using Etch.Common;
+﻿using Etch.Backend.ANSI;
+using Etch.Common;
 using Etch.Diagnostics;
 using System.Diagnostics;
 
@@ -6,10 +7,9 @@ namespace Etch.Backend;
 
 public static class Renderer
 {
-    public static void Start<TSurface, TPainter>(TSurface surface, TPainter painter, TimeSpan interval)
-        where TSurface : ISurface where TPainter : IPainter, allows ref struct
+    public static void Start<TContext, TSurface, TPainter>(TSurface surface, TPainter painter, TimeSpan interval)
+        where TContext : IContext, allows ref struct where TSurface : ISurface<TContext> where TPainter : IPainter, allows ref struct
     {
-        Etchel[] etchels = new Etchel[surface.Size.X * surface.Size.Y];
         long origin = Stopwatch.GetTimestamp();
         ulong frame = 0;
 
@@ -34,9 +34,10 @@ public static class Renderer
                 if (elapsed >= target)
                 {
                     target += interval;
-                    Context context = new(frame, elapsed, delta, surface.Size, etchels);
+                    Timings timings = new(frame, elapsed, delta);
+                    TContext context = surface.Context(timings);
                     using (new Measure(ref mark, ref paint)) painter.Paint(context);
-                    using (new Measure(ref mark, ref present)) surface.Present(etchels);
+                    using (new Measure(ref mark, ref present)) surface.Present();
                     frame++;
                 }
             }

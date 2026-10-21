@@ -1,9 +1,8 @@
 ﻿using Etch.Common;
-using System.Runtime.InteropServices;
 
 namespace Etch.Backend.ANSI;
 
-public sealed class Surface(Int2 size, Stream output) : ISurface, IDisposable
+public sealed class Surface(Int2 size, Stream output) : ISurface<Context>, IDisposable
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
@@ -25,29 +24,8 @@ public sealed class Surface(Int2 size, Stream output) : ISurface, IDisposable
         return surface;
     }
 
-    public void Present(ReadOnlySpan<Etchel> current)
-    {
-        Span<Etchel> shadow = _shadow;
-        ReadOnlySpan<ulong> currentAsULong = MemoryMarshal.Cast<Etchel, ulong>(current);
-        ReadOnlySpan<ulong> shadowAsULong = MemoryMarshal.Cast<Etchel, ulong>(shadow);
-        if (currentAsULong.SequenceEqual(shadowAsULong)) return;
-
-        for (int i = 0; i < current.Length; i++)
-        {
-            Etchel etchel = current[i];
-            if (etchel == shadow[i]) continue;
-
-            shadow[i] = etchel;
-            Int2 position = new Flat(i).Unflatten(Size);
-            _writer.Move(position);
-            _writer.Foreground(etchel.Foreground);
-            _writer.Background(etchel.Background);
-            _writer.Write(etchel.Glyph.Codepoint);
-        }
-
-        _writer.Flush();
-    }
-
+    public Context Context(Timings timings) => new(timings, Size, _shadow, _writer);
+    public void Present() => _writer.Flush();
     public void Wait(TimeSpan interval)
     {
         if (interval == TimeSpan.Zero) return;

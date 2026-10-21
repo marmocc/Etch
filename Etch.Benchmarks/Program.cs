@@ -5,7 +5,6 @@ using Etch.Backend.ANSI;
 using Etch.Common;
 using Etch.Painters;
 using System.Buffers.Text;
-using System.Runtime.InteropServices;
 
 namespace Etch.Benchmarks;
 
@@ -33,7 +32,6 @@ public class EtchAgainstRaw
         _stream = new MemoryStream();
         _surface = new Surface(_size, _stream);
         _etchels = new Etchel[_size.X * _size.Y];
-        // Allocate a buffer large enough for a full screen of ANSI sequences
         _rawBuffer = new byte[1024 * 256];
     }
 
@@ -42,9 +40,10 @@ public class EtchAgainstRaw
     {
         _stream.SetLength(0);
         Chaos painter = new();
-        Context context = new(_frame, TimeSpan.Zero, TimeSpan.Zero, _size, _etchels);
+        Timings timings = new(_frame, TimeSpan.Zero, TimeSpan.Zero);
+        Context context = _surface.Context(timings);
         painter.Paint(context);
-        _surface.Present(_etchels);
+        _surface.Present();
         _frame++;
     }
 
