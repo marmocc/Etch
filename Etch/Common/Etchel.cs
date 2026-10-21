@@ -9,5 +9,5 @@ public readonly record struct Etchel(Glyph Glyph, RGB Foreground, RGB Background
     private readonly byte _padding;
 
     public static Etchel Empty => default;
-    public static Etchel Solid(RGB color) => new(Glyph.Empty, Color.Black, color);
+    public static Etchel Solid(RGB fill) => new(Glyph.Empty, Color.Black, fill);
 }

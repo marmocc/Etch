@@ -21,8 +21,8 @@ public sealed class Writer
 
         Foreground(Color.Black);
         Background(Color.Black);
+        Clear(Color.Black);
         Move(Int2.Zero);
-        Clear();
     }
 
     private void Move(Int2 position)
@@ -80,8 +80,9 @@ public sealed class Writer
         _background = color;
     }
 
-    public void Clear()
+    public void Clear(RGB color)
     {
+        if (color != _background) Background(color);
         _buffer[_pointer++] = 0x1B; // ESC
         _buffer[_pointer++] = (byte)'[';
         _buffer[_pointer++] = (byte)'2';

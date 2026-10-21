@@ -10,8 +10,7 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shad
     public Timings Timings { get; } = timings;
     public Int2 Size { get; } = size;
 
-    public void Clear() { _shadow.Clear(); _writer.Clear(); }
-
+    public void Clear(RGB fill) { _shadow.Fill(Etchel.Solid(fill)); _writer.Clear(fill); }
     public void Plot(Int2 position, Etchel etchel)
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;
