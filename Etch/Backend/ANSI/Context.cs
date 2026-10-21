@@ -15,10 +15,11 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shad
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;
         if (!position.AllLess(Size)) return;
+
         Flat flat = position.Flatten(Size);
         if (etchel == _shadow[flat.Value]) return;
-
         _shadow[flat.Value] = etchel;
+
         _writer.Write(position, etchel);
     }
 }
