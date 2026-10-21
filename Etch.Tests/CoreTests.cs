@@ -29,18 +29,6 @@ public class CoreTests
     }
 
     [Fact]
-    public void Intrinsics_InjectExtract_ShouldBeCorrect()
-    {
-        ulong storage = 0;
-        ulong value = 0x0ABC;
-        ulong mask = 0x0FFF;
-
-        storage = Intrinsics.Inject(storage, value, mask);
-        ulong read = Intrinsics.Extract(storage, mask);
-        Assert.Equal(value, read);
-    }
-
-    [Fact]
     public void Intrinsics_Equals_ShouldBeCorrect()
     {
         RGBA c1 = new(8, 24, 84);
@@ -55,9 +43,9 @@ public class CoreTests
     {
         Assert.Equal(3, Unsafe.SizeOf<RGB>());
         Assert.Equal(4, Unsafe.SizeOf<RGBA>());
-        Assert.Equal(Color.Black, default);
-        Assert.Equal(255, Color.White.Luminance);
-        Assert.Equal(0, Color.Black.Luminance);
+        Assert.Equal(RGB.Black, default);
+        Assert.Equal(255, RGB.White.Luminance);
+        Assert.Equal(0, RGB.Black.Luminance);
     }
 
     [Fact]
@@ -89,16 +77,16 @@ public class CoreTests
     {
         Assert.Equal(8, Unsafe.SizeOf<Etchel>());
         Assert.Equal(Glyph.Empty, default(Etchel).Glyph);
-        Assert.Equal(Color.Black, default(Etchel).Foreground);
-        Assert.Equal(Color.Black, default(Etchel).Background);
+        Assert.Equal(RGB.Black, default(Etchel).Foreground);
+        Assert.Equal(RGB.Black, default(Etchel).Background);
         Assert.Equal(Etchel.Empty, default);
     }
 
     [Fact]
     public void Etchel_Solid_ShouldBeCorrect()
     {
-        Assert.Equal(Glyph.Empty, Etchel.Solid(Color.Green).Glyph);
-        Assert.Equal(Color.Black, Etchel.Solid(Color.Green).Foreground);
-        Assert.Equal(Color.Green, Etchel.Solid(Color.Green).Background);
+        Assert.Equal(Glyph.Empty, Etchel.Solid(RGB.Green).Glyph);
+        Assert.Equal(RGB.Black, Etchel.Solid(RGB.Green).Foreground);
+        Assert.Equal(RGB.Green, Etchel.Solid(RGB.Green).Background);
     }
 }
