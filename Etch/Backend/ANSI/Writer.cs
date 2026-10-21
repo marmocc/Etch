@@ -25,19 +25,18 @@ public sealed class Writer
 
     private void Move(Int2 position)
     {
-        Int2 correctedPosition = position + 1;
         _buffer[_pointer++] = 0x1B; // ESC
         _buffer[_pointer++] = (byte)'[';
-        Utf8Formatter.TryFormat(correctedPosition.Y, _buffer.AsSpan(_pointer), out int rowWritten);
+        Utf8Formatter.TryFormat(position.Y, _buffer.AsSpan(_pointer), out int rowWritten);
         _pointer += rowWritten;
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(correctedPosition.X, _buffer.AsSpan(_pointer), out int colWritten);
+        Utf8Formatter.TryFormat(position.X, _buffer.AsSpan(_pointer), out int colWritten);
         _pointer += colWritten;
         _buffer[_pointer++] = (byte)'H';
         _cursor = position;
     }
 
-    private void Foreground(RGB foreground)
+    private void Foreground(RGB color)
     {
         _buffer[_pointer++] = 0x1B; // ESC
         _buffer[_pointer++] = (byte)'[';
@@ -46,19 +45,19 @@ public sealed class Writer
         _buffer[_pointer++] = (byte)';';
         _buffer[_pointer++] = (byte)'2';
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(foreground.R, _buffer.AsSpan(_pointer), out int rWritten);
+        Utf8Formatter.TryFormat(color.R, _buffer.AsSpan(_pointer), out int rWritten);
         _pointer += rWritten;
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(foreground.G, _buffer.AsSpan(_pointer), out int gWritten);
+        Utf8Formatter.TryFormat(color.G, _buffer.AsSpan(_pointer), out int gWritten);
         _pointer += gWritten;
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(foreground.B, _buffer.AsSpan(_pointer), out int bWritten);
+        Utf8Formatter.TryFormat(color.B, _buffer.AsSpan(_pointer), out int bWritten);
         _pointer += bWritten;
         _buffer[_pointer++] = (byte)'m';
-        _foreground = foreground;
+        _foreground = color;
     }
 
-    private void Background(RGB background)
+    private void Background(RGB color)
     {
         _buffer[_pointer++] = 0x1B; // ESC
         _buffer[_pointer++] = (byte)'[';
@@ -67,16 +66,16 @@ public sealed class Writer
         _buffer[_pointer++] = (byte)';';
         _buffer[_pointer++] = (byte)'2';
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(background.R, _buffer.AsSpan(_pointer), out int rWritten);
+        Utf8Formatter.TryFormat(color.R, _buffer.AsSpan(_pointer), out int rWritten);
         _pointer += rWritten;
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(background.G, _buffer.AsSpan(_pointer), out int gWritten);
+        Utf8Formatter.TryFormat(color.G, _buffer.AsSpan(_pointer), out int gWritten);
         _pointer += gWritten;
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(background.B, _buffer.AsSpan(_pointer), out int bWritten);
+        Utf8Formatter.TryFormat(color.B, _buffer.AsSpan(_pointer), out int bWritten);
         _pointer += bWritten;
         _buffer[_pointer++] = (byte)'m';
-        _background = background;
+        _background = color;
     }
 
     public void Clear()
@@ -89,14 +88,10 @@ public sealed class Writer
 
     public void Write(Int2 position, Etchel etchel)
     {
-        RGB foreground = etchel.Foreground;
-        RGB background = etchel.Background;
-        Glyph glyph = etchel.Glyph;
-
-        if (foreground != _foreground) Foreground(foreground);
-        if (background != _background) Background(background);
+        if (etchel.Foreground != _foreground) Foreground(etchel.Foreground);
+        if (etchel.Background != _background) Background(etchel.Background);
         if (position != _cursor) Move(position);
-        _buffer[_pointer++] = glyph.Codepoint;
+        _buffer[_pointer++] = etchel.Glyph.Codepoint;
         _cursor += new Int2(1, 0);
     }
 

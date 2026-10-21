@@ -11,13 +11,14 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shad
     public Int2 Size { get; } = size;
 
     public void Clear() { _shadow.Clear(); _writer.Clear(); }
+
     public void Plot(Int2 position, Etchel etchel)
     {
         if (!position.AllGreaterOrEqual(Int2.Zero)) return;
         if (!position.AllLess(Size)) return;
 
         Flat flat = position.Flatten(Size);
-        if (etchel == _shadow[flat.Value]) return;
+        if (Intrinsics.Equals<Etchel, ulong>(etchel, _shadow[flat.Value])) return;
         _shadow[flat.Value] = etchel;
 
         _writer.Write(position, etchel);
