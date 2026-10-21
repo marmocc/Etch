@@ -2,7 +2,7 @@
 
 namespace Etch.Backend;
 
-public interface ISurface<TContext> where TContext : IContext, allows ref struct
+public interface ISurface<TContext> : IDisposable where TContext : IContext, allows ref struct
 {
     Int2 Size { get; }
     bool Stopping { get; }

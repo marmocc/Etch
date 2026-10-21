@@ -1,6 +1,4 @@
-﻿using Etch.Backend.ANSI;
-using Etch.Common;
-using Etch.Diagnostics;
+﻿using Etch.Diagnostics;
 using System.Diagnostics;
 
 namespace Etch.Backend;
@@ -12,8 +10,8 @@ public static class Renderer
         where TSurface : ISurface<TContext>, new() 
         where TPainter : IPainter, new(), allows ref struct
     {
+        using TSurface surface = new();
         TPainter painter = new();
-        TSurface surface = new();
         long origin = Stopwatch.GetTimestamp();
         ulong frame = 0;
 
