@@ -1,9 +1,9 @@
-﻿using Etch.Common;
-using System.Runtime.InteropServices;
+﻿using Etch.Backend.OpenGL;
+using Etch.Common;
 
 namespace Etch.Backend.ANSI;
 
-public sealed class Surface(Int2 size, Stream output) : ISurface, IDisposable
+public sealed class Surface(Int2 size, Stream output) : ISurface<Context>, IDisposable
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
@@ -15,39 +15,14 @@ public sealed class Surface(Int2 size, Stream output) : ISurface, IDisposable
     public Int2 Size { get; } = size;
     public bool Stopping => _stopping;
 
-    public static Surface Default()
+    public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
     {
-        Stream terminalStream = Console.OpenStandardOutput();
-        Int2 terminalSize = new(Console.WindowWidth, Console.WindowHeight);
-        Surface surface = new(terminalSize, terminalStream);
-        Console.CancelKeyPress += (_, e) => { e.Cancel = true; surface.Stop(); };
+        Console.CancelKeyPress += (_, e) => { e.Cancel = true; Stop(); };
         Console.CursorVisible = false;
-        return surface;
     }
 
-    public void Present(ReadOnlySpan<Etchel> current)
-    {
-        Span<Etchel> shadow = _shadow;
-        ReadOnlySpan<ulong> currentAsULong = MemoryMarshal.Cast<Etchel, ulong>(current);
-        ReadOnlySpan<ulong> shadowAsULong = MemoryMarshal.Cast<Etchel, ulong>(shadow);
-        if (currentAsULong.SequenceEqual(shadowAsULong)) return;
-
-        for (int i = 0; i < current.Length; i++)
-        {
-            Etchel etchel = current[i];
-            if (etchel == shadow[i]) continue;
-
-            shadow[i] = etchel;
-            Int2 position = new Flat(i).Unflatten(Size);
-            _writer.Move(position);
-            _writer.Foreground(etchel.Foreground);
-            _writer.Background(etchel.Background);
-            _writer.Write(etchel.Glyph.Codepoint);
-        }
-
-        _writer.Flush();
-    }
-
+    public Context Context(Timings timings) => new(timings, Size, _shadow, _writer);
+    public void Present() => _writer.Flush();
     public void Wait(TimeSpan interval)
     {
         if (interval == TimeSpan.Zero) return;
