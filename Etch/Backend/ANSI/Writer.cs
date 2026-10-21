@@ -22,11 +22,8 @@ public sealed class Writer
 
         InternalClear();
         InternalMove(initialCursor);
-        _cursor = initialCursor;
         InternalForeground(initialForeground);
-        _foreground = initialForeground;
         InternalBackground(initialBackground);
-        _background = initialBackground;
     }
 
     private void InternalMove(Int2 position)
@@ -47,6 +44,8 @@ public sealed class Writer
         _pointer += colWritten;
 
         _buffer[_pointer++] = (byte)'H';
+
+        _cursor = position;
     }
 
     private void InternalForeground(RGB foreground)
@@ -76,6 +75,8 @@ public sealed class Writer
         _pointer += bWritten;
 
         _buffer[_pointer++] = (byte)'m';
+
+        _foreground = foreground;
     }
 
     private void InternalBackground(RGB background)
@@ -105,6 +106,8 @@ public sealed class Writer
         _pointer += bWritten;
 
         _buffer[_pointer++] = (byte)'m';
+
+        _background = background;
     }
 
     private void InternalClear()
@@ -115,30 +118,24 @@ public sealed class Writer
         _buffer[_pointer++] = (byte)'J';
     }
 
-    public void Move(Int2 position)
+    private void InternalWrite(byte value)
     {
-        if (_cursor == position) return;
-        InternalMove(position);
-        _cursor = position;
-    }
-
-    public void Foreground(RGB foreground)
-    {
-        if (_foreground == foreground) return;
-        InternalForeground(foreground);
-        _foreground = foreground;
-    }
-
-    public void Background(RGB background)
-    {
-        if (_background == background) return;
-        InternalBackground(background);
-        _background = background;
+        _buffer[_pointer++] = value;
+        _cursor += new Int2(1, 0);
     }
 
     public void Clear() => InternalClear();
+    public void Write(Int2 position, Etchel etchel)
+    {
+        Glyph glyph = etchel.Glyph;
+        RGB foreground = etchel.Foreground;
+        RGB background = etchel.Background;
 
-    public void Write(byte value) { _buffer[_pointer++] = value; _cursor += new Int2(1, 0); }
+        if (position != _cursor) InternalMove(position);
+        if (foreground != _foreground) InternalForeground(foreground);
+        if (background != _background) InternalBackground(background);
+        InternalWrite(glyph.Index);
+    }
 
     public void Flush()
     {

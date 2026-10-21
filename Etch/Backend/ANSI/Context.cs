@@ -19,9 +19,6 @@ public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shad
         if (etchel == _shadow[flat.Value]) return;
 
         _shadow[flat.Value] = etchel;
-        _writer.Move(position);
-        _writer.Foreground(etchel.Foreground);
-        _writer.Background(etchel.Background);
-        _writer.Write(etchel.Glyph.Codepoint);
+        _writer.Write(position, etchel);
     }
 }
