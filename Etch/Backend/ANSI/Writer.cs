@@ -7,7 +7,7 @@ public sealed class Writer
 {
     private readonly Stream _output;
     private readonly byte[] _buffer;
-    private uint _pointer;
+    private int _pointer;
 
     private Int2 _cursor;
     private RGB _foreground;
@@ -38,13 +38,13 @@ public sealed class Writer
 
         bool rowSuccess = Utf8Formatter.TryFormat(correctedPosition.Y, _buffer.AsSpan(_pointer), out int rowWritten);
         if (!rowSuccess) throw new InvalidOperationException("Failed to format row value.");
-        _pointer += (uint)rowWritten;
+        _pointer += rowWritten;
 
         _buffer[_pointer++] = (byte)';';
 
         bool colSuccess = Utf8Formatter.TryFormat(correctedPosition.X, _buffer.AsSpan(_pointer), out int colWritten);
         if (!colSuccess) throw new InvalidOperationException("Failed to format column value.");
-        _pointer += (uint)colWritten;
+        _pointer += colWritten;
 
         _buffer[_pointer++] = (byte)'H';
     }
@@ -61,19 +61,19 @@ public sealed class Writer
 
         bool rSuccess = Utf8Formatter.TryFormat(foreground.R, _buffer.AsSpan(_pointer), out int rWritten);
         if (!rSuccess) throw new InvalidOperationException("Failed to format red value.");
-        _pointer += (uint)rWritten;
+        _pointer += rWritten;
 
         _buffer[_pointer++] = (byte)';';
 
         bool gSuccess = Utf8Formatter.TryFormat(foreground.G, _buffer.AsSpan(_pointer), out int gWritten);
         if (!gSuccess) throw new InvalidOperationException("Failed to format green value.");
-        _pointer += (uint)gWritten;
+        _pointer += gWritten;
 
         _buffer[_pointer++] = (byte)';';
 
         bool bSuccess = Utf8Formatter.TryFormat(foreground.B, _buffer.AsSpan(_pointer), out int bWritten);
         if (!bSuccess) throw new InvalidOperationException("Failed to format blue value.");
-        _pointer += (uint)bWritten;
+        _pointer += bWritten;
 
         _buffer[_pointer++] = (byte)'m';
     }
@@ -90,19 +90,19 @@ public sealed class Writer
 
         bool rSuccess = Utf8Formatter.TryFormat(background.R, _buffer.AsSpan(_pointer), out int rWritten);
         if (!rSuccess) throw new InvalidOperationException("Failed to format red value.");
-        _pointer += (uint)rWritten;
+        _pointer += rWritten;
 
         _buffer[_pointer++] = (byte)';';
 
         bool gSuccess = Utf8Formatter.TryFormat(background.G, _buffer.AsSpan(_pointer), out int gWritten);
         if (!gSuccess) throw new InvalidOperationException("Failed to format green value.");
-        _pointer += (uint)gWritten;
+        _pointer += gWritten;
 
         _buffer[_pointer++] = (byte)';';
 
         bool bSuccess = Utf8Formatter.TryFormat(background.B, _buffer.AsSpan(_pointer), out int bWritten);
         if (!bSuccess) throw new InvalidOperationException("Failed to format blue value.");
-        _pointer += (uint)bWritten;
+        _pointer += bWritten;
 
         _buffer[_pointer++] = (byte)'m';
     }
@@ -143,7 +143,7 @@ public sealed class Writer
     public void Flush()
     {
         if (_pointer == 0) return;
-        _output.Write(_buffer, 0, (int)_pointer);
+        _output.Write(_buffer, 0, _pointer);
         _pointer = 0;
     }
 }
