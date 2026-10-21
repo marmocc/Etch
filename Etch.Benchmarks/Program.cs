@@ -21,7 +21,6 @@ public class EtchAgainstRaw
 {
     private Surface _surface = default!;
     private MemoryStream _stream = default!;
-    private Etchel[] _etchels = default!;
     private byte[] _rawBuffer = default!;
     private Int2 _size = new(80, 40);
     private ulong _frame = 0;
@@ -31,7 +30,6 @@ public class EtchAgainstRaw
     {
         _stream = new MemoryStream();
         _surface = new Surface(_size, _stream);
-        _etchels = new Etchel[_size.X * _size.Y];
         _rawBuffer = new byte[1024 * 256];
     }
 
