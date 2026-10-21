@@ -1,0 +1,27 @@
+﻿using Etch.Common;
+
+namespace Etch.Backend.ANSI;
+
+public readonly ref struct Context(Timings timings, Int2 size, Span<Etchel> shadow, Writer writer) : IContext
+{
+    private readonly Span<Etchel> _shadow = shadow;
+    private readonly Writer _writer = writer;
+
+    public Timings Timings { get; } = timings;
+    public Int2 Size { get; } = size;
+
+    public void Clear() { _shadow.Clear(); _writer.Clear(); }
+    public void Plot(Int2 position, Etchel etchel)
+    {
+        if (!position.AllGreaterOrEqual(Int2.Zero)) return;
+        if (!position.AllLess(Size)) return;
+        Flat flat = position.Flatten(Size);
+        if (etchel == _shadow[flat.Value]) return;
+
+        _shadow[flat.Value] = etchel;
+        _writer.Move(position);
+        _writer.Foreground(etchel.Foreground);
+        _writer.Background(etchel.Background);
+        _writer.Write(etchel.Glyph.Codepoint);
+    }
+}

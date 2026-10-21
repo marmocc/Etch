@@ -2,15 +2,20 @@
 
 namespace Etch.Backend;
 
-public interface ISurface
+public interface ISurface<TContext> where TContext : IContext, allows ref struct
 {
     Int2 Size { get; }
     bool Stopping { get; }
 
     /// <summary>
+    /// Gets the <c>Context</c> for this <c>Surface</c>.
+    /// </summary>
+    /// <param name="timings">Timings to hand to the Context.</param>
+    TContext Context(Timings timings);
+    /// <summary>
     /// Presents the <c>Etchel</c>s on the <c>Surface</c>.
     /// </summary>
-    void Present(ReadOnlySpan<Etchel> etchels);
+    void Present();
     /// <summary>
     /// Blocks the Surface thread until an event happens or for a certain <paramref name="interval"/>.
     /// </summary>
