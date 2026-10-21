@@ -27,10 +27,10 @@ public sealed class Writer
     {
         _buffer[_pointer++] = 0x1B; // ESC
         _buffer[_pointer++] = (byte)'[';
-        Utf8Formatter.TryFormat(position.Y, _buffer.AsSpan(_pointer), out int rowWritten);
+        Utf8Formatter.TryFormat(position.Y + 1, _buffer.AsSpan(_pointer), out int rowWritten);
         _pointer += rowWritten;
         _buffer[_pointer++] = (byte)';';
-        Utf8Formatter.TryFormat(position.X, _buffer.AsSpan(_pointer), out int colWritten);
+        Utf8Formatter.TryFormat(position.X + 1, _buffer.AsSpan(_pointer), out int colWritten);
         _pointer += colWritten;
         _buffer[_pointer++] = (byte)'H';
         _cursor = position;
