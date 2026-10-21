@@ -34,11 +34,11 @@ public class CoreTests
         ulong storage = 0;
         ulong value = 0x0ABC;
         ulong mask = 0x0FFF;
-        ulong updated = Intrinsics.Inject(storage, value, mask);
+
+        storage = Intrinsics.Inject(storage, value, mask);
         ulong read = Intrinsics.Extract(storage, mask);
         Assert.Equal(value, read);
     }
-
 
     [Fact]
     public void Intrinsics_Equals_ShouldBeCorrect()
@@ -47,7 +47,7 @@ public class CoreTests
         RGBA c2 = new(1, 67, 244);
         Assert.False(Intrinsics.Equals<RGBA, uint>(c1, c2));
         RGBA c3 = new(1, 67, 244);
-        Assert.True(Intrinsics.Equals<RGBA, uint>(c1, c3));
+        Assert.True(Intrinsics.Equals<RGBA, uint>(c2, c3));
     }
 
     [Fact]
