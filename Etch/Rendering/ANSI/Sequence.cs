@@ -8,6 +8,22 @@ public static class Sequence
 {
     public const byte Escape = 0x1B;
 
+    /// <summary>
+    /// Emits <c>ESC[Y;XH</c> to set the cursor position only if 
+    /// <paramref name="current"/> is different than <paramref name="incoming"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Move(Int2 incoming, Span<byte> buffer, ref int written, ref Int2 current)
+    {
+        if (current == incoming) return;
+        current = incoming;
+
+        Move(incoming, buffer, ref written);
+    }
+
+    /// <summary>
+    /// Emits <c>ESC[Y;XH</c> to set the cursor position.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Move(Int2 position, Span<byte> buffer, ref int written)
     {
@@ -27,6 +43,22 @@ public static class Sequence
         buffer[written++] = (byte)'H';
     }
 
+    /// <summary>
+    /// Emits <c>ESC[38;2;R;G;Bm</c> to set the foreground color only if
+    /// <paramref name="current"/> is different than <paramref name="incoming"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Foreground(RGB incoming, Span<byte> buffer, ref int written, ref RGB current)
+    {
+        if (current == incoming) return;
+        current = incoming;
+
+        Foreground(incoming, buffer, ref written);
+    }
+
+    /// <summary>
+    /// Emits <c>ESC[38;2;R;G;Bm</c> to set the foreground color to <paramref name="color"/>.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Foreground(RGB color, Span<byte> buffer, ref int written)
     {
@@ -57,6 +89,22 @@ public static class Sequence
         buffer[written++] = (byte)'m';
     }
 
+    /// <summary>
+    /// Emits <c>ESC[48;2;R;G;Bm</c> to set the background color only if
+    /// <paramref name="current"/> is different than <paramref name="incoming"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Background(RGB incoming, Span<byte> buffer, ref int written, ref RGB current)
+    {
+        if (current == incoming) return;
+        current = incoming;
+
+        Background(incoming, buffer, ref written);
+    }
+    
+    /// <summary>
+    /// Emits <c>ESC[48;2;R;G;Bm</c> to set the background color to <paramref name="color"/>.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Background(RGB color, Span<byte> buffer, ref int written)
     {
@@ -87,6 +135,9 @@ public static class Sequence
         buffer[written++] = (byte)'m';
     }
 
+    /// <summary>
+    /// Emits <c>ESC[2J</c> to clear the screen.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear(Span<byte> buffer, ref int written)
     {
@@ -94,5 +145,64 @@ public static class Sequence
         buffer[written++] = (byte)'[';
         buffer[written++] = (byte)'2';
         buffer[written++] = (byte)'J';
+    }
+
+    /// <summary>
+    /// Emits <c>ESC[0m</c> to reset text attributes, colors and styles.
+    /// <para><b>This method desynchronizes the Terminal state from the kept one
+    /// as there is no way to know what state the Terminal will go back to.</b></para>
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Reset(Span<byte> buffer, ref int written)
+    {
+        buffer[written++] = Escape;
+        buffer[written++] = (byte)'[';
+        buffer[written++] = (byte)'0';
+        buffer[written++] = (byte)'m';
+    }
+
+    /// <summary>
+    /// Emits <c>ESC[?1049h</c> to enter the alternate buffer if <paramref name="toggle"/> is true,
+    /// or <c>ESC[?1049l</c> to leave the alternate buffer if <paramref name="toggle"/> is false.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Alternate(bool toggle, Span<byte> buffer, ref int written)
+    {
+        buffer[written++] = Escape;
+        buffer[written++] = (byte)'[';
+        buffer[written++] = (byte)'?';
+        buffer[written++] = (byte)'1';
+        buffer[written++] = (byte)'0';
+        buffer[written++] = (byte)'4';
+        buffer[written++] = (byte)'9';
+        buffer[written++] = toggle ? (byte)'h' : (byte)'l';
+    }
+
+    /// <summary>
+    /// Emits <c>ESC[?25h</c> to show the cursor if <paramref name="toggle"/> is true,
+    /// or <c>ESC[?25l</c> to hide the cursor if <paramref name="toggle"/> is false.
+    /// </summary>
+    public static void Cursor(bool toggle, Span<byte> buffer, ref int written)
+    {
+        buffer[written++] = Escape;
+        buffer[written++] = (byte)'[';
+        buffer[written++] = (byte)'?';
+        buffer[written++] = (byte)'2';
+        buffer[written++] = (byte)'5';
+        buffer[written++] = toggle ? (byte)'h' : (byte)'l';
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(byte value, Span<byte> buffer, ref int written, ref Int2 current)
+    {
+        buffer[written++] = value;
+        current += new Int2(1, 0);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(byte value, Span<byte> buffer, ref int written)
+    {
+        buffer[written++] = value;
     }
 }
