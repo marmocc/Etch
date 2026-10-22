@@ -192,14 +192,19 @@ public static class Sequence
         buffer[written++] = toggle ? (byte)'h' : (byte)'l';
     }
 
-
+    /// <summary>
+    /// Emits <paramref name="value"/> and updates <paramref name="cursor"/>.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Write(byte value, Span<byte> buffer, ref int written, ref Int2 current)
+    public static void Write(byte value, Span<byte> buffer, ref int written, ref Int2 cursor)
     {
         buffer[written++] = value;
-        current += new Int2(1, 0);
+        cursor += new Int2(1, 0);
     }
 
+    /// <summary>
+    /// Emits <paramref name="value"/> in the buffer.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write(byte value, Span<byte> buffer, ref int written)
     {
