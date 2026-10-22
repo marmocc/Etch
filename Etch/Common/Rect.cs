@@ -1,10 +1,7 @@
 ﻿namespace Etch.Common;
 
-public readonly struct Rect(Int2 position, Int2 size)
+public readonly record struct Rect(Int2 Position, Int2 Size)
 {
-    public readonly Int2 Position = position;
-    public readonly Int2 Size = size;
-
     public readonly Int2 InclusiveStart => Position;
     public readonly Int2 ExclusiveEnd => Position + Size;
 
