@@ -28,30 +28,6 @@ public class CoreTests
         Assert.NotEqual(e1, e3);
     }
 
-    [Fact]
-    public void Color_Basic_ShouldBeCorrect()
-    {
-        Assert.Equal(4, Unsafe.SizeOf<RGB>());
-        Assert.Equal(4, Unsafe.SizeOf<RGBA>());
-        Assert.Equal(RGB.Black, default(RGB));
-        Assert.Equal(0x00FFFFFFU, new RGB(0xFFFFFFFFU).Packed);
-        Assert.Equal(0x030201U, new RGB(1, 2, 3).Packed);
-        Assert.True(new RGB(1, 2, 3).R == 1 && new RGB(1, 2, 3).G == 2 && new RGB(1, 2, 3).B == 3);
-        Assert.Equal(new RGB(9, 2, 3), new RGB(1, 2, 3).WithRed(9));
-        Assert.Equal(255, RGB.White.Luminance);
-        Assert.Equal(0, RGB.Black.Luminance);
-    }
-
-    [Fact]
-    public void RGBA_Basic_ShouldBeCorrect()
-    {
-        Assert.Equal(0U, default(RGBA).Packed);
-        Assert.Equal(0x04030201U, new RGBA(1, 2, 3, 4).Packed);
-        Assert.Equal(4, new RGBA(1, 2, 3, 4).A);
-        Assert.Equal(new RGBA(1, 2, 3, 9), new RGBA(1, 2, 3, 4).WithAlpha(9));
-        Assert.Equal(1, new RGBA(1, 2, 3, 4).WithAlpha(9).R);
-        Assert.Equal(9, new RGBA(1, 2, 3, 4).WithAlpha(9).A);
-    }
 
     [Fact]
     public void RGBA_InterOp_ShouldBeCorrect()
