@@ -2,7 +2,7 @@
 using Etch.Rendering.ANSI;
 using Etch.Painters;
 
-Surface surface = new();
+using Surface surface = new();
 Context context = new(surface.Size);
 Chaos painter = new();
 
