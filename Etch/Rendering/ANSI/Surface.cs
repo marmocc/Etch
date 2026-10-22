@@ -53,8 +53,7 @@ public sealed class Surface : IDispatcher, IDisposable
     {
         foreach (var command in context.FullscreenBlits)
         {
-            Span<Etchel> etchels = context.Etchels.Access(command.Handle);
-            foreach(var etchel in etchels)
+            foreach(var etchel in context.Etchels.Access(command.Handle))
             {
                 Sequence.Foreground(etchel.Foreground, _buffer, ref _written, ref _foreground);
                 Sequence.Background(etchel.Background, _buffer, ref _written, ref _background);
