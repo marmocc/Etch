@@ -1,5 +1,4 @@
 ﻿using Etch.Common;
-using Etch.Rendering.OpenGL;
 
 namespace Etch.Rendering.ANSI;
 
