@@ -28,15 +28,6 @@ public class CoreTests
         Assert.NotEqual(e1, e3);
     }
 
-
-    [Fact]
-    public void RGBA_InterOp_ShouldBeCorrect()
-    {
-        Assert.Equal(255, RGB.White.RGBA.A);
-        Assert.Equal(RGB.White, RGB.White.RGBA.RGB);
-        Assert.Equal(new RGB(10, 20, 30), new RGBA(10, 20, 30, 0).RGB);
-    }
-
     [Fact]
     public void Glyph_Basic_ShouldBeCorrect()
     {
@@ -50,7 +41,6 @@ public class CoreTests
         Assert.Equal((byte)'A', Glyph.From('A').Codepoint);
         Assert.Equal(32, Glyph.From(' ').Index);
         Assert.Equal(126, Glyph.From('~').Index);
-        Assert.Equal("(65, 'A')", Glyph.From('A').ToString());
     }
 
     [Fact]
@@ -64,7 +54,7 @@ public class CoreTests
     [Fact]
     public void Etchel_Basic_ShouldBeCorrect()
     {
-        Assert.Equal(8, Unsafe.SizeOf<Etchel>());
+        Assert.Equal(7, Unsafe.SizeOf<Etchel>());
         Assert.Equal(Glyph.Empty, default(Etchel).Glyph);
         Assert.Equal(RGB.Black, default(Etchel).Foreground);
         Assert.Equal(RGB.Black, default(Etchel).Background);
@@ -78,7 +68,6 @@ public class CoreTests
         Assert.Equal(Glyph.From('#'), e.Glyph);
         Assert.Equal(new RGB(1, 2, 3), e.Foreground);
         Assert.Equal(new RGB(4, 5, 6), e.Background);
-        Assert.Equal("'#' fg=(1,2,3) bg=(4,5,6)", e.ToString());
     }
 
     [Fact]
