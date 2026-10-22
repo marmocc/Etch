@@ -1,44 +1,64 @@
 ﻿using Etch.Common;
+using Etch.Rendering.OpenGL;
 
 namespace Etch.Rendering.ANSI;
 
-public sealed class Surface(Int2 size, Stream output) : IDispatcher, IDisposable
+public sealed class Surface : IDispatcher, IDisposable
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
     private bool _disposed;
 
-    private int _written = 0;
-    private readonly byte[] _buffer = new byte[size.X * size.Y * 64];
-    private readonly Etchel[] _shadow = new Etchel[size.X * size.Y];
-    private readonly Stream _output = output;
+    private Int2 _cursor;
+    private RGB _foreground;
+    private RGB _background;
 
-    public Int2 Size { get; } = size;
+    private int _written;
+    private readonly byte[] _buffer;
+    private readonly Etchel[] _shadow;
+    private readonly Stream _output;
+
+    public Int2 Size { get; }
     public bool Stopping => _stopping;
+
+    public Surface(Int2 size, Stream output)
+    {
+        Size = size;
+
+        _written = 0;
+        _buffer = new byte[size.X * size.Y * 64];
+        _shadow = new Etchel[size.X * size.Y];
+        _output = output;
+
+        _cursor = Int2.Zero;
+        _foreground = RGB.Black;
+        _background = RGB.Black;
+
+        Sequence.Move(_cursor, _buffer, ref _written);
+        Sequence.Foreground(_foreground, _buffer, ref _written);
+        Sequence.Background(_background, _buffer, ref _written);
+        Present();
+    }
 
     public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
     {
         Console.CancelKeyPress += (_, e) => { e.Cancel = true; Stop(); };
-        Console.CursorVisible = false;
+        Sequence.Alternate(true, _buffer, ref _written);
+        Sequence.Cursor(false, _buffer, ref _written);
+        Sequence.Clear(_buffer, ref _written);
+        Present();
     }
 
     public void Dispatch(Context context)
     {
-        Int2 cursor = Int2.Zero;
-        Sequence.Move(cursor, _buffer, ref _written);
-        RGB foreground = RGB.Black;
-        Sequence.Foreground(foreground, _buffer, ref _written);
-        RGB background = RGB.Black;
-        Sequence.Background(background, _buffer, ref _written);
-
         foreach (var command in context.FullscreenBlits)
         {
             Span<Etchel> etchels = context.Etchels.Access(command.Handle);
             foreach(var etchel in etchels)
             {
-                if(foreground != etchel.Foreground) Sequence.Foreground(etchel.Foreground, _buffer, ref _written);
-                if(background != etchel.Background) Sequence.Background(etchel.Background, _buffer, ref _written);
-                if(!etchel.Glyph.IsPrintable) _buffer[_written++] = etchel.Glyph.Codepoint;
+                Sequence.Foreground(etchel.Foreground, _buffer, ref _written, ref _foreground);
+                Sequence.Background(etchel.Background, _buffer, ref _written, ref _background);
+                Sequence.Write(etchel.Glyph.Codepoint, _buffer, ref _written, ref _cursor);
             }
         }
     }
@@ -48,6 +68,7 @@ public sealed class Surface(Int2 size, Stream output) : IDispatcher, IDisposable
         _output.Write(_buffer.AsSpan(0, _written));
         _written = 0;
     }
+
     public void Wait(TimeSpan interval)
     {
         if (interval == TimeSpan.Zero) return;
@@ -64,5 +85,10 @@ public sealed class Surface(Int2 size, Stream output) : IDispatcher, IDisposable
         _disposed = true;
 
         _wake.Dispose();
+        Sequence.Alternate(false, _buffer, ref _written);
+        Sequence.Cursor(true, _buffer, ref _written);
+        Sequence.Reset(_buffer, ref _written);
+        Sequence.Clear(_buffer, ref _written);
+        Present();
     }
 }
