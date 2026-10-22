@@ -4,11 +4,11 @@ using Etch.Painters;
 
 Surface surface = new();
 Context context = new(surface.Size);
-Chaos spiral = new();
+Chaos painter = new();
 
 while(!surface.Stopping)
 {
-    spiral.Paint(context);
+    painter.Paint(context);
     surface.Dispatch(context);
     surface.Present();
     context.Clear();
