@@ -52,11 +52,12 @@ public sealed class Surface : IDispatcher, IDisposable
     {
         foreach (var command in context.FullscreenBlits)
         {
-            foreach(var etchel in context.Etchels.Access(command.Handle))
+            Span<Etchel> etchels = context.Etchels.Access(command.Handle);
+            foreach (var (glyph, foreground, background) in etchels)
             {
-                Sequence.Foreground(etchel.Foreground, _buffer, ref _written, ref _foreground);
-                Sequence.Background(etchel.Background, _buffer, ref _written, ref _background);
-                Sequence.Write(etchel.Glyph.Codepoint, _buffer, ref _written, ref _cursor);
+                Sequence.Foreground(foreground, _buffer, ref _written, ref _foreground);
+                Sequence.Background(background, _buffer, ref _written, ref _background);
+                Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
             }
         }
     }
