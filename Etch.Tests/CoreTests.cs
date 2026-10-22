@@ -29,36 +29,6 @@ public class CoreTests
     }
 
     [Fact]
-    public void Field_ReadWrite_ShouldBeCorrect()
-    {
-        var field = new Field<ulong>(8, 24);
-        ulong storage = 0;
-        ulong value = 0xABCDEF;
-        ulong updated = field.Write(storage, value);
-        ulong read = field.Read(updated);
-        Assert.Equal(value, read);
-    }
-
-    [Fact]
-    public void Field_Masks_ShouldBeCorrect()
-    {
-        Assert.Equal(uint.MaxValue, new Field<uint>(0, 32).Mask);
-        Assert.Equal(ulong.MaxValue, new Field<ulong>(0, 64).Mask);
-        Assert.Equal(0xFFFFFFUL, new Field<ulong>(40, 24).Read(ulong.MaxValue));
-        Assert.Equal(0xFFFF00FFU, new Field<uint>(8, 8).Write(0xFFFFFFFFU, 0U));
-        Assert.Equal(0x0000AB00U, new Field<uint>(8, 8).Write(0U, 0xABU));
-        Assert.Equal(0xDEADBEEFU, new Field<uint>(0, 32).Read(0xDEADBEEFU));
-    }
-
-    [Fact]
-    public void Field_Exceptions_ShouldBeThrown()
-    {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Field<uint>(0, 0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Field<uint>(-1, 8));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new Field<uint>(30, 8));
-    }
-
-    [Fact]
     public void Color_Basic_ShouldBeCorrect()
     {
         Assert.Equal(4, Unsafe.SizeOf<RGB>());
@@ -119,7 +89,6 @@ public class CoreTests
     public void Etchel_Basic_ShouldBeCorrect()
     {
         Assert.Equal(8, Unsafe.SizeOf<Etchel>());
-        Assert.Equal(0UL, default(Etchel).Packed);
         Assert.Equal(Glyph.Empty, default(Etchel).Glyph);
         Assert.Equal(RGB.Black, default(Etchel).Foreground);
         Assert.Equal(RGB.Black, default(Etchel).Background);
@@ -130,35 +99,10 @@ public class CoreTests
     public void Etchel_Packing_ShouldBeCorrect()
     {
         Etchel e = new(Glyph.From('#'), new RGB(1, 2, 3), new RGB(4, 5, 6));
-        Assert.Equal(0x0006050403020123UL, e.Packed);
         Assert.Equal(Glyph.From('#'), e.Glyph);
         Assert.Equal(new RGB(1, 2, 3), e.Foreground);
         Assert.Equal(new RGB(4, 5, 6), e.Background);
         Assert.Equal("'#' fg=(1,2,3) bg=(4,5,6)", e.ToString());
-    }
-
-    [Fact]
-    public void Etchel_Modifiers_ShouldBeCorrect()
-    {
-        var e = new Etchel(Glyph.From('#'), new RGB(1, 2, 3), new RGB(4, 5, 6));
-
-        // WithForeground
-        var fgChanged = e.WithForeground(RGB.Red);
-        Assert.NotEqual(e.Foreground, fgChanged.Foreground);
-        Assert.Equal(e.Glyph, fgChanged.Glyph);
-        Assert.Equal(e.Background, fgChanged.Background);
-
-        // WithBackground
-        var bgChanged = e.WithBackground(RGB.Blue);
-        Assert.NotEqual(e.Background, bgChanged.Background);
-        Assert.Equal(e.Glyph, bgChanged.Glyph);
-        Assert.Equal(e.Foreground, bgChanged.Foreground);
-
-        // WithGlyph
-        var glyphChanged = e.WithGlyph(Glyph.From('A'));
-        Assert.NotEqual(e.Glyph, glyphChanged.Glyph);
-        Assert.Equal(e.Foreground, glyphChanged.Foreground);
-        Assert.Equal(e.Background, glyphChanged.Background);
     }
 
     [Fact]
@@ -167,6 +111,5 @@ public class CoreTests
         Assert.Equal(Glyph.Empty, Etchel.Solid(RGB.Green).Glyph);
         Assert.Equal(RGB.Black, Etchel.Solid(RGB.Green).Foreground);
         Assert.Equal(RGB.Green, Etchel.Solid(RGB.Green).Background);
-        Assert.Equal(0x00FFFFFF00000000UL, Etchel.Solid(RGB.White).Packed);
     }
 }

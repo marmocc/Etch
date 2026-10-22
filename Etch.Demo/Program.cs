@@ -1,5 +1,15 @@
-﻿using Etch.Backend;
-using Etch.Backend.ANSI;
+﻿using Etch.Rendering;
+using Etch.Rendering.ANSI;
 using Etch.Painters;
 
-Renderer.Start<Context, Surface, Spiral>(TimeSpan.FromSeconds(1.0 / 15));
+Surface surface = new();
+Context context = new(surface.Size);
+Chaos spiral = new();
+
+while(!surface.Stopping)
+{
+    spiral.Paint(context);
+    surface.Dispatch(context);
+    surface.Present();
+    context.Clear();
+}
