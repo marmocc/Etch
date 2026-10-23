@@ -1,6 +1,5 @@
 ﻿using Etch.Painters;
 using Etch.Rendering;
-using System.Diagnostics;
 
 namespace Etch.Diagnostics;
 
@@ -13,8 +12,6 @@ public readonly ref struct Benchmark<S, P>(S surface, P painter, Context context
 
     public (TimeSpan, TimeSpan, TimeSpan) Run(int warmup = 100, int actual = 100)
     {
-        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
-
         TimeSpan paintSum = TimeSpan.Zero;
         TimeSpan presentSum = TimeSpan.Zero;
         TimeSpan flushSum = TimeSpan.Zero;
