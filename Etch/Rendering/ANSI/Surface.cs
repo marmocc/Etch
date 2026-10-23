@@ -52,6 +52,7 @@ public sealed class Surface : ISurface
     {
         foreach (var command in context.FullscreenBlits)
         {
+            Sequence.Move(Int2.Zero, _buffer, ref _written);
             Span<Etchel> etchels = context.Etchels.Access(command.Handle);
             foreach (var (glyph, foreground, background) in etchels)
             {
