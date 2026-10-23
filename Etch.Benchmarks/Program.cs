@@ -20,7 +20,6 @@ public class Program
 [MemoryDiagnoser]
 public class EtchAgainstRaw
 {
-    private long _origin;
     private Context _context = default!;
     private Surface _surface = default!;
     private MemoryStream _stream = default!;
@@ -31,7 +30,6 @@ public class EtchAgainstRaw
     [GlobalSetup]
     public void Setup()
     {
-        _origin = Stopwatch.GetTimestamp();
         _stream = new MemoryStream();
         _context = new Context(_size);
         _surface = new Surface(_size, _stream);
@@ -46,7 +44,6 @@ public class EtchAgainstRaw
         _surface.Present(_context);
         _surface.Flush();
         _context.Clear();
-        _frame++;
     }
 
     [Benchmark(Baseline = true)]
