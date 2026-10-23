@@ -2,7 +2,7 @@
 
 namespace Etch.Rendering.ANSI;
 
-public sealed class Surface : IDispatcher, IDisposable
+public sealed class Surface : ISurface, IDisposable
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
@@ -36,7 +36,6 @@ public sealed class Surface : IDispatcher, IDisposable
         Sequence.Move(_cursor, _buffer, ref _written);
         Sequence.Foreground(_foreground, _buffer, ref _written);
         Sequence.Background(_background, _buffer, ref _written);
-        Present();
     }
 
     public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
@@ -45,10 +44,9 @@ public sealed class Surface : IDispatcher, IDisposable
         Sequence.Alternate(true, _buffer, ref _written);
         Sequence.Cursor(false, _buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
-        Present();
     }
 
-    public void Dispatch(Context context)
+    public void Present(Context context)
     {
         foreach (var command in context.FullscreenBlits)
         {
@@ -60,10 +58,7 @@ public sealed class Surface : IDispatcher, IDisposable
                 Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
             }
         }
-    }
 
-    public void Present()
-    {
         _output.Write(_buffer.AsSpan(0, _written));
         _written = 0;
     }
@@ -88,6 +83,7 @@ public sealed class Surface : IDispatcher, IDisposable
         Sequence.Cursor(true, _buffer, ref _written);
         Sequence.Reset(_buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
-        Present();
+        _output.Write(_buffer.AsSpan(0, _written));
+        _output.Dispose();
     }
 }
