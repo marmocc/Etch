@@ -1,6 +1,5 @@
 ﻿using Etch.Common;
 using System.Buffers.Text;
-using System.Runtime.CompilerServices;
 
 namespace Etch.Rendering.ANSI;
 
@@ -12,7 +11,6 @@ public static class Sequence
     /// Emits <c>ESC[Y;XH</c> to set the cursor position only if 
     /// <paramref name="current"/> is different than <paramref name="incoming"/>.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Move(Int2 incoming, Span<byte> buffer, ref int written, ref Int2 current)
     {
         if (current == incoming) return;
@@ -24,7 +22,6 @@ public static class Sequence
     /// <summary>
     /// Emits <c>ESC[Y;XH</c> to set the cursor position.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Move(Int2 position, Span<byte> buffer, ref int written)
     {
         buffer[written++] = Escape;
@@ -47,7 +44,6 @@ public static class Sequence
     /// Emits <c>ESC[38;2;R;G;Bm</c> to set the foreground color only if
     /// <paramref name="current"/> is different than <paramref name="incoming"/>.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Foreground(RGB incoming, Span<byte> buffer, ref int written, ref RGB current)
     {
         if (current == incoming) return;
@@ -59,7 +55,6 @@ public static class Sequence
     /// <summary>
     /// Emits <c>ESC[38;2;R;G;Bm</c> to set the foreground color to <paramref name="color"/>.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Foreground(RGB color, Span<byte> buffer, ref int written)
     {
         buffer[written++] = Escape;
@@ -93,7 +88,6 @@ public static class Sequence
     /// Emits <c>ESC[48;2;R;G;Bm</c> to set the background color only if
     /// <paramref name="current"/> is different than <paramref name="incoming"/>.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Background(RGB incoming, Span<byte> buffer, ref int written, ref RGB current)
     {
         if (current == incoming) return;
@@ -105,7 +99,6 @@ public static class Sequence
     /// <summary>
     /// Emits <c>ESC[48;2;R;G;Bm</c> to set the background color to <paramref name="color"/>.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Background(RGB color, Span<byte> buffer, ref int written)
     {
         buffer[written++] = Escape;
@@ -138,7 +131,6 @@ public static class Sequence
     /// <summary>
     /// Emits <c>ESC[2J</c> to clear the screen.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Clear(Span<byte> buffer, ref int written)
     {
         buffer[written++] = Escape;
@@ -152,7 +144,6 @@ public static class Sequence
     /// <para><b>This method desynchronizes the Terminal state from the kept one
     /// as there is no way to know what state the Terminal will go back to.</b></para>
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Reset(Span<byte> buffer, ref int written)
     {
         buffer[written++] = Escape;
@@ -165,7 +156,6 @@ public static class Sequence
     /// Emits <c>ESC[?1049h</c> to enter the alternate buffer if <paramref name="toggle"/> is true,
     /// or <c>ESC[?1049l</c> to leave the alternate buffer if <paramref name="toggle"/> is false.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Alternate(bool toggle, Span<byte> buffer, ref int written)
     {
         buffer[written++] = Escape;
@@ -195,7 +185,6 @@ public static class Sequence
     /// <summary>
     /// Emits <paramref name="value"/> and updates <paramref name="cursor"/>.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write(byte value, Span<byte> buffer, ref int written, ref Int2 cursor)
     {
         buffer[written++] = value;
@@ -205,7 +194,6 @@ public static class Sequence
     /// <summary>
     /// Emits <paramref name="value"/> in the buffer.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write(byte value, Span<byte> buffer, ref int written)
     {
         buffer[written++] = value;
