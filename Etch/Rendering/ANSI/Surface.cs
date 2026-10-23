@@ -36,6 +36,7 @@ public sealed class Surface : ISurface, IDisposable
         Sequence.Move(_cursor, _buffer, ref _written);
         Sequence.Foreground(_foreground, _buffer, ref _written);
         Sequence.Background(_background, _buffer, ref _written);
+        Flush();
     }
 
     public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
@@ -44,6 +45,7 @@ public sealed class Surface : ISurface, IDisposable
         Sequence.Alternate(true, _buffer, ref _written);
         Sequence.Cursor(false, _buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
+        Flush();
     }
 
     public void Present(Context context)
@@ -58,7 +60,10 @@ public sealed class Surface : ISurface, IDisposable
                 Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
             }
         }
+    }
 
+    public void Flush()
+    {
         _output.Write(_buffer.AsSpan(0, _written));
         _written = 0;
     }
@@ -83,7 +88,6 @@ public sealed class Surface : ISurface, IDisposable
         Sequence.Cursor(true, _buffer, ref _written);
         Sequence.Reset(_buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
-        _output.Write(_buffer.AsSpan(0, _written));
-        _output.Dispose();
+        Flush();
     }
 }

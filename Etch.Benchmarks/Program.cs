@@ -43,6 +43,7 @@ public class EtchAgainstRaw
         _stream.SetLength(0);
         _painter.Paint(_context);
         _surface.Present(_context);
+        _surface.Flush();
         _context.Clear();
     }
 
