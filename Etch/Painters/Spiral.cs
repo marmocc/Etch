@@ -4,9 +4,9 @@ using System.Diagnostics;
 
 namespace Etch.Painters;
 
-public sealed class Spiral
+public readonly ref struct Spiral() : IPainter
 {
-    public long Origin = Stopwatch.GetTimestamp();
+    public readonly long Origin = Stopwatch.GetTimestamp();
     public void Paint(Context context)
     {
         int sizeX = context.Size.X;

@@ -1,10 +1,11 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using Etch.Rendering;
-using Etch.Rendering.ANSI;
 using Etch.Common;
 using Etch.Painters;
+using Etch.Rendering;
+using Etch.Rendering.ANSI;
 using System.Buffers.Text;
+using System.Diagnostics;
 
 namespace Etch.Benchmarks;
 
@@ -19,7 +20,7 @@ public class Program
 [MemoryDiagnoser]
 public class EtchAgainstRaw
 {
-    private Chaos _painter = default!;
+    private long _origin;
     private Context _context = default!;
     private Surface _surface = default!;
     private MemoryStream _stream = default!;
@@ -30,8 +31,8 @@ public class EtchAgainstRaw
     [GlobalSetup]
     public void Setup()
     {
+        _origin = Stopwatch.GetTimestamp();
         _stream = new MemoryStream();
-        _painter = new Chaos();
         _context = new Context(_size);
         _surface = new Surface(_size, _stream);
         _rawBuffer = new byte[1024 * 256];
@@ -41,10 +42,12 @@ public class EtchAgainstRaw
     public void Etch()
     {
         _stream.SetLength(0);
-        _painter.Paint(_context);
+        Chaos painter = new(_origin);
+        painter.Paint(_context);
         _surface.Present(_context);
         _surface.Flush();
         _context.Clear();
+        _frame++;
     }
 
     [Benchmark(Baseline = true)]
