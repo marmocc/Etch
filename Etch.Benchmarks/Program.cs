@@ -42,8 +42,7 @@ public class EtchAgainstRaw
     public void Etch()
     {
         _stream.SetLength(0);
-        Chaos painter = new(_origin);
-        painter.Paint(_context);
+        new Chaos().Paint(_context);
         _surface.Present(_context);
         _surface.Flush();
         _context.Clear();
