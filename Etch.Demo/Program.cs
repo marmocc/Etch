@@ -9,7 +9,6 @@ Chaos painter = new();
 while(!surface.Stopping)
 {
     painter.Paint(context);
-    surface.Dispatch(context);
-    surface.Present();
+    surface.Present(context);
     context.Clear();
 }

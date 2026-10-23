@@ -42,8 +42,7 @@ public class EtchAgainstRaw
     {
         _stream.SetLength(0);
         _painter.Paint(_context);
-        _surface.Dispatch(_context);
-        _surface.Present();
+        _surface.Present(_context);
         _context.Clear();
     }
 
@@ -81,7 +80,6 @@ public class EtchAgainstRaw
                 byte b = (byte)(h >> 16);
 
                 // Background Only (matching Etchel.Solid)
-                int bOffset = totalWritten;
                 buffer[totalWritten++] = 0x1B; buffer[totalWritten++] = (byte)'['; buffer[totalWritten++] = (byte)'4'; buffer[totalWritten++] = (byte)'8'; buffer[totalWritten++] = (byte)';'; buffer[totalWritten++] = (byte)'2'; buffer[totalWritten++] = (byte)';';
                 Utf8Formatter.TryFormat(r, buffer.Slice(totalWritten), out int rw); totalWritten += rw;
                 buffer[totalWritten++] = (byte)';';
