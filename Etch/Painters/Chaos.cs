@@ -1,11 +1,13 @@
-﻿using Etch.Rendering;
-using Etch.Common;
+﻿using Etch.Common;
+using Etch.Rendering;
+using System.Diagnostics;
 
 namespace Etch.Painters;
 
-public sealed class Chaos
+public readonly ref struct Chaos(long origin) : IPainter
 {
-    public int Frame = 0;
+    public readonly long Origin = origin;
+    public Chaos() : this(Stopwatch.GetTimestamp()) { }
     public void Paint(Context context)
     {
         int sizeX = context.Size.X;
@@ -14,12 +16,13 @@ public sealed class Chaos
         Handle handle = context.Etchels.Reserve(sizeX * sizeY);
         context.FullscreenBlits.Enqueue(new(handle));
 
+        TimeSpan elapsed = Stopwatch.GetElapsedTime(Origin);
         Span<Etchel> etchels = context.Etchels.Access(handle);
         for (int y = 0; y < sizeY; y++)
         {
             for (int x = 0; x < sizeX; x++)
             {
-                uint h = (uint)(x * 374761393 + y * 668265263 + (long)Frame * 2246822519);
+                uint h = (uint)(x * 374761393 + y * 668265263 + elapsed.Ticks * 2246822519);
                 h = (h ^ (h >> 13)) * 1274126177;
                 h ^= h >> 16;
 
@@ -34,7 +37,5 @@ public sealed class Chaos
                 etchels[index] = Etchel.Solid(color);
             }
         }
-
-        Frame++;
     }
 }

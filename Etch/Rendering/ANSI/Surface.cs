@@ -2,7 +2,7 @@
 
 namespace Etch.Rendering.ANSI;
 
-public sealed class Surface : ISurface, IDisposable
+public sealed class Surface : ISurface
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;

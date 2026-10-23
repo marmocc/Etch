@@ -1,7 +1,8 @@
 ﻿namespace Etch.Rendering;
 
-public interface ISurface
+public interface ISurface : IDisposable
 {
+    bool Stopping { get; }
     void Present(Context context);
     void Flush();
 }
