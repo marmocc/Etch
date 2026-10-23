@@ -10,5 +10,6 @@ while(!surface.Stopping)
 {
     painter.Paint(context);
     surface.Present(context);
+    surface.Flush();
     context.Clear();
 }

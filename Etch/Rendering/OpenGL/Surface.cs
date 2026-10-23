@@ -6,6 +6,7 @@ using Silk.NET.Windowing;
 
 namespace Etch.Rendering.OpenGL;
 
+/*
 public sealed class Surface : ISurface, IDisposable
 {
     public const int CellWidth = 8;
@@ -196,3 +197,4 @@ public sealed class Surface : ISurface, IDisposable
         throw new NotImplementedException();
     }
 }
+*/
