@@ -6,7 +6,7 @@ using Silk.NET.Windowing;
 
 namespace Etch.Rendering.OpenGL;
 
-public sealed class Surface : IDispatcher, IDisposable
+public sealed class Surface : ISurface, IDisposable
 {
     public const int CellWidth = 8;
     public const int CellHeight = 16;
@@ -191,7 +191,7 @@ public sealed class Surface : IDispatcher, IDisposable
         return shader;
     }
 
-    public void Dispatch(Context context)
+    public void Present(Context context)
     {
         throw new NotImplementedException();
     }
