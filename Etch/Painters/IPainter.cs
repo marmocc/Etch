@@ -1,8 +1,8 @@
-﻿using Etch.Rendering;
+﻿using Etch.Commands;
 
 namespace Etch.Painters;
 
 public interface IPainter
 {
-    void Paint(Context context);
+    void Paint(Batch batch);
 }

@@ -1,5 +1,5 @@
 ﻿using Etch.Rendering.ANSI;
-using Etch.Painters;
 using Etch;
 
-Etcher.Run<Surface, Spiral>(5);
+var (paint, present, flush) = Etcher.Run<Surface>(10_000, 10_000);
+Console.WriteLine($"{paint.Microseconds}us - {present.Microseconds}us - {flush.Microseconds}us");
