@@ -1,11 +1,11 @@
 ﻿namespace Etch.Common;
 
-public readonly record struct Glyph(byte Index)
+public readonly record struct Glyph(ushort Index)
 {
     public bool IsEmpty => Index == 0;
     public bool IsBlank => Codepoint == (byte)' ';
     public bool IsPrintable => (uint)(Index - 32) < 95;
-    public byte Codepoint => IsPrintable ? Index : (byte)' ';
+    public byte Codepoint => IsPrintable ? (byte)Index : (byte)' ';
 
     public static Glyph Empty => default;
     public static Glyph From(char c)

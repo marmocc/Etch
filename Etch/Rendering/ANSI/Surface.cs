@@ -1,8 +1,10 @@
-﻿using Etch.Common;
+﻿using Etch.Commands;
+using Etch.Common;
+using System.Runtime.InteropServices;
 
 namespace Etch.Rendering.ANSI;
 
-public sealed class Surface : ISurface
+public sealed class Surface : ISurface, IFullscreenBlit
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
@@ -48,21 +50,6 @@ public sealed class Surface : ISurface
         Flush();
     }
 
-    public void Present(Context context)
-    {
-        foreach (var command in context.FullscreenBlits)
-        {
-            Sequence.Move(Int2.Zero, _buffer, ref _written);
-            Span<Etchel> etchels = context.Etchels.Access(command.Handle);
-            foreach (var (glyph, foreground, background) in etchels)
-            {
-                Sequence.Foreground(foreground, _buffer, ref _written, ref _foreground);
-                Sequence.Background(background, _buffer, ref _written, ref _background);
-                Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
-            }
-        }
-    }
-
     public void Flush()
     {
         _output.Write(_buffer.AsSpan(0, _written));
@@ -90,5 +77,28 @@ public sealed class Surface : ISurface
         Sequence.Reset(_buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
         Flush();
+    }
+
+    public void Present(Batch batch)
+    {
+        foreach(var item in batch)
+        {
+            switch (item.Command)
+            {
+                case IFullscreenBlit.Tag: Handle(MemoryMarshal.Cast<ulong, Etchel>(item.Payload)); break;
+                default: throw new NotImplementedException();
+            }
+        }
+    }
+
+    public void Handle(ReadOnlySpan<Etchel> etchels)
+    {
+        Sequence.Move(Int2.Zero, _buffer, ref _written);
+        foreach (var (glyph, foreground, background) in etchels)
+        {
+            Sequence.Foreground(foreground, _buffer, ref _written, ref _foreground);
+            Sequence.Background(background, _buffer, ref _written, ref _background);
+            Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
+        }
     }
 }
