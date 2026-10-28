@@ -83,7 +83,7 @@ public sealed class Surface : ISurface
             {
                 case Tag.FullscreenBlit:
                 {
-                    ReadOnlySpan<Etchel> etchels = frame.Etchels.Access(new Handle(command.A, command.B));
+                    ReadOnlySpan<Etchel> etchels = frame.Etchels.Access(command.Handle);
                     Sequence.Move(Int2.Zero, _buffer, ref _written);
                     foreach (var (glyph, foreground, background) in etchels)
                     {
