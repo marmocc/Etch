@@ -1,4 +1,5 @@
-﻿using Etch.Diagnostics;
+﻿using Etch.Common;
+using Etch.Diagnostics;
 using Etch.Painters;
 using Etch.Rendering;
 
@@ -14,7 +15,8 @@ public static class Etcher
     {
         P painter = new();
         using S surface = new();
-        Batch frame = new(surface.Size);
+        Batch<Packet> packets = new(8);
+        Arena assets = Arena.Create<Etchel>(surface.Size.Area());
         TimeSpan interval = TimeSpan.FromSeconds(1.0 / targetFps);
 
         while (true)
@@ -22,9 +24,11 @@ public static class Etcher
             surface.Wait(interval);
             if (surface.Stopping) return;
 
-            frame.Reset();
-            painter.Paint(frame);
-            surface.Present(frame);
+            assets.Reset();
+            packets.Reset();
+
+            painter.Paint(surface.Size, packets, assets);
+            surface.Present(packets, assets);
             surface.Flush();
         }
     }
@@ -41,7 +45,8 @@ public static class Etcher
     {
         using S surface = new();
         Chaos painter = new();
-        Batch frame = new(surface.Size);
+        Batch<Packet> packets = new(8);
+        Arena assets = Arena.Create<Etchel>(surface.Size.Area());
 
         TimeSpan paintSum = TimeSpan.Zero;
         TimeSpan presentSum = TimeSpan.Zero;
@@ -49,27 +54,29 @@ public static class Etcher
 
         for (int i = 0; i < warmup; i++)
         {
-            frame.Reset();
+            assets.Reset();
+            packets.Reset();
 
             TimeSpan paint = TimeSpan.Zero;
             TimeSpan present = TimeSpan.Zero;
             TimeSpan flush = TimeSpan.Zero;
 
-            using (new Watch(ref paint)) painter.Paint(frame);
-            using (new Watch(ref present)) surface.Present(frame);
+            using (new Watch(ref paint)) painter.Paint(surface.Size, packets, assets);
+            using (new Watch(ref present)) surface.Present(packets, assets);
             using (new Watch(ref flush)) surface.Flush();
         }
 
         for (int i = 0; i < actual; i++)
         {
-            frame.Reset();
+            assets.Reset();
+            packets.Reset();
 
             TimeSpan paint = TimeSpan.Zero;
             TimeSpan present = TimeSpan.Zero;
             TimeSpan flush = TimeSpan.Zero;
 
-            using (new Watch(ref paint)) painter.Paint(frame);
-            using (new Watch(ref present)) surface.Present(frame);
+            using (new Watch(ref paint)) painter.Paint(surface.Size, packets, assets);
+            using (new Watch(ref present)) surface.Present(packets, assets);
             using (new Watch(ref flush)) surface.Flush();
 
             paintSum += paint;

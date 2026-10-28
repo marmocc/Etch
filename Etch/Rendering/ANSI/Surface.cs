@@ -97,15 +97,15 @@ public sealed class Surface : ISurface
         _wake.Dispose();
     }
 
-    public void Present(Batch frame)
+    public void Present(Batch<Packet> packets, Arena assets)
     {
-        foreach (ref readonly Packet command in frame.Packets)
+        foreach (ref readonly Packet packet in packets.Values)
         {
-            switch (command.Command)
+            switch (packet.Command)
             {
                 case Command.FullscreenBlit:
                 {
-                    ReadOnlySpan<Etchel> etchels = frame.Assets.Access<Etchel>(command.Handle);
+                    ReadOnlySpan<Etchel> etchels = assets.Access<Etchel>(packet.Handle);
                     Sequence.Move(Int2.Zero, _buffer, ref _written);
                     foreach (var (glyph, foreground, background) in etchels)
                     {

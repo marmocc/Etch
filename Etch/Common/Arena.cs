@@ -3,25 +3,28 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Common;
 
+/// <summary>
+/// Represents a region inside an <c>Arena</c>.
+/// </summary>
+public readonly record struct Handle(int Offset, int Length);
+
+/// <summary>
+/// Arena is a contiguous byte allocator.
+/// </summary>
 public sealed class Arena(int capacityInBytes)
 {
-    /// <summary>
-    /// Represents a region inside the <c>Arena</c>.
-    /// </summary>
-    public readonly record struct Handle(int Offset, int Length);
-
     private readonly byte[] _buffer = new byte[capacityInBytes];
     private int _offset = 0;
 
     /// <summary>
-    /// Provides a way to build an <c>Arena</c> with a <paramref name="capacity"/> expressed in <typeparamref name="T"/>.
+    /// Creates an <c>Arena</c> with a <paramref name="capacity"/> expressed in <typeparamref name="T"/>.
     /// </summary>
-    public static Arena From<T>(int capacity) where T : unmanaged => new(capacity * Unsafe.SizeOf<T>());
+    public static Arena Create<T>(int capacity) where T : unmanaged => new(capacity * Unsafe.SizeOf<T>());
 
     /// <summary>
-    /// Provides a way to build an <c>Arena</c> from an area of size <paramref name="area"/> expressed in <typeparamref name="T"/>.
+    /// Creates an <c>Arena</c> from an area of size <paramref name="area"/> expressed in <typeparamref name="T"/>.
     /// </summary>
-    public static Arena From<T>(Int2 area) where T : unmanaged => From<T>(area.Area());
+    public static Arena Create<T>(Int2 area) where T : unmanaged => Create<T>(area.Area());
 
     /// <summary>
     /// Capacity in bytes of the Arena
