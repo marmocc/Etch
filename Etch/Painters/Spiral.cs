@@ -1,22 +1,23 @@
-﻿using Etch.Commands;
-using Etch.Common;
+﻿using Etch.Common;
+using Etch.Rendering;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Etch.Painters;
 
-public readonly ref struct Spiral(int sizeX, int sizeY) : IPainter
+public readonly ref struct Spiral : IPainter
 {
     public readonly long Origin = Stopwatch.GetTimestamp();
-    public void Paint(Batch batch)
+    public Spiral() { }
+    public void Paint(Frame frame)
     {
-        Span<ulong> ulongs = batch.Append(IFullscreenBlit.Tag, sizeX * sizeY);
-        Span<Etchel> etchels = MemoryMarshal.Cast<ulong, Etchel>(ulongs);
+        int sizeX = frame.Size.X;
+        int sizeY = frame.Size.Y;
 
         float centerX = sizeX / 2.0f;
         float centerY = sizeY / 2.0f;
         float aspect = 1f / 2f;
 
+        Span<Etchel> etchels = frame.Append();
         TimeSpan elapsed = Stopwatch.GetElapsedTime(Origin);
         for (int y = 0; y < sizeY; y++)
         {
@@ -32,10 +33,7 @@ public readonly ref struct Spiral(int sizeX, int sizeY) : IPainter
                 byte v = (byte)((n + 1) / 2 * 255);
 
                 RGB color = new(v, (byte)(v / 3), (byte)(255 - v));
-                Int2 position = new(x, y);
-
-                int index = position.Flatten(sizeX);
-                etchels[index] = Etchel.Solid(color);
+                etchels[Int2.Flatten(x, y, sizeX)] = Etchel.Solid(color);
             }
         }
     }

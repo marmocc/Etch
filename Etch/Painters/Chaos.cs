@@ -1,18 +1,18 @@
-﻿using Etch.Commands;
-using Etch.Common;
+﻿using Etch.Common;
+using Etch.Rendering;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace Etch.Painters;
 
-public readonly ref struct Chaos(int sizeX, int sizeY) : IPainter
+public readonly ref struct Chaos : IPainter
 {
-    public void Paint(Batch batch)
+    public void Paint(Frame frame)
     {
-        Span<ulong> ulongs = batch.Append(IFullscreenBlit.Tag, sizeX * sizeY);
-        Span<Etchel> etchels = MemoryMarshal.Cast<ulong, Etchel>(ulongs);
-
+        int sizeX = frame.Size.X;
+        int sizeY = frame.Size.Y;
         long ticks = Stopwatch.GetTimestamp();
+
+        Span<Etchel> etchels = frame.Append();
         for (int y = 0; y < sizeY; y++)
         {
             for (int x = 0; x < sizeX; x++)
@@ -25,11 +25,7 @@ public readonly ref struct Chaos(int sizeX, int sizeY) : IPainter
                 byte g = (byte)(h >> 8);
                 byte b = (byte)(h >> 16);
 
-                RGB color = new(r, g, b);
-                Int2 position = new(x, y);
-
-                int index = position.Flatten(sizeX);
-                etchels[index] = Etchel.Solid(color);
+                etchels[Int2.Flatten(x, y, sizeX)] = Etchel.Solid(new RGB(r, g, b));
             }
         }
     }
