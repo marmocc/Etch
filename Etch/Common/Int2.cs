@@ -6,10 +6,10 @@ public readonly record struct Int2(int X, int Y)
     public static Int2 One => new(1, 1);
     public static Int2 Two => new(2, 2);
 
-    public static int Flatten(int x, int y) => x * y;
+    public static int Area(int x, int y) => x * y;
     public static int Flatten(int x, int y, int stride) => y * stride + x;
 
-    public int Flatten() => Flatten(X, Y);
+    public int Area() => Area(X, Y);
     public int Flatten(int stride) => Flatten(X, Y, stride);
     public int Flatten(Int2 size) => Flatten(X, Y, size.X);
 
