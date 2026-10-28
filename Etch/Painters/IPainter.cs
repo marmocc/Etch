@@ -4,5 +4,5 @@ namespace Etch.Painters;
 
 public interface IPainter
 {
-    void Paint(Frame frame);
+    void Paint(Batch frame);
 }

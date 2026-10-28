@@ -97,13 +97,13 @@ public sealed class Surface : ISurface
         _wake.Dispose();
     }
 
-    public void Present(Frame frame)
+    public void Present(Batch frame)
     {
-        foreach (ref readonly Command command in frame.Commands)
+        foreach (ref readonly Packet command in frame.Packets)
         {
-            switch (command.Tag)
+            switch (command.Command)
             {
-                case Tag.FullscreenBlit:
+                case Command.FullscreenBlit:
                 {
                     ReadOnlySpan<Etchel> etchels = frame.Assets.Access<Etchel>(command.Handle);
                     Sequence.Move(Int2.Zero, _buffer, ref _written);
