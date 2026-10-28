@@ -24,26 +24,38 @@ public sealed class Surface : ISurface
         Size = size;
 
         _written = 0;
-        _buffer = new byte[size.X * size.Y * 64];
+        _buffer = new byte[Size.X * Size.Y * 64];
         _output = output;
 
-        _cursor = Int2.Zero;
-        _foreground = RGB.Black;
-        _background = RGB.Black;
-
-        Sequence.Move(_cursor, _buffer, ref _written);
-        Sequence.Foreground(_foreground, _buffer, ref _written);
-        Sequence.Background(_background, _buffer, ref _written);
+        Initialize();
         Flush();
     }
 
-    public Surface() : this(new(Console.WindowWidth, Console.WindowHeight), Console.OpenStandardOutput())
+    public Surface()
     {
+        Size = new(Console.WindowWidth, Console.WindowHeight);
+
+        _written = 0;
+        _buffer = new byte[Size.X * Size.Y * 64];
+        _output = Console.OpenStandardOutput();
+
         Console.CancelKeyPress += (_, e) => { e.Cancel = true; Stop(); };
         Sequence.Alternate(true, _buffer, ref _written);
         Sequence.Cursor(false, _buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
+
+        Initialize();
         Flush();
+    }
+
+    private void Initialize()
+    {
+        _cursor = Int2.Zero;
+        _foreground = RGB.Black;
+        _background = RGB.Black;
+        Sequence.Move(_cursor, _buffer, ref _written);
+        Sequence.Foreground(_foreground, _buffer, ref _written);
+        Sequence.Background(_background, _buffer, ref _written);
     }
 
     public void Flush()
@@ -68,6 +80,7 @@ public sealed class Surface : ISurface
         _disposed = true;
 
         _wake.Dispose();
+        Sequence.Clear(_buffer, ref _written);
         Sequence.Alternate(false, _buffer, ref _written);
         Sequence.Cursor(true, _buffer, ref _written);
         Sequence.Reset(_buffer, ref _written);
