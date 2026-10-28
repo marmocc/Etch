@@ -2,6 +2,9 @@
 using Etch.Painters;
 using Etch.Rendering.ANSI;
 
+if(OperatingSystem.IsWindows())
+    Platform.ConsoleHost.Fix();
+
 if (args.Contains("--demo"))
 {
     Etcher.Run<Surface, Spiral>(60);
