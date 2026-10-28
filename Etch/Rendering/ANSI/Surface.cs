@@ -71,7 +71,6 @@ public sealed class Surface : ISurface
         Sequence.Alternate(false, _buffer, ref _written);
         Sequence.Cursor(true, _buffer, ref _written);
         Sequence.Reset(_buffer, ref _written);
-        Sequence.Clear(_buffer, ref _written);
         Flush();
     }
 
