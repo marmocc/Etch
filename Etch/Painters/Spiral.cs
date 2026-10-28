@@ -8,20 +8,20 @@ public readonly ref struct Spiral : IPainter
 {
     public readonly long Origin = Stopwatch.GetTimestamp();
     public Spiral() { }
-    public void Paint(Batch frame)
+    public void Paint(Int2 size, Batch<Packet> packets, Arena assets)
     {
-        int sizeX = frame.Size.X;
-        int sizeY = frame.Size.Y;
-
-        float centerX = sizeX / 2.0f;
-        float centerY = sizeY / 2.0f;
+        float centerX = size.X / 2.0f;
+        float centerY = size.Y / 2.0f;
         float aspect = 1f / 2f;
 
-        Span<Etchel> etchels = frame.Append();
         TimeSpan elapsed = Stopwatch.GetElapsedTime(Origin);
-        for (int y = 0; y < sizeY; y++)
+
+        Handle handle = assets.Reserve<Etchel>(size.Area());
+        packets.Append(new(Command.FullscreenBlit, handle));
+        Span<Etchel> etchels = assets.Access<Etchel>(handle);
+        for (int y = 0; y < size.Y; y++)
         {
-            for (int x = 0; x < sizeX; x++)
+            for (int x = 0; x < size.X; x++)
             {
                 float dx = (x - centerX);
                 float dy = (y - centerY) / aspect;
@@ -33,7 +33,7 @@ public readonly ref struct Spiral : IPainter
                 byte v = (byte)((n + 1) / 2 * 255);
 
                 RGB color = new(v, (byte)(v / 3), (byte)(255 - v));
-                etchels[Int2.Flatten(x, y, sizeX)] = Etchel.Solid(color);
+                etchels[Int2.Flatten(x, y, size.X)] = Etchel.Solid(color);
             }
         }
     }
