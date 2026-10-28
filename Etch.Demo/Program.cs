@@ -10,7 +10,7 @@ else if (args.Contains("--benchmark"))
 {
     var (paint, present, flush) = Etcher.Run<Surface>(10_000, 10_000);
     Console.WriteLine($"{Console.WindowWidth} x {Console.WindowHeight}");
-    Console.WriteLine($"{paint.Microseconds}us - {present.Microseconds}us - {flush.Microseconds}us");
+    Console.WriteLine($"{paint.TotalMicroseconds}us - {present.TotalMicroseconds}us - {flush.TotalMicroseconds}us");
 }
 else
 {
