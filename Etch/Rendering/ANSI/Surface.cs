@@ -99,13 +99,13 @@ public sealed class Surface : ISurface
 
     public void Present(Frame frame)
     {
-        foreach (ref readonly Command command in frame.Commands.Values)
+        foreach (ref readonly Command command in frame.Commands)
         {
             switch (command.Tag)
             {
                 case Tag.FullscreenBlit:
                 {
-                    ReadOnlySpan<Etchel> etchels = frame.Etchels.Access(command.Handle);
+                    ReadOnlySpan<Etchel> etchels = frame.Assets.Access<Etchel>(command.Handle);
                     Sequence.Move(Int2.Zero, _buffer, ref _written);
                     foreach (var (glyph, foreground, background) in etchels)
                     {

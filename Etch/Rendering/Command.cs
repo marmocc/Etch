@@ -2,7 +2,7 @@
 
 namespace Etch.Rendering;
 
-public readonly record struct Command(Tag Tag, Handle Handle);
+public readonly record struct Command(Tag Tag, Arena.Handle Handle);
 public enum Tag : ushort
 {
     Invalid = 0,
