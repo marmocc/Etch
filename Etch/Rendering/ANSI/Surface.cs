@@ -19,6 +19,9 @@ public sealed class Surface : ISurface
     public Int2 Size { get; }
     public bool Stopping => _stopping;
 
+    /// <summary>
+    /// Constructor for a generic ANSI stream output
+    /// </summary>
     public Surface(Int2 size, Stream output)
     {
         Size = size;
@@ -31,6 +34,9 @@ public sealed class Surface : ISurface
         Flush();
     }
 
+    /// <summary>
+    /// Constructor already set for the Terminal output
+    /// </summary>
     public Surface()
     {
         Size = new(Console.WindowWidth, Console.WindowHeight);
