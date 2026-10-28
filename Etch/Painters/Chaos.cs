@@ -6,7 +6,7 @@ namespace Etch.Painters;
 
 public readonly ref struct Chaos : IPainter
 {
-    public void Paint(Frame frame)
+    public void Paint(Batch frame)
     {
         int sizeX = frame.Size.X;
         int sizeY = frame.Size.Y;

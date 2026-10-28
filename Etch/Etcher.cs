@@ -14,7 +14,7 @@ public static class Etcher
     {
         P painter = new();
         using S surface = new();
-        Frame frame = new(surface.Size);
+        Batch frame = new(surface.Size);
         TimeSpan interval = TimeSpan.FromSeconds(1.0 / targetFps);
 
         while (true)
@@ -41,7 +41,7 @@ public static class Etcher
     {
         using S surface = new();
         Chaos painter = new();
-        Frame frame = new(surface.Size);
+        Batch frame = new(surface.Size);
 
         TimeSpan paintSum = TimeSpan.Zero;
         TimeSpan presentSum = TimeSpan.Zero;

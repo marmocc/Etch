@@ -7,7 +7,7 @@ public interface ISurface : IDisposable
     Int2 Size { get; }
     bool Stopping { get; }
     void Wait(TimeSpan interval);
-    void Present(Frame frame);
+    void Present(Batch frame);
     void Flush();
 
     void Stop();

@@ -8,7 +8,7 @@ public readonly ref struct Spiral : IPainter
 {
     public readonly long Origin = Stopwatch.GetTimestamp();
     public Spiral() { }
-    public void Paint(Frame frame)
+    public void Paint(Batch frame)
     {
         int sizeX = frame.Size.X;
         int sizeY = frame.Size.Y;
