@@ -14,22 +14,18 @@ public static class Etcher
     {
         P painter = new();
         using S surface = new();
-        Frame[] frames = [new(surface.Size), new(surface.Size)];
+        Frame frame = new(surface.Size);
         TimeSpan interval = TimeSpan.FromSeconds(1.0 / targetFps);
 
-        int index = 0;
         while (true)
         {
             surface.Wait(interval);
             if (surface.Stopping) return;
 
-            Frame frame = frames[index];
             frame.Reset();
             painter.Paint(frame);
             surface.Present(frame);
             surface.Flush();
-
-            index ^= 1;
         }
     }
 
