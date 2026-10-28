@@ -16,5 +16,5 @@ public sealed class Frame(Int2 size, int commandCapacity = 8)
         return Etchels.Access(handle);
     }
 
-    public Span<Etchel> Append() => Append(Tag.FullscreenBlit, Size.Flatten());
+    public Span<Etchel> Append() => Append(Tag.FullscreenBlit, Size.Area());
 }
