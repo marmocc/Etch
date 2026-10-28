@@ -6,7 +6,7 @@ public sealed class Surface : ISurface
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
-    private bool _disposed;
+    private bool _disposed = false;
 
     private Int2 _cursor;
     private RGB _foreground;
@@ -45,7 +45,7 @@ public sealed class Surface : ISurface
         _buffer = new byte[Size.X * Size.Y * 64];
         _output = Console.OpenStandardOutput();
 
-        Console.CancelKeyPress += (_, e) => { e.Cancel = true; Stop(); };
+        Console.CancelKeyPress += OnCancelKeyPress;
         Sequence.Alternate(true, _buffer, ref _written);
         Sequence.Cursor(false, _buffer, ref _written);
         Sequence.Clear(_buffer, ref _written);
@@ -53,6 +53,8 @@ public sealed class Surface : ISurface
         Initialize();
         Flush();
     }
+
+    private void OnCancelKeyPress(object? first, ConsoleCancelEventArgs e) { e.Cancel = true; Stop(); }
 
     private void Initialize()
     {
@@ -85,12 +87,14 @@ public sealed class Surface : ISurface
         if (_disposed) return;
         _disposed = true;
 
-        _wake.Dispose();
+        Console.CancelKeyPress -= OnCancelKeyPress;
         Sequence.Clear(_buffer, ref _written);
         Sequence.Alternate(false, _buffer, ref _written);
         Sequence.Cursor(true, _buffer, ref _written);
         Sequence.Reset(_buffer, ref _written);
         Flush();
+
+        _wake.Dispose();
     }
 
     public void Present(Frame frame)
