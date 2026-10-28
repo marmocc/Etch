@@ -1,10 +1,8 @@
-﻿using Etch.Commands;
-using Etch.Common;
-using System.Runtime.InteropServices;
+﻿using Etch.Common;
 
 namespace Etch.Rendering.ANSI;
 
-public sealed class Surface : ISurface, IFullscreenBlit
+public sealed class Surface : ISurface
 {
     private readonly AutoResetEvent _wake = new(false);
     private volatile bool _stopping = false;
@@ -16,7 +14,6 @@ public sealed class Surface : ISurface, IFullscreenBlit
 
     private int _written;
     private readonly byte[] _buffer;
-    private readonly Etchel[] _shadow;
     private readonly Stream _output;
 
     public Int2 Size { get; }
@@ -28,7 +25,6 @@ public sealed class Surface : ISurface, IFullscreenBlit
 
         _written = 0;
         _buffer = new byte[size.X * size.Y * 64];
-        _shadow = new Etchel[size.X * size.Y];
         _output = output;
 
         _cursor = Int2.Zero;
@@ -79,26 +75,27 @@ public sealed class Surface : ISurface, IFullscreenBlit
         Flush();
     }
 
-    public void Present(Batch batch)
+    public void Present(Frame frame)
     {
-        foreach(var item in batch)
+        foreach (ref readonly Command command in frame.Commands.Values)
         {
-            switch (item.Command)
+            switch (command.Tag)
             {
-                case IFullscreenBlit.Tag: Handle(MemoryMarshal.Cast<ulong, Etchel>(item.Payload)); break;
-                default: throw new NotImplementedException();
+                case Tag.FullscreenBlit:
+                {
+                    ReadOnlySpan<Etchel> etchels = frame.Etchels.Access(new Handle(command.A, command.B));
+                    Sequence.Move(Int2.Zero, _buffer, ref _written);
+                    foreach (var (glyph, foreground, background) in etchels)
+                    {
+                        Sequence.Foreground(foreground, _buffer, ref _written, ref _foreground);
+                        Sequence.Background(background, _buffer, ref _written, ref _background);
+                        Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
+                    }
+                    break;
+                }
+                default:
+                    throw new NotImplementedException();
             }
-        }
-    }
-
-    public void Handle(ReadOnlySpan<Etchel> etchels)
-    {
-        Sequence.Move(Int2.Zero, _buffer, ref _written);
-        foreach (var (glyph, foreground, background) in etchels)
-        {
-            Sequence.Foreground(foreground, _buffer, ref _written, ref _foreground);
-            Sequence.Background(background, _buffer, ref _written, ref _background);
-            Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor in a FullscreenBlit.
         }
     }
 }
