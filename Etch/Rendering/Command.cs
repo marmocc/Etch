@@ -1,6 +1,8 @@
-﻿namespace Etch.Rendering;
+﻿using Etch.Common;
 
-public readonly record struct Command(Tag Tag, ushort A, ushort B);
+namespace Etch.Rendering;
+
+public readonly record struct Command(Tag Tag, Handle Handle);
 public enum Tag : ushort
 {
     Invalid = 0,

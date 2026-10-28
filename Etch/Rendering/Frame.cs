@@ -12,7 +12,7 @@ public sealed class Frame(Int2 size, int commandCapacity = 8)
     public Span<Etchel> Append(Tag tag, int length)
     {
         Handle handle = Etchels.Reserve(length);
-        Commands.Add(new(tag, (ushort)handle.Offset, (ushort)handle.Length));
+        Commands.Add(new(tag, handle));
         return Etchels.Access(handle);
     }
 
