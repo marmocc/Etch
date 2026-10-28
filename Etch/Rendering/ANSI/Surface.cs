@@ -105,14 +105,14 @@ public sealed class Surface : ISurface
             {
                 case Command.FullscreenBlit:
                     ReadOnlySpan<Etchel> etchels = assets.Access<Etchel>(packet.Handle);
-                    Sequence.Move(Int2.Zero, _buffer, ref _written, ref _cursor);
+                    if (_cursor != Int2.Zero) { Sequence.Move(Int2.Zero, _buffer, ref _written); _cursor = Int2.Zero; }
                     foreach (var (glyph, foreground, background) in etchels)
                     {
-                        Sequence.Foreground(foreground, _buffer, ref _written, ref _foreground);
-                        Sequence.Background(background, _buffer, ref _written, ref _background);
-                        Sequence.Write(glyph.Codepoint, _buffer, ref _written); // No need to update cursor during the blit.
+                        if(foreground != _foreground) { Sequence.Foreground(foreground, _buffer, ref _written); _foreground = foreground; }
+                        if(background != _background) { Sequence.Background(background, _buffer, ref _written); _background = background; }
+                        Sequence.Write(glyph.Codepoint, _buffer, ref _written);
                     }
-                    Sequence.Move(Size - 1, _buffer, ref _written, ref _cursor); // Update cursor at the end of the blit.
+                    _cursor = Size - 1;
                     break;
                 default:
                     throw new NotImplementedException();
