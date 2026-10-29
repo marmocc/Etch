@@ -16,11 +16,11 @@ public readonly struct Color(bool toggle, RGB color) : ISequence
     private readonly byte _semicolon0 = (byte)';';
     private readonly byte _two = (byte)'2';
     private readonly byte _semicolon1 = (byte)';';
-    private readonly Digits3 _red = new(color.R);
+    private readonly Digit3 _red = new(color.R);
     private readonly byte _semicolon2 = (byte)';';
-    private readonly Digits3 _green = new(color.G);
+    private readonly Digit3 _green = new(color.G);
     private readonly byte _semicolon3 = (byte)';';
-    private readonly Digits3 _blue = new(color.B);
+    private readonly Digit3 _blue = new(color.B);
     private readonly byte _end = (byte)'m';
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
