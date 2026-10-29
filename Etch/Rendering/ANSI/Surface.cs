@@ -1,4 +1,5 @@
 ﻿using Etch.Common;
+using Etch.Rendering.ANSI.Sequence;
 
 namespace Etch.Rendering.ANSI;
 
@@ -46,9 +47,9 @@ public sealed class Surface : ISurface
         _output = Console.OpenStandardOutput();
 
         Console.CancelKeyPress += OnCancelKeyPress;
-        Sequence.Alternate(true, _buffer, ref _written);
-        Sequence.Cursor(false, _buffer, ref _written);
-        Sequence.Clear(_buffer, ref _written);
+        new Alternate(true).Write(_buffer, ref _written);
+        new Cursor(false).Write(_buffer, ref _written);
+        new Clear().Write(_buffer, ref _written);
 
         Initialize();
         Flush();
@@ -61,9 +62,9 @@ public sealed class Surface : ISurface
         _cursor = Int2.Zero;
         _foreground = RGB.Black;
         _background = RGB.Black;
-        Sequence.Move(_cursor, _buffer, ref _written);
-        Sequence.Foreground(_foreground, _buffer, ref _written);
-        Sequence.Background(_background, _buffer, ref _written);
+        new Move(_cursor).Write(_buffer, ref _written);
+        new Color(true, _foreground).Write(_buffer, ref _written);
+        new Color(false, _background).Write(_buffer, ref _written);
     }
 
     public void Flush()
@@ -88,10 +89,10 @@ public sealed class Surface : ISurface
         _disposed = true;
 
         Console.CancelKeyPress -= OnCancelKeyPress;
-        Sequence.Clear(_buffer, ref _written);
-        Sequence.Alternate(false, _buffer, ref _written);
-        Sequence.Cursor(true, _buffer, ref _written);
-        Sequence.Reset(_buffer, ref _written);
+        new Clear().Write(_buffer, ref _written);
+        new Alternate(false).Write(_buffer, ref _written);
+        new Cursor(true).Write(_buffer, ref _written);
+        new Reset().Write(_buffer, ref _written);
         Flush();
 
         _wake.Dispose();
@@ -105,12 +106,12 @@ public sealed class Surface : ISurface
             {
                 case Command.FullscreenBlit:
                     ReadOnlySpan<Etchel> etchels = assets.Access<Etchel>(packet.Handle);
-                    if (_cursor != Int2.Zero) { Sequence.Move(Int2.Zero, _buffer, ref _written); _cursor = Int2.Zero; }
+                    if (_cursor != Int2.Zero) { new Move(Int2.Zero).Write(_buffer, ref _written); _cursor = Int2.Zero; }
                     foreach (var (glyph, foreground, background) in etchels)
                     {
-                        if(foreground != _foreground) { Sequence.Foreground(foreground, _buffer, ref _written); _foreground = foreground; }
-                        if(background != _background) { Sequence.Background(background, _buffer, ref _written); _background = background; }
-                        Sequence.Write(glyph.Codepoint, _buffer, ref _written);
+                        if(foreground != _foreground) { new Color(true, foreground).Write(_buffer, ref _written); _foreground = foreground; }
+                        if(background != _background) { new Color(false, background).Write(_buffer, ref _written); _background = background; }
+                        _buffer[_written++] = glyph.Codepoint;
                     }
                     _cursor = Size - 1;
                     break;
