@@ -23,6 +23,9 @@ public readonly struct Color(bool toggle, RGB color) : ISequence
     private readonly Digit3 _blue = new(color.B);
     private readonly byte _end = (byte)'m';
 
+    public static Color Foreground(RGB color) => new(true, color);
+    public static Color Background(RGB color) => new(false, color);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Span<byte> buffer, ref int written)
     {

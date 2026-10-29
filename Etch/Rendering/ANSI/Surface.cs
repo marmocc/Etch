@@ -109,8 +109,8 @@ public sealed class Surface : ISurface
                     if (_cursor != Int2.Zero) { new Move(Int2.Zero).Write(_buffer, ref _written); _cursor = Int2.Zero; }
                     foreach (var (glyph, foreground, background) in etchels)
                     {
-                        if(foreground != _foreground) { new Color(true, foreground).Write(_buffer, ref _written); _foreground = foreground; }
-                        if(background != _background) { new Color(false, background).Write(_buffer, ref _written); _background = background; }
+                        if(foreground != _foreground) { Color.Foreground(foreground).Write(_buffer, ref _written); _foreground = foreground; }
+                        if(background != _background) { Color.Background(background).Write(_buffer, ref _written); _background = background; }
                         _buffer[_written++] = glyph.Codepoint;
                     }
                     _cursor = Size - 1;
