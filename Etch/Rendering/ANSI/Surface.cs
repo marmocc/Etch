@@ -98,6 +98,27 @@ public sealed class Surface : ISurface
         _wake.Dispose();
     }
 
+    private void MoveTo(Int2 position)
+    {
+        if (_cursor == position) return;
+        new Move(position).Write(_buffer, ref _written);
+        _cursor = position;
+    }
+
+    private void SetForeground(RGB color)
+    {
+        if(_foreground == color) return;
+        Color.Foreground(color).Write(_buffer, ref _written);
+        _foreground = color;
+    }
+
+    private void SetBackground(RGB color)
+    {
+        if (_background == color) return;
+        Color.Background(color).Write(_buffer, ref _written);
+        _background = color;
+    }
+
     public void Present(Batch<Packet> packets, Arena assets)
     {
         foreach (ref readonly Packet packet in packets.Values)
@@ -105,12 +126,12 @@ public sealed class Surface : ISurface
             switch (packet.Command)
             {
                 case Command.FullscreenBlit:
+                    MoveTo(Int2.Zero);
                     ReadOnlySpan<Etchel> etchels = assets.Access<Etchel>(packet.Handle);
-                    if (_cursor != Int2.Zero) { new Move(Int2.Zero).Write(_buffer, ref _written); _cursor = Int2.Zero; }
                     foreach (var (glyph, foreground, background) in etchels)
                     {
-                        if(foreground != _foreground) { Color.Foreground(foreground).Write(_buffer, ref _written); _foreground = foreground; }
-                        if(background != _background) { Color.Background(background).Write(_buffer, ref _written); _background = background; }
+                        SetForeground(foreground);
+                        SetBackground(background);
                         _buffer[_written++] = glyph.Codepoint;
                     }
                     _cursor = Size - 1;
