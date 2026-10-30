@@ -1,19 +1,27 @@
-﻿using Etch.Backend;
-using Etch.Common;
+﻿using Etch.Common;
+using Etch.Rendering;
+using System.Diagnostics;
 
 namespace Etch.Painters;
 
 public readonly ref struct Spiral : IPainter
 {
-    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
+    public readonly long Origin = Stopwatch.GetTimestamp();
+    public Spiral() { }
+    public void Paint(Int2 size, Batch<Packet> packets, Arena assets)
     {
-        float centerX = context.Size.X / 2.0f;
-        float centerY = context.Size.Y / 2.0f;
+        float centerX = size.X / 2.0f;
+        float centerY = size.Y / 2.0f;
         float aspect = 1f / 2f;
 
-        for (int y = 0; y < context.Size.Y; y++)
+        TimeSpan elapsed = Stopwatch.GetElapsedTime(Origin);
+
+        Handle handle = assets.Reserve<Etchel>(size.Area());
+        packets.Append(new(Command.FullscreenBlit, handle));
+        Span<Etchel> etchels = assets.Access<Etchel>(handle);
+        for (int y = 0; y < size.Y; y++)
         {
-            for (int x = 0; x < context.Size.X; x++)
+            for (int x = 0; x < size.X; x++)
             {
                 float dx = (x - centerX);
                 float dy = (y - centerY) / aspect;
@@ -21,12 +29,11 @@ public readonly ref struct Spiral : IPainter
                 float angle = MathF.Atan2(dy, dx);
                 float radius = MathF.Sqrt(dx * dx + dy * dy);
 
-                float n = MathF.Sin(radius * 0.5f - (float)context.Timings.Elapsed.TotalSeconds * 3f + angle * 4f);
+                float n = MathF.Sin(radius * 0.5f - (float)elapsed.TotalSeconds * 3f + angle * 4f);
                 byte v = (byte)((n + 1) / 2 * 255);
 
                 RGB color = new(v, (byte)(v / 3), (byte)(255 - v));
-                Int2 position = new(x, y);
-                context.Plot(position, Etchel.Solid(color));
+                etchels[Int2.Flatten(x, y, size.X)] = Etchel.Solid(color);
             }
         }
     }

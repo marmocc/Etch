@@ -1,17 +1,23 @@
-﻿using Etch.Backend;
-using Etch.Common;
+﻿using Etch.Common;
+using Etch.Rendering;
+using System.Diagnostics;
 
 namespace Etch.Painters;
 
 public readonly ref struct Chaos : IPainter
 {
-    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
+    public void Paint(Int2 size, Batch<Packet> packets, Arena assets)
     {
-        for(int y = 0; y < context.Size.Y; y++)
+        long ticks = Stopwatch.GetTimestamp();
+
+        Handle handle = assets.Reserve<Etchel>(size.Area());
+        packets.Append(new(Command.FullscreenBlit, handle));
+        Span<Etchel> etchels = assets.Access<Etchel>(handle);
+        for (int y = 0; y < size.Y; y++)
         {
-            for (int x = 0; x < context.Size.X; x++)
+            for (int x = 0; x < size.X; x++)
             {
-                uint h = (uint)(x * 374761393 + y * 668265263 + (long)context.Timings.Frame * 2246822519);
+                uint h = (uint)(x * 374761393 + y * 668265263 + ticks * 2246822519);
                 h = (h ^ (h >> 13)) * 1274126177;
                 h ^= h >> 16;
 
@@ -19,9 +25,7 @@ public readonly ref struct Chaos : IPainter
                 byte g = (byte)(h >> 8);
                 byte b = (byte)(h >> 16);
 
-                RGB color = new(r, g, b);
-                Int2 postion = new(x, y);
-                context.Plot(postion, Etchel.Solid(color));
+                etchels[Int2.Flatten(x, y, size.X)] = Etchel.Solid(new RGB(r, g, b));
             }
         }
     }

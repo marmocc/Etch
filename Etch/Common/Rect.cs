@@ -1,16 +1,20 @@
 ﻿namespace Etch.Common;
 
-public readonly struct Rect(Int2 position, Int2 size)
+public readonly record struct Rect(Int2 Position, Int2 Size)
 {
-    public readonly Int2 Position = position;
-    public readonly Int2 Size = size;
+    /// <summary>
+    /// Point where the Rect inclusively starts from.
+    /// </summary>
+    public readonly Int2 Start => Position;
 
-    public readonly Int2 InclusiveStart => Position;
-    public readonly Int2 ExclusiveEnd => Position + Size;
+    /// <summary>
+    /// Point where the Rect exclusively ends at.
+    /// </summary>
+    public readonly Int2 End => Position + Size;
 
     public static Rect Empty => new(Int2.Zero, Int2.Zero);
     public Rect? Interior => Size.AllGreater(Int2.Two) ? new(Position + 1, Size - 2) : null;
 
-    public bool Contains(Int2 point) => point.AllGreaterOrEqual(InclusiveStart) && point.AllLess(ExclusiveEnd);
-    public bool Contains(Rect rect) => rect.InclusiveStart.AllGreaterOrEqual(InclusiveStart) && rect.ExclusiveEnd.AllLessOrEqual(ExclusiveEnd);
+    public bool Contains(Int2 point) => point.AllGreaterOrEqual(Start) && point.AllLess(End);
+    public bool Contains(Rect rect) => rect.Start.AllGreaterOrEqual(Start) && rect.End.AllLessOrEqual(End);
 }

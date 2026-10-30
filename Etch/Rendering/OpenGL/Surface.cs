@@ -4,9 +4,10 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-namespace Etch.Backend.OpenGL;
+namespace Etch.Rendering.OpenGL;
 
-public sealed class Surface : ISurface<Context>, IDisposable
+/*
+public sealed class Surface : ISurface, IDisposable
 {
     public const int CellWidth = 8;
     public const int CellHeight = 16;
@@ -99,8 +100,6 @@ public sealed class Surface : ISurface<Context>, IDisposable
         _buffer = new Etchel[size.X * size.Y];
     }
 
-    public Context Context(Timings timings) => new(timings, Size, _buffer);
-
     public void Present()
     {
         Vector2D<int> framebuffer = _window.FramebufferSize;
@@ -192,4 +191,10 @@ public sealed class Surface : ISurface<Context>, IDisposable
         }
         return shader;
     }
+
+    public void Present(Context context)
+    {
+        throw new NotImplementedException();
+    }
 }
+*/
