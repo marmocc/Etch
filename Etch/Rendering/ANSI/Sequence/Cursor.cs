@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace Etch.Rendering.ANSI.Sequence;
 
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Cursor(bool toggle) : ISequence
+public readonly struct Cursor : ISequence
 {
     public const int Length = 6;
 
@@ -13,7 +13,12 @@ public readonly struct Cursor(bool toggle) : ISequence
     private readonly byte _question = (byte)'?';
     private readonly byte _two = (byte)'2';
     private readonly byte _five = (byte)'5';
-    private readonly byte _end = toggle ? (byte)'h' : (byte)'l';
+    private readonly byte _end;
+
+    private Cursor(bool toggle) => _end = toggle ? (byte)'h' : (byte)'l';
+
+    public static Cursor Enable() => new(true);
+    public static Cursor Disable() => new(false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Span<byte> buffer, ref int written)

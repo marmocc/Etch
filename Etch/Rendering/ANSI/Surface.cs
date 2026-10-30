@@ -47,8 +47,8 @@ public sealed class Surface : ISurface
         _output = Console.OpenStandardOutput();
 
         Console.CancelKeyPress += OnCancelKeyPress;
-        new Alternate(true).Write(_buffer, ref _written);
-        new Cursor(false).Write(_buffer, ref _written);
+        Alternate.Enable().Write(_buffer, ref _written);
+        Cursor.Disable().Write(_buffer, ref _written);
         new Clear().Write(_buffer, ref _written);
 
         Initialize();
@@ -63,8 +63,8 @@ public sealed class Surface : ISurface
         _foreground = RGB.Black;
         _background = RGB.Black;
         new Move(_cursor).Write(_buffer, ref _written);
-        new Color(true, _foreground).Write(_buffer, ref _written);
-        new Color(false, _background).Write(_buffer, ref _written);
+        Color.Foreground(_foreground).Write(_buffer, ref _written);
+        Color.Background(_background).Write(_buffer, ref _written);
     }
 
     public void Flush()
@@ -90,8 +90,8 @@ public sealed class Surface : ISurface
 
         Console.CancelKeyPress -= OnCancelKeyPress;
         new Clear().Write(_buffer, ref _written);
-        new Alternate(false).Write(_buffer, ref _written);
-        new Cursor(true).Write(_buffer, ref _written);
+        Alternate.Disable().Write(_buffer, ref _written);
+        Cursor.Enable().Write(_buffer, ref _written);
         new Reset().Write(_buffer, ref _written);
         Flush();
 
