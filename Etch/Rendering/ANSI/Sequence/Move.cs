@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Rendering.ANSI.Sequence;
 
+/// <summary>
+/// Represents the sequence to move the cursor.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Move(Int2 position) : ISequence
 {

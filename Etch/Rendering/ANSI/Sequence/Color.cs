@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Rendering.ANSI.Sequence;
 
+/// <summary>
+/// Represents the sequence to set the foreground or background color.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Color : ISequence
 {
@@ -31,7 +34,14 @@ public readonly struct Color : ISequence
         _blue = new(color.B);
     }
 
+    /// <summary>
+    /// Builds the sequence to set the foreground color.
+    /// </summary>
     public static Color Foreground(RGB color) => new(true, color);
+
+    /// <summary>
+    /// Builds the sequence to set the background color.
+    /// </summary>
     public static Color Background(RGB color) => new(false, color);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

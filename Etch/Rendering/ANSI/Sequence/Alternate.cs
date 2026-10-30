@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Rendering.ANSI.Sequence;
 
+/// <summary>
+/// Represents the sequence to toggle the alternate buffer.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Alternate : ISequence
 {
@@ -19,8 +22,15 @@ public readonly struct Alternate : ISequence
 
     private Alternate(bool toggle) => _end = toggle ? (byte)'h' : (byte)'l';
 
-    public static Alternate Enable() => new(true);
-    public static Alternate Disable() => new(false);
+    /// <summary>
+    /// Builds the sequence to enter the alternate buffer.
+    /// </summary>
+    public static Alternate Enter() => new(true);
+
+    /// <summary>
+    /// Builds the sequence to leave the alternate buffer.
+    /// </summary>
+    public static Alternate Leave() => new(false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Span<byte> buffer, ref int written)
