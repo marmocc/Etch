@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Rendering.ANSI.Sequence;
 
+/// <summary>
+/// Represents the sequence to show or hide the cursor.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Cursor : ISequence
 {
@@ -17,8 +20,15 @@ public readonly struct Cursor : ISequence
 
     private Cursor(bool toggle) => _end = toggle ? (byte)'h' : (byte)'l';
 
-    public static Cursor Enable() => new(true);
-    public static Cursor Disable() => new(false);
+    /// <summary>
+    /// Builds the sequence to show the cursor.
+    /// </summary>
+    public static Cursor Show() => new(true);
+
+    /// <summary>
+    /// Builds the sequence to hide the cursor.
+    /// </summary>
+    public static Cursor Hide() => new(false);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(Span<byte> buffer, ref int written)

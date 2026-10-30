@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace Etch.Rendering.ANSI.Sequence;
 
+/// <summary>
+/// Represents the sequence to reset the terminal.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public readonly struct Reset() : ISequence
 {
