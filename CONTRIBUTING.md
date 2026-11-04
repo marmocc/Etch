@@ -6,7 +6,7 @@
 ## Collaborating
 * **PRs only** - `main` must stay **functional** at all times and its history must be **readable**.
 * **squash merge** - don't worry about messy commits within your branch as they'll be squashed anyway.
-* **attribution** - please include `Co-authored-by:` when merging, if needed.
+* **attribution** - I'll always include `Co-authored-by:`, if needed, whenever a merge happens.
 
 ## Design and code style
 * **performance** - prefer value types, stack allocation, and zero-allocation patterns on hot paths.
