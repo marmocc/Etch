@@ -1,6 +1,5 @@
 ﻿using Etch.Common;
 using Etch.Rendering.ANSI.Sequence;
-using System.Runtime.CompilerServices;
 
 namespace Etch.Rendering.ANSI;
 
@@ -21,7 +20,6 @@ public sealed class Surface : ISurface
     public bool Stopping => _stopping;
     public Int2 Size { get; }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCursor(Int2 position)
     {
         if (position == _cursor) return;
@@ -29,10 +27,8 @@ public sealed class Surface : ISurface
         _cursor = position;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AssumeCursor(Int2 position) => _cursor = position;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetForeground(RGB color)
     {
         if (color == _foreground) return;
@@ -40,7 +36,6 @@ public sealed class Surface : ISurface
         _foreground = color;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBackground(RGB color)
     {
         if (color == _background) return;
@@ -48,7 +43,6 @@ public sealed class Surface : ISurface
         _background = color;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Put(byte codepoint) => _buffer[_written++] = codepoint;
 
     /// <summary>
