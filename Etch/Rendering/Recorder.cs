@@ -1,11 +1,10 @@
 ﻿using Etch.Common;
-using Etch.Rendering.ANSI;
 
 namespace Etch.Rendering;
 
-public readonly ref struct Recorder(Batch<Packet> packets, Arena assets, Surface surface) : IContext
+public readonly ref struct Recorder(Int2 size, Batch<Packet> packets, Arena assets) : IContext
 {
-    public Int2 Size => surface.Size;
+    public Int2 Size => size;
     public Arena Assets => assets;
 
     public void Plot(Int2 position, Etchel etchel) => throw new NotImplementedException();

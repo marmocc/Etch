@@ -29,7 +29,7 @@ public static class Etcher
                 assets.Reset();
                 packets.Reset();
 
-                var context = new Recorder(packets, assets, surface);
+                var context = new Recorder(surface.Size, packets, assets);
                 painter.Paint(context);
                 context.Play<Context>(new(assets, surface));
                 surface.Present();
@@ -63,7 +63,7 @@ public static class Etcher
                 TimeSpan play = TimeSpan.Zero;
                 TimeSpan present = TimeSpan.Zero;
 
-                var context = new Recorder(packets, assets, surface);
+                var context = new Recorder(surface.Size, packets, assets);
                 using (new Watch(ref paint)) painter.Paint(context);
                 using (new Watch(ref play)) context.Play<Context>(new(assets, surface));
                 using (new Watch(ref present)) surface.Present();
@@ -78,7 +78,7 @@ public static class Etcher
                 TimeSpan play = TimeSpan.Zero;
                 TimeSpan present = TimeSpan.Zero;
 
-                var context = new Recorder(packets, assets, surface);
+                var context = new Recorder(surface.Size, packets, assets);
                 using (new Watch(ref paint)) painter.Paint(context);
                 using (new Watch(ref play)) context.Play<Context>(new(assets, surface));
                 using (new Watch(ref present)) surface.Present();
