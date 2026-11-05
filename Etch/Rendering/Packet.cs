@@ -13,5 +13,5 @@ public readonly record struct Packet(Command Command, Handle Handle);
 public enum Command : ushort
 {
     Invalid = 0,
-    FullscreenBlit,
+    Blit,
 }

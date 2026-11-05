@@ -4,20 +4,25 @@ namespace Etch.Rendering.ANSI;
 
 public readonly ref struct Context(Arena assets, Surface surface) : IContext
 {
-    public void FullscreenBlit(Handle handle)
+    public Int2 Size => surface.Size;
+    public Arena Assets => assets;
+    public void Plot(Int2 position, Etchel etchel)
     {
-        surface.Cursor = Int2.Zero;
-        ReadOnlySpan<Etchel> etchels = assets.Access<Etchel>(handle);
-        foreach (var (glyph, foreground, background) in etchels)
+        surface.SetCursor(position);
+        surface.SetForeground(etchel.Foreground);
+        surface.SetBackground(etchel.Background);
+        surface.Put(etchel.Glyph.Codepoint);
+        surface.AssumeCursor(position + new Int2(1, 0));
+    }
+    public void Blit(Handle handle)
+    {
+        surface.SetCursor(Int2.Zero);
+        foreach (var (glyph, fg, bg) in assets.Access<Etchel>(handle))
         {
-            surface.Foreground = foreground;
-            surface.Background = background;
-            surface.Buffer = glyph;
-
-            SetForeground(foreground);
-            SetBackground(background);
-            _buffer[_written++] = glyph.Codepoint;
+            surface.SetForeground(fg);
+            surface.SetBackground(bg);
+            surface.Put(glyph.Codepoint);
         }
-        _cursor = Size - 1;
+        surface.AssumeCursor(surface.Size - 1);
     }
 }

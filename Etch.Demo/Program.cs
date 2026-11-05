@@ -1,17 +1,16 @@
 ﻿using Etch;
 using Etch.Painters;
-using Etch.Rendering.ANSI;
 
 if(OperatingSystem.IsWindows())
-    Platform.ConsoleHost.Fix();
+    Etch.Rendering.ANSI.Platform.ConsoleHost.Fix();
 
 if (args.Contains("--demo"))
 {
-    Etcher.Run<Surface, Spiral>(60);
+    Etcher.Terminal.Run<Spiral>(60);
 }
 else if (args.Contains("--benchmark"))
 {
-    var (paint, present, flush) = Etcher.Run<Surface>(10_000, 10_000);
+    var (paint, present, flush) = Etcher.Terminal.Run(10_000, 10_000);
     Console.WriteLine($"Etch.Demo - Benchmark");
     Console.WriteLine($"Size: {Console.WindowWidth}x{Console.WindowHeight}");
     Console.WriteLine($"Paint: {paint.TotalMicroseconds}us");

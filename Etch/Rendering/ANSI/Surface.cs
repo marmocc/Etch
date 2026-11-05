@@ -1,4 +1,5 @@
 ﻿using Etch.Common;
+using Etch.Rendering.ANSI.Sequence;
 
 namespace Etch.Rendering.ANSI;
 
@@ -12,42 +13,37 @@ public sealed class Surface : ISurface
     private readonly byte[] _buffer;
     private readonly Stream _output;
 
-    public Span<byte> Buffer => _buffer;
+    private Int2 _cursor;
+    private RGB _foreground;
+    private RGB _background;
+
     public bool Stopping => _stopping;
     public Int2 Size { get; }
 
-    public Int2 Cursor
+    public void SetCursor(Int2 position)
     {
-        get;
-        set
-        {
-            if (value == field) return;
-            new Sequence.Move(value).Write(_buffer, ref _written);
-            field = value;
-        }
+        if (position == _cursor) return;
+        new Move(position).Write(_buffer, ref _written);
+        _cursor = position;
     }
 
-    public RGB Foreground
+    public void AssumeCursor(Int2 position) => _cursor = position;
+
+    public void SetForeground(RGB color)
     {
-        get;
-        set
-        {
-            if (value == field) return;
-            Sequence.Color.Foreground(value).Write(_buffer, ref _written);
-            field = value;
-        }
+        if (color == _foreground) return;
+        Color.Foreground(color).Write(_buffer, ref _written);
+        _foreground = color;
     }
 
-    public RGB Background
+    public void SetBackground(RGB color)
     {
-        get;
-        set
-        {
-            if (value == field) return;
-            Sequence.Color.Background(value).Write(_buffer, ref _written);
-            field = value;
-        }
+        if (color == _background) return;
+        Color.Background(color).Write(_buffer, ref _written);
+        _background = color;
     }
+
+    public void Put(byte codepoint) => _buffer[_written++] = codepoint;
 
     /// <summary>
     /// Constructor for a generic ANSI stream output
@@ -76,9 +72,9 @@ public sealed class Surface : ISurface
         _output = Console.OpenStandardOutput();
 
         Console.CancelKeyPress += OnCancelKeyPress;
-        Sequence.Alternate.Enter().Write(_buffer, ref _written);
-        Sequence.Cursor.Hide().Write(_buffer, ref _written);
-        new Sequence.Clear().Write(_buffer, ref _written);
+        Alternate.Enter().Write(_buffer, ref _written);
+        Cursor.Hide().Write(_buffer, ref _written);
+        new Clear().Write(_buffer, ref _written);
 
         Initialize();
         Flush();
@@ -88,9 +84,9 @@ public sealed class Surface : ISurface
 
     private void Initialize()
     {
-        new Sequence.Move(Cursor).Write(_buffer, ref _written);
-        Sequence.Color.Foreground(Foreground).Write(_buffer, ref _written);
-        Sequence.Color.Background(Background).Write(_buffer, ref _written);
+        new Move(_cursor).Write(_buffer, ref _written);
+        Color.Foreground(_foreground).Write(_buffer, ref _written);
+        Color.Background(_background).Write(_buffer, ref _written);
     }
 
     public void Flush()
@@ -115,10 +111,10 @@ public sealed class Surface : ISurface
         _disposed = true;
 
         Console.CancelKeyPress -= OnCancelKeyPress;
-        new Sequence.Clear().Write(_buffer, ref _written);
-        Sequence.Alternate.Leave().Write(_buffer, ref _written);
-        Sequence.Cursor.Show().Write(_buffer, ref _written);
-        new Sequence.Reset().Write(_buffer, ref _written);
+        new Clear().Write(_buffer, ref _written);
+        Alternate.Leave().Write(_buffer, ref _written);
+        Cursor.Show().Write(_buffer, ref _written);
+        new Reset().Write(_buffer, ref _written);
         Flush();
 
         _wake.Dispose();

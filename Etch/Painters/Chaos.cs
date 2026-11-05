@@ -6,13 +6,13 @@ namespace Etch.Painters;
 
 public readonly ref struct Chaos : IPainter
 {
-    public void Paint(Int2 size, Batch<Packet> packets, Arena assets)
+    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
     {
+        Int2 size = context.Size;
         long ticks = Stopwatch.GetTimestamp();
 
-        Handle handle = assets.Reserve<Etchel>(size.Area());
-        packets.Append(new(Command.FullscreenBlit, handle));
-        Span<Etchel> etchels = assets.Access<Etchel>(handle);
+        Handle handle = context.Assets.Reserve<Etchel>(size.Area());
+        Span<Etchel> etchels = context.Assets.Access<Etchel>(handle);
         for (int y = 0; y < size.Y; y++)
         {
             for (int x = 0; x < size.X; x++)
@@ -28,5 +28,7 @@ public readonly ref struct Chaos : IPainter
                 etchels[Int2.Flatten(x, y, size.X)] = Etchel.Solid(new RGB(r, g, b));
             }
         }
+
+        context.Blit(handle);
     }
 }

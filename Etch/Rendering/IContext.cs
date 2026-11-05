@@ -1,6 +1,11 @@
-﻿namespace Etch.Rendering;
+﻿using Etch.Common;
+
+namespace Etch.Rendering;
 
 public interface IContext
 {
-    void FullscreenBlit();
+    Int2 Size { get; }
+    Arena Assets { get; }
+    void Plot(Int2 position, Etchel etchel);
+    void Blit(Handle handle);
 }

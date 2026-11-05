@@ -8,17 +8,17 @@ public readonly ref struct Spiral : IPainter
 {
     public readonly long Origin = Stopwatch.GetTimestamp();
     public Spiral() { }
-    public void Paint(Int2 size, Batch<Packet> packets, Arena assets)
+    public void Paint<TContext>(TContext context) where TContext : IContext, allows ref struct
     {
+        Int2 size = context.Size;
         float centerX = size.X / 2.0f;
         float centerY = size.Y / 2.0f;
         float aspect = 1f / 2f;
 
         TimeSpan elapsed = Stopwatch.GetElapsedTime(Origin);
 
-        Handle handle = assets.Reserve<Etchel>(size.Area());
-        packets.Append(new(Command.FullscreenBlit, handle));
-        Span<Etchel> etchels = assets.Access<Etchel>(handle);
+        Handle handle = context.Assets.Reserve<Etchel>(size.Area());
+        Span<Etchel> etchels = context.Assets.Access<Etchel>(handle);
         for (int y = 0; y < size.Y; y++)
         {
             for (int x = 0; x < size.X; x++)
@@ -36,5 +36,7 @@ public readonly ref struct Spiral : IPainter
                 etchels[Int2.Flatten(x, y, size.X)] = Etchel.Solid(color);
             }
         }
+
+        context.Blit(handle);
     }
 }
