@@ -1,5 +1,4 @@
 ﻿using Etch.Common;
-using Etch.Rendering.ANSI.Sequence;
 
 namespace Etch.Rendering.ANSI;
 
@@ -9,16 +8,46 @@ public sealed class Surface : ISurface
     private volatile bool _stopping = false;
     private bool _disposed = false;
 
-    private Int2 _cursor;
-    private RGB _foreground;
-    private RGB _background;
-
     private int _written;
     private readonly byte[] _buffer;
     private readonly Stream _output;
 
-    public Int2 Size { get; }
+    public Span<byte> Buffer => _buffer;
     public bool Stopping => _stopping;
+    public Int2 Size { get; }
+
+    public Int2 Cursor
+    {
+        get;
+        set
+        {
+            if (value == field) return;
+            new Sequence.Move(value).Write(_buffer, ref _written);
+            field = value;
+        }
+    }
+
+    public RGB Foreground
+    {
+        get;
+        set
+        {
+            if (value == field) return;
+            Sequence.Color.Foreground(value).Write(_buffer, ref _written);
+            field = value;
+        }
+    }
+
+    public RGB Background
+    {
+        get;
+        set
+        {
+            if (value == field) return;
+            Sequence.Color.Background(value).Write(_buffer, ref _written);
+            field = value;
+        }
+    }
 
     /// <summary>
     /// Constructor for a generic ANSI stream output
@@ -47,9 +76,9 @@ public sealed class Surface : ISurface
         _output = Console.OpenStandardOutput();
 
         Console.CancelKeyPress += OnCancelKeyPress;
-        Alternate.Enter().Write(_buffer, ref _written);
-        Cursor.Hide().Write(_buffer, ref _written);
-        new Clear().Write(_buffer, ref _written);
+        Sequence.Alternate.Enter().Write(_buffer, ref _written);
+        Sequence.Cursor.Hide().Write(_buffer, ref _written);
+        new Sequence.Clear().Write(_buffer, ref _written);
 
         Initialize();
         Flush();
@@ -59,12 +88,9 @@ public sealed class Surface : ISurface
 
     private void Initialize()
     {
-        _cursor = Int2.Zero;
-        _foreground = RGB.Black;
-        _background = RGB.Black;
-        new Move(_cursor).Write(_buffer, ref _written);
-        Color.Foreground(_foreground).Write(_buffer, ref _written);
-        Color.Background(_background).Write(_buffer, ref _written);
+        new Sequence.Move(Cursor).Write(_buffer, ref _written);
+        Sequence.Color.Foreground(Foreground).Write(_buffer, ref _written);
+        Sequence.Color.Background(Background).Write(_buffer, ref _written);
     }
 
     public void Flush()
@@ -89,56 +115,12 @@ public sealed class Surface : ISurface
         _disposed = true;
 
         Console.CancelKeyPress -= OnCancelKeyPress;
-        new Clear().Write(_buffer, ref _written);
-        Alternate.Leave().Write(_buffer, ref _written);
-        Cursor.Show().Write(_buffer, ref _written);
-        new Reset().Write(_buffer, ref _written);
+        new Sequence.Clear().Write(_buffer, ref _written);
+        Sequence.Alternate.Leave().Write(_buffer, ref _written);
+        Sequence.Cursor.Show().Write(_buffer, ref _written);
+        new Sequence.Reset().Write(_buffer, ref _written);
         Flush();
 
         _wake.Dispose();
-    }
-
-    private void MoveTo(Int2 position)
-    {
-        if (_cursor == position) return;
-        new Move(position).Write(_buffer, ref _written);
-        _cursor = position;
-    }
-
-    private void SetForeground(RGB color)
-    {
-        if(_foreground == color) return;
-        Color.Foreground(color).Write(_buffer, ref _written);
-        _foreground = color;
-    }
-
-    private void SetBackground(RGB color)
-    {
-        if (_background == color) return;
-        Color.Background(color).Write(_buffer, ref _written);
-        _background = color;
-    }
-
-    public void Present(Batch<Packet> packets, Arena assets)
-    {
-        foreach (ref readonly Packet packet in packets.Values)
-        {
-            switch (packet.Command)
-            {
-                case Command.FullscreenBlit:
-                    MoveTo(Int2.Zero);
-                    ReadOnlySpan<Etchel> etchels = assets.Access<Etchel>(packet.Handle);
-                    foreach (var (glyph, foreground, background) in etchels)
-                    {
-                        SetForeground(foreground);
-                        SetBackground(background);
-                        _buffer[_written++] = glyph.Codepoint;
-                    }
-                    _cursor = Size - 1;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
     }
 }

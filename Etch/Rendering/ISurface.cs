@@ -7,7 +7,6 @@ public interface ISurface : IDisposable
     Int2 Size { get; }
     bool Stopping { get; }
     void Wait(TimeSpan interval);
-    void Present(Batch<Packet> packets, Arena assets);
     void Flush();
 
     void Stop();
