@@ -29,9 +29,10 @@ public static class Etcher
                 assets.Reset();
                 packets.Reset();
 
-                painter.Paint<Context>(new(assets, surface));
-                //surface.Present(packets, assets);
-                surface.Flush();
+                var context = new Recorder(packets, assets, surface);
+                painter.Paint(context);
+                context.Play<Context>(new(assets, surface));
+                surface.Present();
             }
         }
 
@@ -40,7 +41,7 @@ public static class Etcher
         /// <para><b>This method is supposed to be used for benchmarking.</b></para>
         /// </summary>
         /// <returns>
-        /// Averages of <c>paint</c>, <c>present</c> and <c>flush</c> phases, in that order.
+        /// Averages of <c>paint</c>, <c>play</c> and <c>present</c> phases, in that order.
         /// </returns>
         public static (TimeSpan, TimeSpan, TimeSpan) Run(int warmup = 100, int actual = 100)
         {
@@ -50,8 +51,8 @@ public static class Etcher
             Arena assets = Arena.Create<Etchel>(surface.Size.Area());
 
             TimeSpan paintSum = TimeSpan.Zero;
+            TimeSpan playSum = TimeSpan.Zero;
             TimeSpan presentSum = TimeSpan.Zero;
-            TimeSpan flushSum = TimeSpan.Zero;
 
             for (int i = 0; i < warmup; i++)
             {
@@ -59,13 +60,13 @@ public static class Etcher
                 packets.Reset();
 
                 TimeSpan paint = TimeSpan.Zero;
+                TimeSpan play = TimeSpan.Zero;
                 TimeSpan present = TimeSpan.Zero;
-                TimeSpan flush = TimeSpan.Zero;
 
                 var context = new Recorder(packets, assets, surface);
                 using (new Watch(ref paint)) painter.Paint(context);
-                using (new Watch(ref present)) context.Play(new Context(assets, surface));
-                using (new Watch(ref flush)) surface.Flush();
+                using (new Watch(ref play)) context.Play<Context>(new(assets, surface));
+                using (new Watch(ref present)) surface.Present();
             }
 
             for (int i = 0; i < actual; i++)
@@ -74,20 +75,20 @@ public static class Etcher
                 packets.Reset();
 
                 TimeSpan paint = TimeSpan.Zero;
+                TimeSpan play = TimeSpan.Zero;
                 TimeSpan present = TimeSpan.Zero;
-                TimeSpan flush = TimeSpan.Zero;
 
                 var context = new Recorder(packets, assets, surface);
                 using (new Watch(ref paint)) painter.Paint(context);
-                using (new Watch(ref present)) context.Play(new Context(assets, surface));
-                using (new Watch(ref flush)) surface.Flush();
+                using (new Watch(ref play)) context.Play<Context>(new(assets, surface));
+                using (new Watch(ref present)) surface.Present();
 
                 paintSum += paint;
+                playSum += play;
                 presentSum += present;
-                flushSum += flush;
             }
 
-            return (paintSum / actual, presentSum / actual, flushSum / actual);
+            return (paintSum / actual, playSum / actual, presentSum / actual);
         }
     }
 }

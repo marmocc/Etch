@@ -1,6 +1,4 @@
-﻿using Etch.Common;
-
-namespace Etch.Rendering;
+﻿namespace Etch.Rendering;
 
 public interface IPainter
 {

@@ -1,5 +1,6 @@
 ﻿using Etch.Common;
 using Etch.Rendering.ANSI.Sequence;
+using System.Runtime.CompilerServices;
 
 namespace Etch.Rendering.ANSI;
 
@@ -20,6 +21,7 @@ public sealed class Surface : ISurface
     public bool Stopping => _stopping;
     public Int2 Size { get; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCursor(Int2 position)
     {
         if (position == _cursor) return;
@@ -27,8 +29,10 @@ public sealed class Surface : ISurface
         _cursor = position;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AssumeCursor(Int2 position) => _cursor = position;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetForeground(RGB color)
     {
         if (color == _foreground) return;
@@ -36,6 +40,7 @@ public sealed class Surface : ISurface
         _foreground = color;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBackground(RGB color)
     {
         if (color == _background) return;
@@ -43,6 +48,7 @@ public sealed class Surface : ISurface
         _background = color;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Put(byte codepoint) => _buffer[_written++] = codepoint;
 
     /// <summary>
@@ -57,7 +63,7 @@ public sealed class Surface : ISurface
         _output = output;
 
         Initialize();
-        Flush();
+        Present();
     }
 
     /// <summary>
@@ -77,7 +83,7 @@ public sealed class Surface : ISurface
         new Clear().Write(_buffer, ref _written);
 
         Initialize();
-        Flush();
+        Present();
     }
 
     private void OnCancelKeyPress(object? first, ConsoleCancelEventArgs e) { e.Cancel = true; Stop(); }
@@ -89,7 +95,7 @@ public sealed class Surface : ISurface
         Color.Background(_background).Write(_buffer, ref _written);
     }
 
-    public void Flush()
+    public void Present()
     {
         _output.Write(_buffer.AsSpan(0, _written));
         _written = 0;
@@ -115,7 +121,7 @@ public sealed class Surface : ISurface
         Alternate.Leave().Write(_buffer, ref _written);
         Cursor.Show().Write(_buffer, ref _written);
         new Reset().Write(_buffer, ref _written);
-        Flush();
+        Present();
 
         _wake.Dispose();
     }

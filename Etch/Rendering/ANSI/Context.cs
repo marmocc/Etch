@@ -6,6 +6,7 @@ public readonly ref struct Context(Arena assets, Surface surface) : IContext
 {
     public Int2 Size => surface.Size;
     public Arena Assets => assets;
+
     public void Plot(Int2 position, Etchel etchel)
     {
         surface.SetCursor(position);
@@ -14,6 +15,7 @@ public readonly ref struct Context(Arena assets, Surface surface) : IContext
         surface.Put(etchel.Glyph.Codepoint);
         surface.AssumeCursor(position + new Int2(1, 0));
     }
+
     public void Blit(Handle handle)
     {
         surface.SetCursor(Int2.Zero);
