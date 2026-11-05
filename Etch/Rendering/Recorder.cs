@@ -1,6 +1,5 @@
 ﻿using Etch.Common;
 using Etch.Rendering.ANSI;
-using System.Runtime.CompilerServices;
 
 namespace Etch.Rendering;
 
@@ -12,7 +11,6 @@ public readonly ref struct Recorder(Batch<Packet> packets, Arena assets, Surface
     public void Plot(Int2 position, Etchel etchel) => throw new NotImplementedException();
     public void Blit(Handle handle) => packets.Append(new(Command.Blit, handle));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Play<TContext>(TContext immediate)
         where TContext : IContext, allows ref struct
     {

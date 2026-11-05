@@ -1,4 +1,5 @@
 ﻿using Etch.Common;
+using System.Runtime.CompilerServices;
 
 namespace Etch.Rendering.ANSI;
 
@@ -16,6 +17,7 @@ public readonly ref struct Context(Arena assets, Surface surface) : IContext
         surface.AssumeCursor(position + new Int2(1, 0));
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public void Blit(Handle handle)
     {
         surface.SetCursor(Int2.Zero);
